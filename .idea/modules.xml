@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bam-mediator.iml" filepath="$PROJECT_DIR$/bam-mediator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.bam/4.2.0/org.wso2.carbon.mediator.bam.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.bam/4.2.0/org.wso2.carbon.mediator.bam.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.bam.config/4.2.0/org.wso2.carbon.mediator.bam.config.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.bam.config/4.2.0/org.wso2.carbon.mediator.bam.config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.bam.config.ui/4.2.0/org.wso2.carbon.mediator.bam.config.ui.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.bam.config.ui/4.2.0/org.wso2.carbon.mediator.bam.config.ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.bam.ui/4.2.0/org.wso2.carbon.mediator.bam.ui.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.bam.ui/4.2.0/org.wso2.carbon.mediator.bam.ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.eventpublish/4.2.0/org.wso2.carbon.mediator.eventpublish.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.eventpublish/4.2.0/org.wso2.carbon.mediator.eventpublish.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.eventpublish.ui/4.2.0/org.wso2.carbon.mediator.eventpublish.ui.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.eventpublish.ui/4.2.0/org.wso2.carbon.mediator.eventpublish.ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/publish-event-mediator.iml" filepath="$PROJECT_DIR$/publish-event-mediator.iml" />
+    </modules>
+  </component>
+</project>
+
