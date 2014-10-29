@@ -1,0 +1,64 @@
+Manifest-Version: 1.0
+Export-Package: org.wso2.carbon.mediator.publishevent;uses:="org.apach
+ e.axiom.soap,org.apache.axis2.description,org.apache.synapse,org.apac
+ he.synapse.core.axis2,org.wso2.carbon.mediator.publishevent.xml,org.a
+ pache.axis2.context,org.apache.synapse.mediators,org.wso2.carbon.medi
+ ator.publishevent.builders,org.wso2.carbon.databridge.commons,org.apa
+ che.commons.logging,org.wso2.carbon.mediator.publishevent.util,org.ws
+ o2.carbon.databridge.agent.thrift,org.wso2.carbon.databridge.agent.th
+ rift.exception,org.apache.axis2.engine,org.wso2.carbon.databridge.age
+ nt.thrift.util,org.wso2.carbon.databridge.agent.thrift.lb,org.wso2.ca
+ rbon.base,javax.xml.namespace,org.apache.axiom.om";version="4.2.0",or
+ g.wso2.carbon.mediator.publishevent.builders;uses:="org.wso2.carbon.m
+ ediator.publishevent,org.apache.synapse,org.apache.commons.logging,or
+ g.apache.synapse.core.axis2,org.apache.axis2.context,org.wso2.carbon.
+ context,org.apache.axis2.engine,org.wso2.carbon.utils,org.wso2.carbon
+ .base,org.wso2.carbon.mediator.publishevent.util,javax.xml.namespace,
+ org.apache.axis2.description,org.apache.axiom.soap,org.apache.synapse
+ .util.xpath,org.jaxen";version="4.2.0",org.wso2.carbon.mediator.publi
+ shevent.util;uses:="org.wso2.carbon.mediator.publishevent,org.apache.
+ synapse,org.apache.commons.logging,org.apache.synapse.core.axis2,org.
+ apache.axis2.context,org.wso2.carbon.databridge.commons,org.wso2.carb
+ on.databridge.commons.exception";version="4.2.0",org.wso2.carbon.medi
+ ator.publishevent.xml;uses:="org.wso2.carbon.mediator.publishevent,or
+ g.apache.synapse,org.apache.commons.logging,org.apache.synapse.config
+ .xml,javax.xml.namespace,org.apache.axiom.om";version="4.2.0"
+Ignore-Package: javax.xml.namespace
+Built-By: vijithae
+Tool: Bnd-1.43.0
+Bundle-Name: org.wso2.carbon.mediator.publishevent
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: WSO2 Inc
+DynamicImport-Package: *
+Fragment-Host: synapse-core
+Build-Jdk: 1.6.0_65
+Bundle-Version: 4.2.0
+Bnd-LastModified: 1414566153312
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
+Bundle-Description: Platform Parent pom hold the properties, plugins w
+ hich are required to build carbon components, carbon features and pro
+ ducts
+Import-Package: javax.xml.namespace;version="0.0.0",org.apache.axiom.o
+ m;resolution:=optional,org.apache.axiom.soap;resolution:=optional,org
+ .apache.axis2.context;resolution:=optional;version="[1.6,2)",org.apac
+ he.axis2.description;resolution:=optional;version="[1.6,2)",org.apach
+ e.axis2.engine;resolution:=optional;version="[1.6,2)",org.apache.comm
+ ons.logging;version="1.0.4",org.apache.synapse;resolution:=optional,o
+ rg.apache.synapse.config.xml;resolution:=optional,org.apache.synapse.
+ core.axis2;resolution:=optional,org.apache.synapse.mediators;resoluti
+ on:=optional,org.apache.synapse.util.xpath;resolution:=optional,org.j
+ axen;resolution:=optional;version="[1.1,2)",org.osgi.framework;versio
+ n="[1.7,2)",org.wso2.carbon.base;resolution:=optional;version="[1.0,2
+ )",org.wso2.carbon.context;resolution:=optional;version="[4.2,5)",org
+ .wso2.carbon.databridge.agent.thrift;resolution:=optional;version="[4
+ .2,5)",org.wso2.carbon.databridge.agent.thrift.exception;resolution:=
+ optional;version="[4.2,5)",org.wso2.carbon.databridge.agent.thrift.lb
+ ;resolution:=optional;version="[4.2,5)",org.wso2.carbon.databridge.ag
+ ent.thrift.util;resolution:=optional;version="[4.2,5)",org.wso2.carbo
+ n.databridge.commons;resolution:=optional;version="[4.2,5)",org.wso2.
+ carbon.databridge.commons.exception;resolution:=optional;version="[4.
+ 2,5)",org.wso2.carbon.utils;resolution:=optional;version="[4.2,5)"
+Bundle-DocURL: http://wso2.org
+Bundle-SymbolicName: org.wso2.carbon.mediator.publishevent
+

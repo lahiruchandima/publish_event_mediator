@@ -105,7 +105,7 @@ public class DdlAjaxProcessorHelper {
         }
         return streamNamesBuilder.toString();
     }
-    
+
     public String getVersionListForStreamName(String serverProfilePath, String streamName){
         StringBuilder streamVersionsBuilder = new StringBuilder("");
         BamServerConfig bamServerConfig = this.getResource(serverProfilePath);
