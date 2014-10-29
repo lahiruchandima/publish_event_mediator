@@ -16,12 +16,10 @@
 
 package org.wso2.carbon.mediator.publishevent.util;
 
-public class BamMediatorUtils {
-
+public class Utils {
     //TODO: find a better way
     //Generate unique ID (cheaper than generating a UUID)
     public static String getUniqueId() {
         return (String.valueOf(System.nanoTime()) + Math.round(Math.random() * 123456789));
     }
-
 }

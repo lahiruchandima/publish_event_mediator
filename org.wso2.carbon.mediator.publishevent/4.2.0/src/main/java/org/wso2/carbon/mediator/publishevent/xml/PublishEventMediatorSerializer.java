@@ -27,7 +27,7 @@ import org.wso2.carbon.mediator.publishevent.PublishEventMediator;
  * Extracts the current message payload/header data according to the given configuration.
  * Extracted information is sent as an event.
  */
-public class BamMediatorSerializer extends AbstractMediatorSerializer {
+public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
     public OMElement serializeSpecificMediator(Mediator mediator) {
         assert mediator instanceof PublishEventMediator : "BAM mediator is expected";

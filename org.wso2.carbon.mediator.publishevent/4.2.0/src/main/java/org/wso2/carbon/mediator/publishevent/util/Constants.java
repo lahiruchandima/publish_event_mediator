@@ -21,9 +21,9 @@ package org.wso2.carbon.mediator.publishevent.util;
 /**
  * Constants used in the BAM mediator.
  */
-public final class BamMediatorConstants {
+public final class Constants {
 
-    private BamMediatorConstants() {}
+    private Constants() {}
 
     public static final String BAM_HEADER_NAMESPACE_URI = "http://wso2.org/ns/2010/10/bam";
     public static final String BAM_EVENT = "BAMEvent";

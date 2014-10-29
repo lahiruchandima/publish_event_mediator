@@ -39,10 +39,12 @@ public class PublishEventMediator extends AbstractMediator {
     public PublishEventMediator() {
     }
 
+    @Override
     public boolean isContentAware() {
         return true;
     }
 
+    @Override
     public boolean mediate(MessageContext messageContext) {
 
         SynapseLog synLog = getLog(messageContext);

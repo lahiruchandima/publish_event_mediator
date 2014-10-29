@@ -19,21 +19,15 @@ package org.wso2.carbon.mediator.publishevent.xml;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.Mediator;
 import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.config.xml.AbstractMediatorFactory;
 import org.wso2.carbon.mediator.publishevent.PublishEventMediator;
-import org.wso2.carbon.mediator.publishevent.StreamConfiguration;
-import org.wso2.carbon.mediator.publishevent.ThriftEndpointConfig;
 import org.wso2.carbon.mediator.publishevent.ThriftEndpointConfigBuilder;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
@@ -41,9 +35,10 @@ import java.util.Properties;
  */
 public class PublishEventMediatorFactory extends AbstractMediatorFactory {
     private static final Log log = LogFactory.getLog(PublishEventMediatorFactory.class);
-    public static final QName BAM_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
+    public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
     public static final String SERVER_PROFILE_LOCATION = "bamServerProfiles";
 
+    @Override
     public Mediator createSpecificMediator(OMElement omElement, Properties properties) {
         PublishEventMediator mediator = new PublishEventMediator();
         ThriftEndpointConfigBuilder bamServerConfigBuilder = new ThriftEndpointConfigBuilder();
@@ -72,10 +67,12 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
         return mediator;
     }
 
+    @Override
     public QName getTagQName() {
-        return BAM_Q;
+        return PUBLISH_EVENT_Q;
     }
-    public static String getTagName() { return "publishEvent"; }
+
+    public static String getTagName() { return "publishevent"; }
 
     private String getServerProfileName(OMElement omElement){
         OMElement serverProfileElement = omElement.getFirstChildWithName(

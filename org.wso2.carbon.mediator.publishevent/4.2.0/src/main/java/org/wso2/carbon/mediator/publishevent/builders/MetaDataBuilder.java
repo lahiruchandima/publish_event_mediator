@@ -8,7 +8,7 @@ import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.mediator.publishevent.PublishEventMediatorException;
-import org.wso2.carbon.mediator.publishevent.util.BamMediatorConstants;
+import org.wso2.carbon.mediator.publishevent.util.Constants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.net.Inet4Address;
@@ -29,7 +29,7 @@ public class MetaDataBuilder {
 
     public Object[] createMetadata(MessageContext messageContext, AxisConfiguration axisConfiguration)
             throws PublishEventMediatorException {
-        Object[] metaData = new Object[BamMediatorConstants.NUM_OF_CONST_META_PARAMS];
+        Object[] metaData = new Object[Constants.NUM_OF_CONST_META_PARAMS];
         int i = 0;
         try {
             if(!this.isHostAddressSet) {

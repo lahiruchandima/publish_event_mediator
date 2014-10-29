@@ -69,7 +69,7 @@ public class StreamDefinitionBuilder {
     private List<Attribute> getCorrelationDataList() throws PublishEventMediatorException {
         try{
             List<Attribute> correlationDataAttributeList = new ArrayList<Attribute>();
-            correlationDataAttributeList.add(new Attribute(BamMediatorConstants.MSG_STR_ACTIVITY_ID, AttributeType.STRING));
+            correlationDataAttributeList.add(new Attribute(Constants.MSG_STR_ACTIVITY_ID, AttributeType.STRING));
             return correlationDataAttributeList;
         } catch (Exception e) {
             String errorMsg = "Error occurred while getting the Correlation Data list. " + e.getMessage();
@@ -81,15 +81,15 @@ public class StreamDefinitionBuilder {
     private List<Attribute> getMetaDataList() throws PublishEventMediatorException {
         List<Attribute> metaDataAttributeList = new ArrayList<Attribute>();
         try{
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.TENANT_ID, AttributeType.INT));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.HTTP_METHOD, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.CHARACTER_SET_ENCODING, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.REMOTE_ADDRESS, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.TRANSPORT_IN_URL, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.MESSAGE_TYPE, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.REMOTE_HOST, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.SERVICE_PREFIX, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(BamMediatorConstants.HOST, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.TENANT_ID, AttributeType.INT));
+            metaDataAttributeList.add(new Attribute(Constants.HTTP_METHOD, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.CHARACTER_SET_ENCODING, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.REMOTE_ADDRESS, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.TRANSPORT_IN_URL, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.MESSAGE_TYPE, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.REMOTE_HOST, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.SERVICE_PREFIX, AttributeType.STRING));
+            metaDataAttributeList.add(new Attribute(Constants.HOST, AttributeType.STRING));
             return metaDataAttributeList;
         } catch (Exception e) {
             String errorMsg = "Error occurred while getting the Meta Data list. " + e.getMessage();
@@ -114,11 +114,11 @@ public class StreamDefinitionBuilder {
 
     private void addConstantPayloadToPayloadDataList(List<Attribute> attributes) throws PublishEventMediatorException {
         try{
-            attributes.add(new Attribute(BamMediatorConstants.MSG_DIRECTION, AttributeType.STRING));
-            attributes.add(new Attribute(BamMediatorConstants.SERVICE_NAME, AttributeType.STRING));
-            attributes.add(new Attribute(BamMediatorConstants.OPERATION_NAME, AttributeType.STRING));
-            attributes.add(new Attribute(BamMediatorConstants.MSG_ID, AttributeType.STRING));
-            attributes.add(new Attribute(BamMediatorConstants.REQUEST_RECEIVED_TIME, AttributeType.LONG));
+            attributes.add(new Attribute(Constants.MSG_DIRECTION, AttributeType.STRING));
+            attributes.add(new Attribute(Constants.SERVICE_NAME, AttributeType.STRING));
+            attributes.add(new Attribute(Constants.OPERATION_NAME, AttributeType.STRING));
+            attributes.add(new Attribute(Constants.MSG_ID, AttributeType.STRING));
+            attributes.add(new Attribute(Constants.REQUEST_RECEIVED_TIME, AttributeType.LONG));
         } catch (Exception e) {
             String errorMsg = "Error occurred while adding the Constant Fields to Payload Data list. " + e.getMessage();
             log.error(errorMsg, e);

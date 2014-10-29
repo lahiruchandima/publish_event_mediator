@@ -8,8 +8,8 @@
           <property key="Bundle-Vendor" value="WSO2 Inc" />
           <property key="Bundle-DocURL" value="http://wso2.org" />
           <property key="Bundle-Name" value="org.wso2.carbon.mediator.publishevent" />
-          <property key="Export-Package" value="!org.wso2.carbon.mediator.eventpublish.config.*,org.wso2.carbon.mediator.eventpublish.*," />
-          <property key="Import-Package" value="!javax.xml.namespace,javax.xml.namespace; version=0.0.0,org.apache.commons.logging.*;version=&quot;1.0.4&quot;,org.osgi.framework,org.wso2.carbon.mediator.eventpublish.config,*;resolution:=optional," />
+          <property key="Export-Package" value="org.wso2.carbon.mediator.publishevent.*," />
+          <property key="Import-Package" value="!javax.xml.namespace,javax.xml.namespace; version=0.0.0,org.apache.commons.logging.*;version=&quot;1.0.4&quot;,org.osgi.framework,*;resolution:=optional," />
           <property key="DynamicImport-Package" value="*" />
           <property key="Fragment-Host" value="synapse-core" />
           <property key="Include-Resource" value="META-INF/services/org.apache.synapse.config.xml.MediatorFactory=$MODULE_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0/src/main/resources/META-INF/services/org.apache.synapse.config.xml.MediatorFactory,META-INF/services/org.apache.synapse.config.xml.MediatorSerializer=$MODULE_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0/src/main/resources/META-INF/services/org.apache.synapse.config.xml.MediatorSerializer" />

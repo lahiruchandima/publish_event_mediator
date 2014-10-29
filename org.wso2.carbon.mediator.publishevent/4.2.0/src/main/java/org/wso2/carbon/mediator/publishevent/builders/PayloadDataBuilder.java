@@ -8,7 +8,7 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.mediator.publishevent.Property;
 import org.wso2.carbon.mediator.publishevent.PublishEventMediatorException;
 import org.wso2.carbon.mediator.publishevent.StreamConfiguration;
-import org.wso2.carbon.mediator.publishevent.util.BamMediatorConstants;
+import org.wso2.carbon.mediator.publishevent.util.Constants;
 import org.wso2.carbon.mediator.publishevent.util.PropertyTypeConverter;
 
 public class PayloadDataBuilder {
@@ -26,14 +26,14 @@ public class PayloadDataBuilder {
             int numOfProperties = streamConfiguration.getProperties().size();
             int numOfEntities = streamConfiguration.getEntries().size();
             int i;
-            Object[] payloadData = new Object[numOfProperties + numOfEntities + BamMediatorConstants.NUM_OF_CONST_PAYLOAD_PARAMS];
+            Object[] payloadData = new Object[numOfProperties + numOfEntities + Constants.NUM_OF_CONST_PAYLOAD_PARAMS];
             this.produceAndSetConstantValues(messageContext, msgCtx, payloadData);
             for (i=0; i<numOfProperties; i++) {
-                payloadData[BamMediatorConstants.NUM_OF_CONST_PAYLOAD_PARAMS + i] =
+                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + i] =
                         this.producePropertyValue(streamConfiguration.getProperties().get(i), messageContext);
             }
             for (i=0; i<numOfEntities; i++) {
-                payloadData[BamMediatorConstants.NUM_OF_CONST_PAYLOAD_PARAMS + numOfProperties + i] =
+                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + numOfProperties + i] =
                         this.produceEntityValue(streamConfiguration.getEntries().get(i).getValue(), messageContext);
             }
             return payloadData;
@@ -78,7 +78,7 @@ public class PayloadDataBuilder {
                 log.error(errorMsg, e);
                 messageID = "";
             }
-            payloadData[i++] = direction ? BamMediatorConstants.DIRECTION_IN : BamMediatorConstants.DIRECTION_OUT;
+            payloadData[i++] = direction ? Constants.DIRECTION_IN : Constants.DIRECTION_OUT;
             payloadData[i++] = service;
             payloadData[i++] = operation;
             payloadData[i++] = messageID;
