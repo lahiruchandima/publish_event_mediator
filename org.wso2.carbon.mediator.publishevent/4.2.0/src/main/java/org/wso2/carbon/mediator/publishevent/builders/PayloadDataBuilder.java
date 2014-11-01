@@ -16,32 +16,33 @@ public class PayloadDataBuilder {
     private static final Log log = LogFactory.getLog(MetaDataBuilder.class);
     private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
 
-    public PayloadDataBuilder(){
+    public PayloadDataBuilder() {
         //propertyTypeConverter = new PropertyTypeConverter();
     }
 
     public Object[] createPayloadData(MessageContext messageContext, org.apache.axis2.context.MessageContext msgCtx,
                                       StreamConfiguration streamConfiguration) throws PublishEventMediatorException {
-        try {
-            int numOfProperties = streamConfiguration.getProperties().size();
-            int numOfEntities = streamConfiguration.getEntries().size();
-            int i;
-            Object[] payloadData = new Object[numOfProperties + numOfEntities + Constants.NUM_OF_CONST_PAYLOAD_PARAMS];
-            this.produceAndSetConstantValues(messageContext, msgCtx, payloadData);
-            for (i=0; i<numOfProperties; i++) {
-                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + i] =
-                        this.producePropertyValue(streamConfiguration.getProperties().get(i), messageContext);
-            }
-            for (i=0; i<numOfEntities; i++) {
-                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + numOfProperties + i] =
-                        this.produceEntityValue(streamConfiguration.getEntries().get(i).getValue(), messageContext);
-            }
-            return payloadData;
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while producing values for Payload Data. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
+//        try {
+//            int numOfProperties = streamConfiguration.getProperties().size();
+//            int numOfEntities = streamConfiguration.getEntries().size();
+//            int i;
+//            Object[] payloadData = new Object[numOfProperties + numOfEntities + Constants.NUM_OF_CONST_PAYLOAD_PARAMS];
+//            this.produceAndSetConstantValues(messageContext, msgCtx, payloadData);
+//            for (i=0; i<numOfProperties; i++) {
+//                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + i] =
+//                        this.producePropertyValue(streamConfiguration.getProperties().get(i), messageContext);
+//            }
+//            for (i=0; i<numOfEntities; i++) {
+//                payloadData[Constants.NUM_OF_CONST_PAYLOAD_PARAMS + numOfProperties + i] =
+//                        this.produceEntityValue(streamConfiguration.getEntries().get(i).getValue(), messageContext);
+//            }
+//            return payloadData;
+//        } catch (Exception e) {
+//            String errorMsg = "Error occurred while producing values for Payload Data. " + e.getMessage();
+//            log.error(errorMsg, e);
+//            throw new PublishEventMediatorException(errorMsg, e);
+//        }
+        return new Object[10];
     }
     
     private void produceAndSetConstantValues(MessageContext messageContext, org.apache.axis2.context.MessageContext msgCtx,
@@ -94,14 +95,14 @@ public class PayloadDataBuilder {
         try {
             String stringProperty;
             String propertyType;
-            if(property.isExpression()){
+            if (property.isExpression()) {
                 SynapseXPath synapseXPath = new SynapseXPath(property.getValue());
                 stringProperty = synapseXPath.stringValueOf(messageContext);
             } else {
                 stringProperty =  property.getValue();
             }
             propertyType = property.getType();
-            if ("STRING".equals(propertyType)){
+            if ("STRING".equals(propertyType)) {
                 return this.propertyTypeConverter.convertToString(stringProperty);
             } else if ("INTEGER".equals(propertyType)) {
                 return this.propertyTypeConverter.convertToInt(stringProperty);

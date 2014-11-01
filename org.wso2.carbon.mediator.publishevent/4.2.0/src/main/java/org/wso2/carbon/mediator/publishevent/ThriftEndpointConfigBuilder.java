@@ -1,201 +1,130 @@
 package org.wso2.carbon.mediator.publishevent;
 
+//TODO: add copyright headers
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.synapse.SynapseConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.synapse.SynapseException;
+import org.apache.synapse.config.xml.XMLConfigConstants;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
 import javax.xml.namespace.QName;
-import java.util.Iterator;
+import java.nio.charset.Charset;
 
 /**
  * Builder of ThriftEndpointConfig from OMElements from the string fetched from Registry
  */
 public class ThriftEndpointConfigBuilder {
 
-    private ThriftEndpointConfig ThriftEndpointConfig = new ThriftEndpointConfig();
+    private static final Log log = LogFactory.getLog(ThriftEndpointConfigBuilder.class);
 
-    public boolean createThriftEndpointConfig(OMElement ThriftEndpointConfigElement){
-        boolean credentialsOk = this.processCredentialElement(ThriftEndpointConfigElement);
-        boolean connectionOk = this.processConnectionElement(ThriftEndpointConfigElement);
-        boolean streamsOk = this.processStreamsElement(ThriftEndpointConfigElement);
-        return credentialsOk && connectionOk && streamsOk;
-    }
+    static final QName CREDENTIAL_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "credential");
+    static final QName USERNAME_Q = new QName("userName");
+    static final QName PASSWORD_Q = new QName("password");
+    static final QName CONNECTION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "connection");
+    static final QName LOADBALANCER_Q = new QName("loadbalancer");
+    static final QName SECURE_Q = new QName("secure");
+    static final QName URLSET_Q = new QName("urlSet");
+    static final QName IP_Q = new QName("ip");
+    static final QName AUTHPORT_Q = new QName("authPort");
+    static final QName RECEIVERPORT_Q = new QName("receiverPort");
 
-    private boolean processCredentialElement(OMElement ThriftEndpointConfig){
-        OMElement credentialElement = ThriftEndpointConfig.getFirstChildWithName(
-                new QName(SynapseConstants.SYNAPSE_NAMESPACE, "credential"));
-        if(credentialElement != null){
-            OMAttribute userNameAttr = credentialElement.getAttribute(new QName("userName"));
-            OMAttribute passwordAttr = credentialElement.getAttribute(new QName("password"));
-            if(this.isNotNullOrEmpty(userNameAttr) && this.isNotNullOrEmpty(passwordAttr)){
-                this.ThriftEndpointConfig.setUsername(userNameAttr.getAttributeValue());
-                this.ThriftEndpointConfig.setPassword(passwordAttr.getAttributeValue());
-            }
-            else {
-                return false;
-            }
+    public static ThriftEndpointConfig createThriftEndpointConfig(OMElement thriftEndpointConfigElement) {
+
+        ThriftEndpointConfig thriftEndpointConfig = new ThriftEndpointConfig();
+
+        OMElement credentialElement = thriftEndpointConfigElement.getFirstChildWithName(CREDENTIAL_Q);
+
+        if (credentialElement == null) {
+            throw new SynapseException(CREDENTIAL_Q.getLocalPart() + " element missing in thrift endpoint config");
         }
-        return true;
-    }
 
-    private boolean processConnectionElement(OMElement ThriftEndpointConfig){
-        OMElement connectionElement = ThriftEndpointConfig.getFirstChildWithName(
-                new QName(SynapseConstants.SYNAPSE_NAMESPACE, "connection"));
-        if(connectionElement != null){
-            OMAttribute loadbalancerAttr = connectionElement.getAttribute(new QName("loadbalancer"));
-            OMAttribute secureAttr = connectionElement.getAttribute(new QName("secure"));
-            OMAttribute urlSet = connectionElement.getAttribute(new QName("urlSet"));
-            OMAttribute ipAttr = connectionElement.getAttribute(new QName("ip"));
-            OMAttribute authenticationPortAttr = connectionElement.getAttribute(new QName("authPort"));
-            OMAttribute receiverPortAttr = connectionElement.getAttribute(new QName("receiverPort"));
-            if(this.isNotNullOrEmpty(loadbalancerAttr) && "true".equals(loadbalancerAttr.getAttributeValue())){
-                this.ThriftEndpointConfig.setLoadbalanced(true);
-                this.ThriftEndpointConfig.setUrlSet(urlSet.getAttributeValue());
-            }
-            else {
-                if(this.isNotNullOrEmpty(ipAttr) && this.isNotNullOrEmpty(secureAttr) && this.isNotNullOrEmpty(authenticationPortAttr)){
-                    this.ThriftEndpointConfig.setIp(ipAttr.getAttributeValue());
-                    if("true".equals(secureAttr.getAttributeValue())){
-                        this.ThriftEndpointConfig.setSecurity(true);
-                    } else if ("false".equals(secureAttr.getAttributeValue())) {
-                        this.ThriftEndpointConfig.setSecurity(false);
-                    } else {
-                        return false; // Secure attribute should have a value
-                    }
-                    this.ThriftEndpointConfig.setAuthenticationPort(authenticationPortAttr.getAttributeValue());
-                    if(receiverPortAttr.getAttributeValue() != null && !receiverPortAttr.getAttributeValue().equals("")){
-                        this.ThriftEndpointConfig.setReceiverPort(receiverPortAttr.getAttributeValue());
-                    } else {
-                        this.ThriftEndpointConfig.setReceiverPort("");
-                    }
-
-                }
-                else {
-                    return false;
-                }
-            }
+        OMAttribute userNameAttr = credentialElement.getAttribute(USERNAME_Q);
+        if (!isNotNullOrEmpty(userNameAttr)) {
+            throw new SynapseException(USERNAME_Q.getLocalPart() + " attribute missing in thrift endpoint config");
         }
-        return true;
-    }
 
-    private boolean processStreamsElement(OMElement ThriftEndpointConfigElement){
-        OMElement streamsElement = ThriftEndpointConfigElement.getFirstChildWithName(
-                new QName(SynapseConstants.SYNAPSE_NAMESPACE, "streams"));
-        return streamsElement != null && this.processStreamElements(streamsElement);
-    }
+        OMAttribute passwordAttr = credentialElement.getAttribute(PASSWORD_Q);
+        if (!isNotNullOrEmpty(passwordAttr)) {
+            throw new SynapseException(PASSWORD_Q.getLocalPart() + " attribute missing in thrift endpoint config");
+        }
 
-    private boolean processStreamElements(OMElement streamsElement){
-        OMElement streamElement;
-        StreamConfiguration streamConfiguration;
-        Iterator itr = streamsElement.getChildrenWithName(new QName("stream"));
-        while (itr.hasNext()){
-            streamElement = (OMElement)itr.next();
-            streamConfiguration = new StreamConfiguration();
-            if (streamElement != null && this.processStreamElement(streamElement, streamConfiguration)){
-                this.ThriftEndpointConfig.getStreamConfigurations().add(streamConfiguration);
+        thriftEndpointConfig.setUsername(userNameAttr.getAttributeValue());
+        thriftEndpointConfig.setPassword(base64DecodeAndDecrypt(passwordAttr.getAttributeValue()));
+
+        OMElement connectionElement = thriftEndpointConfigElement.getFirstChildWithName(CONNECTION_Q);
+
+        if (connectionElement == null) {
+            throw new SynapseException(CONNECTION_Q.getLocalPart() + " element missing in thrift endpoint config");
+        }
+
+        OMAttribute loadbalancerAttr = connectionElement.getAttribute(LOADBALANCER_Q);
+        OMAttribute secureAttr = connectionElement.getAttribute(SECURE_Q);
+        OMAttribute urlSet = connectionElement.getAttribute(URLSET_Q);
+        OMAttribute ipAttr = connectionElement.getAttribute(IP_Q);
+        OMAttribute authenticationPortAttr = connectionElement.getAttribute(AUTHPORT_Q);
+        OMAttribute receiverPortAttr = connectionElement.getAttribute(RECEIVERPORT_Q);
+
+        if (isNotNullOrEmpty(loadbalancerAttr) && "true".equals(loadbalancerAttr.getAttributeValue())) {
+            thriftEndpointConfig.setLoadbalanced(true);
+            thriftEndpointConfig.setUrlSet(urlSet.getAttributeValue());
+        } else {
+            if (!isNotNullOrEmpty(ipAttr)) {
+                throw new SynapseException(IP_Q + " attribute missing in thrift endpoint config");
             }
-            else {
-                return false;
+            if (!isNotNullOrEmpty(secureAttr)) {
+                throw new SynapseException(SECURE_Q + " attribute missing in thrift endpoint config");
+            }
+            if (!isNotNullOrEmpty(authenticationPortAttr)) {
+                throw new SynapseException(AUTHPORT_Q + " attribute missing in thrift endpoint config");
+            }
+
+            thriftEndpointConfig.setIp(ipAttr.getAttributeValue());
+
+            String security = secureAttr.getAttributeValue();
+            if ("true".equals(security)) {
+                thriftEndpointConfig.setSecurity(true);
+            } else if ("false".equals(security)) {
+                thriftEndpointConfig.setSecurity(false);
+            } else {
+                throw new SynapseException("Invalid security value \"" + security + "\" specified in thrift " +
+                        " endpoint config. Value should be \"true\" or \"false\"");
+            }
+            thriftEndpointConfig.setAuthenticationPort(authenticationPortAttr.getAttributeValue());
+            if (receiverPortAttr.getAttributeValue() != null && !receiverPortAttr.getAttributeValue().equals("")) {
+                thriftEndpointConfig.setReceiverPort(receiverPortAttr.getAttributeValue());
+            } else {
+                thriftEndpointConfig.setReceiverPort("");
             }
         }
-        return true;
+
+        return thriftEndpointConfig;
     }
 
-    private boolean processStreamElement(OMElement streamElement, StreamConfiguration streamConfiguration){
-        OMAttribute nameAttr = streamElement.getAttribute(new QName("name"));
-        OMAttribute versionAttr = streamElement.getAttribute(new QName("version"));
-        OMAttribute nickNameAttr = streamElement.getAttribute(new QName("nickName"));
-        OMAttribute descriptionAttr = streamElement.getAttribute(new QName("description"));
-        if(this.isNotNullOrEmpty(nameAttr) && this.isNotNullOrEmpty(nickNameAttr) && this.isNotNullOrEmpty(descriptionAttr)){
-            streamConfiguration.setName(nameAttr.getAttributeValue());
-            streamConfiguration.setVersion(versionAttr.getAttributeValue());
-            streamConfiguration.setNickname(nickNameAttr.getAttributeValue());
-            streamConfiguration.setDescription(descriptionAttr.getAttributeValue());
-
-            boolean payloadElementOk = this.processPayloadElement(streamElement, streamConfiguration);
-
-            boolean propertiesElementOk = this.processPropertiesElement(streamElement, streamConfiguration);
-
-            return (payloadElementOk & propertiesElementOk);
-        }
-        return false; // Incomplete attributes are not accepted
-    }
-
-    private boolean processPayloadElement(OMElement streamElement, StreamConfiguration streamConfiguration){
-        OMElement payloadElement = streamElement.getFirstChildWithName(
-                new QName(SynapseConstants.SYNAPSE_NAMESPACE, "payload"));
-        return payloadElement != null && this.processEntryElements(payloadElement, streamConfiguration);
-    }
-
-    private boolean processEntryElements(OMElement payloadElement, StreamConfiguration streamConfiguration){
-        OMElement entryElement;
-        Iterator itr = payloadElement.getChildrenWithName(new QName("entry"));
-        while (itr.hasNext()){
-            entryElement = (OMElement)itr.next();
-            if (!(entryElement != null && this.processEntryElement(entryElement, streamConfiguration))){
-                return false;
-            }
-        }
-        return true; // Empty Entry elements are accepted
-    }
-
-    private boolean processEntryElement(OMElement entryElement, StreamConfiguration streamConfiguration){
-        OMAttribute nameAttr = entryElement.getAttribute(new QName("name"));
-        OMAttribute valueAttr = entryElement.getAttribute(new QName("value"));
-        OMAttribute typeAttr = entryElement.getAttribute(new QName("type"));
-        if(this.isNotNullOrEmpty(nameAttr) && this.isNotNullOrEmpty(valueAttr) && this.isNotNullOrEmpty(typeAttr)){
-            StreamEntry streamEntry = new StreamEntry();
-            streamEntry.setName(nameAttr.getAttributeValue());
-            streamEntry.setValue(valueAttr.getAttributeValue());
-            streamEntry.setType(typeAttr.getAttributeValue());
-            streamConfiguration.getEntries().add(streamEntry);
-            return true;
-        }
-        return false; // Empty Entry elements and incomplete Entry parameters are not accepted
-    }
-
-    private boolean processPropertiesElement(OMElement streamElement, StreamConfiguration streamConfiguration){
-        OMElement propertiesElement = streamElement.getFirstChildWithName(
-                new QName(SynapseConstants.SYNAPSE_NAMESPACE, "properties"));
-        return propertiesElement == null || this.processPropertyElements(propertiesElement, streamConfiguration);
-    }
-
-    private boolean processPropertyElements(OMElement propertiesElement, StreamConfiguration streamConfiguration){
-        OMElement propertyElement;
-        Iterator itr = propertiesElement.getChildrenWithName(new QName("property"));
-        while (itr.hasNext()){
-            propertyElement = (OMElement)itr.next();
-            if (!(propertyElement != null && this.processPropertyElement(propertyElement, streamConfiguration))){
-                return false;
-            }
-        }
-        return true; // Empty Property elements are accepted
-    }
-
-    private boolean processPropertyElement(OMElement propertyElement, StreamConfiguration streamConfiguration){
-        OMAttribute nameAttr = propertyElement.getAttribute(new QName("name"));
-        OMAttribute valueAttr = propertyElement.getAttribute(new QName("value"));
-        OMAttribute typeAttr = propertyElement.getAttribute(new QName("type"));
-        OMAttribute isExpressionAttr = propertyElement.getAttribute(new QName("isExpression"));
-        if(this.isNotNullOrEmpty(nameAttr) && this.isNotNullOrEmpty(valueAttr) && this.isNotNullOrEmpty(typeAttr) && this.isNotNullOrEmpty(isExpressionAttr)){
-            Property property = new Property();
-            property.setKey(nameAttr.getAttributeValue());
-            property.setValue(valueAttr.getAttributeValue());
-            property.setType(typeAttr.getAttributeValue());
-            property.setExpression("true".equals(isExpressionAttr.getAttributeValue()));
-            streamConfiguration.getProperties().add(property);
-            return true;
-        }
-        return false; // Empty Property elements and incomplete Property parameters are not accepted
-    }
-
-    private boolean isNotNullOrEmpty(OMAttribute omAttribute){
+    private static boolean isNotNullOrEmpty(OMAttribute omAttribute) {
         return omAttribute != null && !omAttribute.getAttributeValue().equals("");
     }
 
-    public ThriftEndpointConfig getThriftEndpointConfig(){
-        return this.ThriftEndpointConfig;
+    private static String encryptAndBase64Encode(String plainText) {
+        try {
+            return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(plainText.getBytes(Charset.forName("UTF-8")));
+        } catch (CryptoException e) {
+            String errorMsg = "Encryption and Base64 encoding error. " + e.getMessage();
+            log.error(errorMsg, e);
+        }
+        return null;
     }
 
+    private static String base64DecodeAndDecrypt(String cipherText) {
+        try {
+            return new String(CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(cipherText), Charset.forName("UTF-8"));
+        } catch (CryptoException e) {
+            String errorMsg = "Base64 decoding and decryption error. " + e.getMessage();
+            log.error(errorMsg, e);
+        }
+        return null;
+    }
 }

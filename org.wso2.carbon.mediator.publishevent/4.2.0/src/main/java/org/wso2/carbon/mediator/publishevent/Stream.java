@@ -16,11 +16,9 @@
 
 package org.wso2.carbon.mediator.publishevent;
 
-import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
-import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.databridge.agent.thrift.AsyncDataPublisher;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
@@ -29,13 +27,11 @@ import org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
 import org.wso2.carbon.databridge.agent.thrift.lb.ReceiverGroup;
 import org.wso2.carbon.databridge.agent.thrift.util.DataPublisherUtil;
 import org.wso2.carbon.databridge.commons.StreamDefinition;
-import org.wso2.carbon.mediator.publishevent.builders.CorrelationDataBuilder;
-import org.wso2.carbon.mediator.publishevent.builders.MetaDataBuilder;
-import org.wso2.carbon.mediator.publishevent.builders.PayloadDataBuilder;
 import org.wso2.carbon.mediator.publishevent.util.ActivityIDSetter;
 import org.wso2.carbon.mediator.publishevent.util.StreamDefinitionBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the main class of the Event Stream that extract data from mediator and send events.
@@ -52,17 +48,11 @@ public class Stream {
     private boolean isPublisherCreated;
     private ThriftEndpointConfig thriftEndpointConfig;
     private StreamConfiguration streamConfiguration;
-    private PayloadDataBuilder payloadDataBuilder;
-    private MetaDataBuilder metaDataBuilder;
-    private CorrelationDataBuilder correlationDataBuilder;
 
     public Stream() {
         streamDefinitionBuilder = new StreamDefinitionBuilder();
         loadBalancingDataPublisher = null;
         isPublisherCreated = false;
-        payloadDataBuilder = new PayloadDataBuilder();
-        metaDataBuilder = new MetaDataBuilder();
-        correlationDataBuilder = new CorrelationDataBuilder();
     }
 
     public void sendEvents(MessageContext messageContext) throws PublishEventMediatorException {
@@ -133,14 +123,14 @@ public class Stream {
             ArrayList<DataPublisherHolder> dataPublisherHolders = new ArrayList<DataPublisherHolder>();
             String[] failOverUrls = aReceiverGroupURL.split("\\|");
             String[] lbURLs = aReceiverGroupURL.split(",");
-            if (failOverUrls == null || failOverUrls.length == 1) {
+            if (failOverUrls.length == 1) {
                 for (String aUrl : lbURLs) {
                     DataPublisherHolder aNode = new DataPublisherHolder(null, aUrl.trim(), username, password);
                     dataPublisherHolders.add(aNode);
                 }
                 ReceiverGroup group = new ReceiverGroup(dataPublisherHolders);
                 allReceiverGroups.add(group);
-            } else if (lbURLs != null && lbURLs.length != 1) {
+            } else if (lbURLs.length != 1) {
                 throw new PublishEventMediatorException("You can either have fali over URLs or load balancing URLS in one receiver group",
                         new Exception("You can either have fali over URLs or load balancing URLS in one receiver group"));
             } else {
@@ -186,13 +176,27 @@ public class Stream {
     }
 
     private void publishEvent(MessageContext messageContext) throws PublishEventMediatorException {
-        org.apache.axis2.context.MessageContext msgCtx = ((Axis2MessageContext) messageContext).getAxis2MessageContext();
-        AxisConfiguration axisConfiguration = msgCtx.getConfigurationContext().getAxisConfiguration();
         try {
-            Object[] metaData = this.metaDataBuilder.createMetadata(messageContext, axisConfiguration);
-            Object[] correlationData = this.correlationDataBuilder.createCorrelationData(messageContext);
-            Object[] payloadData = this.payloadDataBuilder.createPayloadData(messageContext, msgCtx,
-                    this.streamConfiguration);
+            int metaPropertyCount = this.streamConfiguration.getMetaProperties().size();
+            Object[] metaData = new Object[metaPropertyCount];
+            List<Property> metaPropertyList = this.streamConfiguration.getMetaProperties();
+            for (int i = 0; i < metaPropertyCount; ++i) {
+                metaData[i] = metaPropertyList.get(i).extractPropertyValue(messageContext);
+            }
+
+            int correlationPropertyCount = this.streamConfiguration.getCorrelationProperties().size();
+            Object[] correlationData = new Object[correlationPropertyCount];
+            List<Property> correlationPropertyList = this.streamConfiguration.getCorrelationProperties();
+            for (int i = 0; i < correlationPropertyCount; ++i) {
+                correlationData[i] = correlationPropertyList.get(i).extractPropertyValue(messageContext);
+            }
+
+            int payloadPropertyCount = this.streamConfiguration.getPayloadProperties().size();
+            Object[] payloadData = new Object[payloadPropertyCount];
+            List<Property> payloadPropertyList = this.streamConfiguration.getPayloadProperties();
+            for (int i = 0; i < payloadPropertyCount; ++i) {
+                payloadData[i] = payloadPropertyList.get(i).extractPropertyValue(messageContext);
+            }
 
             if (this.thriftEndpointConfig.isLoadbalanced()) {
                 loadBalancingDataPublisher.publish(this.streamConfiguration.getName(),

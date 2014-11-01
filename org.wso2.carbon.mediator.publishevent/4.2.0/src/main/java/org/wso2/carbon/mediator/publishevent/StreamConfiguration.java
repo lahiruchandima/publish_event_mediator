@@ -12,8 +12,9 @@ public class StreamConfiguration {
     private String nickname = "";
     private String description = "";
     private String version = "";
-    private List<StreamEntry> entries = new ArrayList<StreamEntry>();
-    private List<Property> properties = new ArrayList<Property>();
+    private List<Property> metaProperties = new ArrayList<Property>();
+    private List<Property> correlationProperties = new ArrayList<Property>();
+    private List<Property> payloadProperties = new ArrayList<Property>();
 
     public void setName(String name){
         this.name = name;
@@ -23,7 +24,7 @@ public class StreamConfiguration {
         this.nickname = nickname;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -31,7 +32,19 @@ public class StreamConfiguration {
         this.version = version;
     }
 
-    public String getName(){
+    public void setMetaProperties(List<Property> metaProperties) {
+        this.metaProperties = metaProperties;
+    }
+
+    public void setCorrelationProperties(List<Property> correlationProperties) {
+        this.correlationProperties = correlationProperties;
+    }
+
+    public void setPayloadProperties(List<Property> payloadProperties) {
+        this.payloadProperties = payloadProperties;
+    }
+
+    public String getName() {
         return this.name;
     }
 
@@ -47,12 +60,15 @@ public class StreamConfiguration {
         return this.version;
     }
 
-    public List<StreamEntry> getEntries(){
-        return this.entries;
+    public List<Property> getMetaProperties() {
+        return this.metaProperties;
     }
 
-    public List<Property> getProperties(){
-        return this.properties;
+    public List<Property> getCorrelationProperties() {
+        return this.correlationProperties;
     }
 
+    public List<Property> getPayloadProperties() {
+        return this.payloadProperties;
+    }
 }

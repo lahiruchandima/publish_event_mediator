@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0/org.wso2.carbon.mediator.publishevent.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0/org.wso2.carbon.mediator.publishevent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent.ui/4.2.0/org.wso2.carbon.mediator.publishevent.ui.iml" filepath="$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent.ui/4.2.0/org.wso2.carbon.mediator.publishevent.ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/publish-event-mediator.iml" filepath="$PROJECT_DIR$/publish-event-mediator.iml" />
+    </modules>
+  </component>
+</project>
+

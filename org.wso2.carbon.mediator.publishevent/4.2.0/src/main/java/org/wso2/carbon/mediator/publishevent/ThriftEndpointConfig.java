@@ -25,8 +25,6 @@ public class ThriftEndpointConfig {
         this.loadbalancer = loadbalancer;
     }
 
-    private List<StreamConfiguration> streamConfigurations = new ArrayList<StreamConfiguration>();
-
     public String getUsername(){
         return this.username;
     }
@@ -81,19 +79,5 @@ public class ThriftEndpointConfig {
 
     public void setSecurity(boolean security) {
         this.security = security;
-    }
-
-    public List<StreamConfiguration> getStreamConfigurations(){
-        return this.streamConfigurations;
-    }
-
-    public StreamConfiguration getAUniqueStreamConfiguration(String streamName, String streamVersion){
-        StreamConfiguration outputStreamConfiguration = new StreamConfiguration();
-        for (StreamConfiguration streamConfiguration : streamConfigurations) {
-            if(streamConfiguration.getName().equals(streamName) && streamConfiguration.getVersion().equals(streamVersion)){
-                outputStreamConfiguration = streamConfiguration;
-            }
-        }
-        return outputStreamConfiguration;
     }
 }
