@@ -6,7 +6,6 @@ import org.apache.synapse.MessageContext;
 import org.apache.synapse.util.xpath.SynapseXPath;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.databridge.commons.AttributeType;
-import org.wso2.carbon.mediator.publishevent.builders.MetaDataBuilder;
 import org.wso2.carbon.mediator.publishevent.util.PropertyTypeConverter;
 
 import java.util.Map;
@@ -24,7 +23,7 @@ public class Property {
     SynapseXPath synapseXPath = null;
 
     private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
-    private static final Log log = LogFactory.getLog(MetaDataBuilder.class);
+    private static final Log log = LogFactory.getLog(Property.class);
 
     public String getKey() {
         return key;

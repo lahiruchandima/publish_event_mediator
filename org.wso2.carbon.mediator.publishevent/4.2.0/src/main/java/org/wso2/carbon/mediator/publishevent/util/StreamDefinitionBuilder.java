@@ -42,13 +42,13 @@ public class StreamDefinitionBuilder {
         this.streamConfiguration = streamConfiguration;
         StreamDefinition streamDef;
         try {
-            if (streamConfiguration != null){
+            if (streamConfiguration != null) {
                 streamDef = new StreamDefinition(this.streamConfiguration.getName(), this.streamConfiguration.getVersion());
                 streamDef.setNickName(this.streamConfiguration.getNickname());
                 streamDef.setDescription(this.streamConfiguration.getDescription());
-                streamDef.setCorrelationData(this.getCorrelationDataList());
-                streamDef.setMetaData(this.getMetaDataList());
-                streamDef.setPayloadData(this.getPayloadDataList());
+                streamDef.setCorrelationData(this.getAttributeList(streamConfiguration.getCorrelationProperties()));
+                streamDef.setMetaData(this.getAttributeList(streamConfiguration.getMetaProperties()));
+                streamDef.setPayloadData(this.getAttributeList(streamConfiguration.getPayloadProperties()));
                 return streamDef;
             } else {
                 String errorMsg = "Stream Definition is null.";
@@ -66,135 +66,11 @@ public class StreamDefinitionBuilder {
         }
     }
 
-    private List<Attribute> getCorrelationDataList() throws PublishEventMediatorException {
-        try{
-            List<Attribute> correlationDataAttributeList = new ArrayList<Attribute>();
-            correlationDataAttributeList.add(new Attribute(Constants.MSG_STR_ACTIVITY_ID, AttributeType.STRING));
-            return correlationDataAttributeList;
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while getting the Correlation Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
+    private List<Attribute> getAttributeList(List<Property> propertyList) {
+        List<Attribute> attributeList = new ArrayList<Attribute>();
+        for (Property property : propertyList) {
+            attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
         }
-    }
-
-    private List<Attribute> getMetaDataList() throws PublishEventMediatorException {
-        List<Attribute> metaDataAttributeList = new ArrayList<Attribute>();
-        try{
-            metaDataAttributeList.add(new Attribute(Constants.TENANT_ID, AttributeType.INT));
-            metaDataAttributeList.add(new Attribute(Constants.HTTP_METHOD, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.CHARACTER_SET_ENCODING, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.REMOTE_ADDRESS, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.TRANSPORT_IN_URL, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.MESSAGE_TYPE, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.REMOTE_HOST, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.SERVICE_PREFIX, AttributeType.STRING));
-            metaDataAttributeList.add(new Attribute(Constants.HOST, AttributeType.STRING));
-            return metaDataAttributeList;
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while getting the Meta Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
-    }
-
-    private List<Attribute> getPayloadDataList() throws PublishEventMediatorException {
-        List<Attribute> payLoadDataAttributeList = new ArrayList<Attribute>();
-        try{
-            this.addConstantPayloadToPayloadDataList(payLoadDataAttributeList);
-            this.addPropertyPayloadToPayloadDataList(payLoadDataAttributeList);
-            this.addEntityPayloadToPayloadDataList(payLoadDataAttributeList);
-            return payLoadDataAttributeList;
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while getting the Payload Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
-    }
-
-    private void addConstantPayloadToPayloadDataList(List<Attribute> attributes) throws PublishEventMediatorException {
-        try{
-            attributes.add(new Attribute(Constants.MSG_DIRECTION, AttributeType.STRING));
-            attributes.add(new Attribute(Constants.SERVICE_NAME, AttributeType.STRING));
-            attributes.add(new Attribute(Constants.OPERATION_NAME, AttributeType.STRING));
-            attributes.add(new Attribute(Constants.MSG_ID, AttributeType.STRING));
-            attributes.add(new Attribute(Constants.REQUEST_RECEIVED_TIME, AttributeType.LONG));
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while adding the Constant Fields to Payload Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
-    }
-
-    private void addPropertyPayloadToPayloadDataList(List<Attribute> attributes) throws PublishEventMediatorException {
-        try{
-            List<Property> properties = this.streamConfiguration.getProperties();
-            if (properties != null) {
-                for (Property property : properties) {
-                    if(property.getKey() != null && property.getType() != null){
-                        attributes.add(new Attribute(property.getKey(), this.resolveTypes(property.getType())));
-                    }
-                }
-            }
-        } catch (NullPointerException e) {
-            String errorMsg = "Undefined key or type in Stream Property. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while adding the Property Fields to Payload Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
-    }
-
-    private void addEntityPayloadToPayloadDataList(List<Attribute> attributes) throws PublishEventMediatorException {
-        try{
-            String entryName = "";
-            List<StreamEntry> streamEntries = this.streamConfiguration.getEntries();
-            if (streamEntries != null) {
-                for (StreamEntry streamEntry : streamEntries) {
-                    if(streamEntry.getName() != null && streamEntry.getType() != null){
-                        if("SOAPBody".equals(streamEntry.getName())){
-                            entryName = "soap_body";
-                        } else if("SOAPHeader".equals(streamEntry.getName())){
-                            entryName = "soap_header";
-                        }
-                        attributes.add(new Attribute(entryName, this.resolveTypes(streamEntry.getType())));
-                    }
-                }
-            }
-        } catch (NullPointerException e) {
-            String errorMsg = "Undefined key or type in Stream Entry. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while adding the Entity Fields to Payload Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
-    }
-
-    private AttributeType resolveTypes(String propertyType) throws PublishEventMediatorException {
-        try{
-            if ("STRING".equals(propertyType)){
-                return AttributeType.STRING;
-            } else if ("INTEGER".equals(propertyType)) {
-                return AttributeType.INT;
-            } else if ("FLOAT".equals(propertyType)) {
-                return AttributeType.FLOAT;
-            } else if ("DOUBLE".equals(propertyType)) {
-                return AttributeType.DOUBLE;
-            } else if ("BOOLEAN".equals(propertyType)) {
-                return AttributeType.BOOL;
-            } else if ("LONG".equals(propertyType)) {
-                return AttributeType.LONG;
-            } else {
-                return AttributeType.STRING;
-            }
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while resolving types for Payload Data list. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
-        }
+        return attributeList;
     }
 }
