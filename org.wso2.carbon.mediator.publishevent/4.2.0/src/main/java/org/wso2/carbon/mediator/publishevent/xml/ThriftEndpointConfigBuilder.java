@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.mediator.publishevent;
+package org.wso2.carbon.mediator.publishevent.xml;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
@@ -27,6 +27,7 @@ import org.apache.synapse.SynapseException;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
+import org.wso2.carbon.mediator.publishevent.ThriftEndpointConfig;
 
 import javax.xml.namespace.QName;
 import java.nio.charset.Charset;
@@ -103,9 +104,9 @@ public class ThriftEndpointConfigBuilder {
 
             String security = secureAttr.getAttributeValue();
             if ("true".equals(security)) {
-                thriftEndpointConfig.setSecurity(true);
+                thriftEndpointConfig.setSecure(true);
             } else if ("false".equals(security)) {
-                thriftEndpointConfig.setSecurity(false);
+                thriftEndpointConfig.setSecure(false);
             } else {
                 throw new SynapseException("Invalid security value \"" + security + "\" specified in thrift " +
                         " endpoint config. Value should be \"true\" or \"false\"");

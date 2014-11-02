@@ -21,6 +21,7 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axis2.description.AxisService;
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseException;
 import org.apache.synapse.SynapseLog;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
@@ -49,7 +50,6 @@ public class PublishEventMediator extends AbstractMediator {
 
     @Override
     public boolean mediate(MessageContext messageContext) {
-
         SynapseLog synLog = getLog(messageContext);
 
         if (synLog.isTraceOrDebugEnabled()) {
@@ -75,7 +75,7 @@ public class PublishEventMediator extends AbstractMediator {
 
         try {
             stream.sendEvents(messageContext);
-        } catch (PublishEventMediatorException e) {
+        } catch (SynapseException e) {
             return true;
         }
 

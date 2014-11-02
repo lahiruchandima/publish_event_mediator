@@ -127,17 +127,17 @@ public class Property {
             }
             propertyType = getType();
             if ("STRING".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToString(stringProperty);
+                return propertyTypeConverter.convertToString(stringProperty);
             } else if ("INTEGER".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToInt(stringProperty);
+                return propertyTypeConverter.convertToInt(stringProperty);
             } else if ("FLOAT".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToFloat(stringProperty);
+                return propertyTypeConverter.convertToFloat(stringProperty);
             } else if ("DOUBLE".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToDouble(stringProperty);
+                return propertyTypeConverter.convertToDouble(stringProperty);
             } else if ("BOOLEAN".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToBoolean(stringProperty);
+                return propertyTypeConverter.convertToBoolean(stringProperty);
             } else if ("LONG".equals(propertyType)) {
-                return this.propertyTypeConverter.convertToLong(stringProperty);
+                return propertyTypeConverter.convertToLong(stringProperty);
             } else {
                 return stringProperty;
             }

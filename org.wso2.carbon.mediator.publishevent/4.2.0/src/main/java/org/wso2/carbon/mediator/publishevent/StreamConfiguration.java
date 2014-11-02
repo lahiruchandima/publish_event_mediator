@@ -21,6 +21,7 @@ package org.wso2.carbon.mediator.publishevent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stream Configuration Definition of an Event
@@ -34,6 +35,7 @@ public class StreamConfiguration {
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
+    private Map<String, String> namespaceMap = null;
 
     public void setName(String name){
         this.name = name;
@@ -59,35 +61,43 @@ public class StreamConfiguration {
         this.correlationProperties = correlationProperties;
     }
 
+    public void setNamespaceMap(Map<String, String> namespaceMap) {
+        this.namespaceMap = namespaceMap;
+    }
+
     public void setPayloadProperties(List<Property> payloadProperties) {
         this.payloadProperties = payloadProperties;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public String getNickname(){
-        return this.nickname;
+        return nickname;
     }
 
     public String getDescription(){
-        return this.description;
+        return description;
     }
 
     public String getVersion(){
-        return this.version;
+        return version;
     }
 
     public List<Property> getMetaProperties() {
-        return this.metaProperties;
+        return metaProperties;
     }
 
     public List<Property> getCorrelationProperties() {
-        return this.correlationProperties;
+        return correlationProperties;
     }
 
     public List<Property> getPayloadProperties() {
-        return this.payloadProperties;
+        return payloadProperties;
+    }
+
+    public Map<String, String> getNamespaceMap() {
+        return namespaceMap;
     }
 }

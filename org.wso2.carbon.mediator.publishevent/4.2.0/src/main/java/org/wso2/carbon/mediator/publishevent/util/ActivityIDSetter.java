@@ -22,8 +22,8 @@ package org.wso2.carbon.mediator.publishevent.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseException;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
-import org.wso2.carbon.mediator.publishevent.PublishEventMediatorException;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,10 +37,10 @@ public class ActivityIDSetter {
     private static final String ACTIVITY_ID = "activityID";
     private static final Log log = LogFactory.getLog(ActivityIDSetter.class);
 
-    public void setActivityIdInTransportHeader(MessageContext synapseContext) throws PublishEventMediatorException {
+    public void setActivityIdInTransportHeader(MessageContext synapseContext) throws SynapseException {
         try {
             //get the unique ID used for correlating messages for BAM activity monitoring
-            String idString = Utils.getUniqueId();
+            String idString = getUniqueId();
 
             //Get activity ID form synapse context, if available.
             Object idFromSynCtx = synapseContext.getProperty(MSG_BAM_ACTIVITY_ID);
@@ -109,7 +109,13 @@ public class ActivityIDSetter {
         } catch (Exception e) {
             String errorMsg = "Error while setting Activity ID in Header ";
             log.error(errorMsg, e);
-            throw new PublishEventMediatorException(errorMsg, e);
+            throw new SynapseException(errorMsg, e);
         }
+    }
+
+    //TODO: find a better way
+    //Generate unique ID (cheaper than generating a UUID)
+    private String getUniqueId() {
+        return (String.valueOf(System.nanoTime()) + Math.round(Math.random() * 123456789));
     }
 }

@@ -27,7 +27,7 @@ public class ThriftEndpointConfig {
     private String ip;
     private String authenticationPort;
     private String receiverPort;
-    private boolean security = true;
+    private boolean secure = true;
     private boolean loadbalancer = false;
 
     public boolean isLoadbalanced() {
@@ -39,7 +39,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getUsername(){
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username){
@@ -47,7 +47,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getPassword(){
-        return this.password;
+        return password;
     }
 
     public void setPassword(String password){
@@ -63,7 +63,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getIp(){
-        return this.ip;
+        return ip;
     }
 
     public void setIp(String ip){
@@ -71,7 +71,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getAuthenticationPort(){
-        return this.authenticationPort;
+        return authenticationPort;
     }
 
     public void setAuthenticationPort(String authenticationPort){
@@ -87,10 +87,10 @@ public class ThriftEndpointConfig {
     }
 
     public boolean isSecure() {
-        return security;
+        return secure;
     }
 
-    public void setSecurity(boolean security) {
-        this.security = security;
+    public void setSecure(boolean security) {
+        this.secure = security;
     }
 }

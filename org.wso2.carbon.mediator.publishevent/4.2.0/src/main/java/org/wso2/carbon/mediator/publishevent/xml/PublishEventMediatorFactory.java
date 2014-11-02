@@ -29,7 +29,6 @@ import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.SynapseException;
 import org.apache.synapse.config.xml.AbstractMediatorFactory;
 import org.apache.synapse.config.xml.XMLConfigConstants;
-import org.wso2.carbon.databridge.commons.Attribute;
 import org.wso2.carbon.mediator.publishevent.*;
 
 import javax.xml.namespace.QName;
@@ -44,25 +43,24 @@ import java.util.*;
 public class PublishEventMediatorFactory extends AbstractMediatorFactory {
     private static final Log log = LogFactory.getLog(PublishEventMediatorFactory.class);
     public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
-    public static final String SERVER_PROFILE_LOCATION = "bamServerProfiles";
-    static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
-    static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
-    static final QName STREAM_NICKNAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamNickname");
-    static final QName STREAM_DESCRIPTION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamDescription");
-    static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
-    static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
-    static final QName NAMESPACE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespace");
-    static final QName NAMESPACES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespaces");
-    static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
-    static final QName CORILATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
-    static final QName PLAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
-    static final QName NAME_Q = new QName("name");
-    static final QName VALUE_Q = new QName("value");
-    static final QName TYPE_Q = new QName("type");
-    static final QName DEFAULT_Q = new QName("default");
-    static final QName PREFIX_Q = new QName("prefix");
-    static final QName EXPRESSION_Q = new QName("expression");
-    static final QName URI_Q = new QName("uri");
+    public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
+    public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
+    public static final QName STREAM_NICKNAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamNickname");
+    public static final QName STREAM_DESCRIPTION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamDescription");
+    public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
+    public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
+    public static final QName NAMESPACE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespace");
+    public static final QName NAMESPACES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespaces");
+    public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
+    public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
+    public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
+    public static final QName NAME_Q = new QName("name");
+    public static final QName VALUE_Q = new QName("value");
+    public static final QName TYPE_Q = new QName("type");
+    public static final QName DEFAULT_Q = new QName("default");
+    public static final QName PREFIX_Q = new QName("prefix");
+    public static final QName EXPRESSION_Q = new QName("expression");
+    public static final QName URI_Q = new QName("uri");
 
     public static String getTagName() {
         return "publishEvent";
@@ -120,6 +118,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
                 namespaceMap.put(prefixAtr.getAttributeValue(), uriAtr.getAttributeValue());
             }
         }
+        streamConfiguration.setNamespaceMap(namespaceMap);
 
         OMElement attributes = omElement.getFirstChildWithName(ATTRIBUTES_Q);
         if (attributes != null) {
@@ -130,18 +129,18 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
                 populateAttributes(propertyList, iter, META_Q, namespaceMap);
                 streamConfiguration.setMetaProperties(propertyList);
             }
-            OMElement correlation = attributes.getFirstChildWithName(CORILATION_Q);
+            OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
             if (correlation != null) {
                 List<Property> propertyList = new ArrayList<Property>();
                 Iterator iter = correlation.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter, CORILATION_Q, namespaceMap);
+                populateAttributes(propertyList, iter, CORRELATION_Q, namespaceMap);
                 streamConfiguration.setCorrelationProperties(propertyList);
             }
-            OMElement payload = attributes.getFirstChildWithName(PLAYLOAD_Q);
+            OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
             if (payload != null) {
                 List<Property> propertyList = new ArrayList<Property>();
                 Iterator iter = payload.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter, PLAYLOAD_Q, namespaceMap);
+                populateAttributes(propertyList, iter, PAYLOAD_Q, namespaceMap);
                 streamConfiguration.setPayloadProperties(propertyList);
             }
         } else {
