@@ -1,7 +1,27 @@
+/*
+ * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.mediator.publishevent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stream Configuration Definition of an Event
@@ -12,8 +32,10 @@ public class StreamConfiguration {
     private String nickname = "";
     private String description = "";
     private String version = "";
-    private List<StreamEntry> entries = new ArrayList<StreamEntry>();
-    private List<Property> properties = new ArrayList<Property>();
+    private List<Property> metaProperties = new ArrayList<Property>();
+    private List<Property> correlationProperties = new ArrayList<Property>();
+    private List<Property> payloadProperties = new ArrayList<Property>();
+    private Map<String, String> namespaceMap = null;
 
     public void setName(String name){
         this.name = name;
@@ -23,7 +45,7 @@ public class StreamConfiguration {
         this.nickname = nickname;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -31,28 +53,51 @@ public class StreamConfiguration {
         this.version = version;
     }
 
-    public String getName(){
-        return this.name;
+    public void setMetaProperties(List<Property> metaProperties) {
+        this.metaProperties = metaProperties;
+    }
+
+    public void setCorrelationProperties(List<Property> correlationProperties) {
+        this.correlationProperties = correlationProperties;
+    }
+
+    public void setNamespaceMap(Map<String, String> namespaceMap) {
+        this.namespaceMap = namespaceMap;
+    }
+
+    public void setPayloadProperties(List<Property> payloadProperties) {
+        this.payloadProperties = payloadProperties;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getNickname(){
-        return this.nickname;
+        return nickname;
     }
 
     public String getDescription(){
-        return this.description;
+        return description;
     }
 
     public String getVersion(){
-        return this.version;
+        return version;
     }
 
-    public List<StreamEntry> getEntries(){
-        return this.entries;
+    public List<Property> getMetaProperties() {
+        return metaProperties;
     }
 
-    public List<Property> getProperties(){
-        return this.properties;
+    public List<Property> getCorrelationProperties() {
+        return correlationProperties;
     }
 
+    public List<Property> getPayloadProperties() {
+        return payloadProperties;
+    }
+
+    public Map<String, String> getNamespaceMap() {
+        return namespaceMap;
+    }
 }

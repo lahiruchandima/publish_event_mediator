@@ -1,9 +1,12 @@
 /*
- * Copyright (c) 2006, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,6 +21,7 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axis2.description.AxisService;
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseException;
 import org.apache.synapse.SynapseLog;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
@@ -46,7 +50,6 @@ public class PublishEventMediator extends AbstractMediator {
 
     @Override
     public boolean mediate(MessageContext messageContext) {
-
         SynapseLog synLog = getLog(messageContext);
 
         if (synLog.isTraceOrDebugEnabled()) {
@@ -72,7 +75,7 @@ public class PublishEventMediator extends AbstractMediator {
 
         try {
             stream.sendEvents(messageContext);
-        } catch (PublishEventMediatorException e) {
+        } catch (SynapseException e) {
             return true;
         }
 

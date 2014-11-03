@@ -1,11 +1,24 @@
+/*
+ * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.mediator.publishevent;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * A specific BAM server configuration stored in Registry
- */
 public class ThriftEndpointConfig {
 
     private String username;
@@ -14,7 +27,7 @@ public class ThriftEndpointConfig {
     private String ip;
     private String authenticationPort;
     private String receiverPort;
-    private boolean security = true;
+    private boolean secure = true;
     private boolean loadbalancer = false;
 
     public boolean isLoadbalanced() {
@@ -25,10 +38,8 @@ public class ThriftEndpointConfig {
         this.loadbalancer = loadbalancer;
     }
 
-    private List<StreamConfiguration> streamConfigurations = new ArrayList<StreamConfiguration>();
-
     public String getUsername(){
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username){
@@ -36,7 +47,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getPassword(){
-        return this.password;
+        return password;
     }
 
     public void setPassword(String password){
@@ -52,7 +63,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getIp(){
-        return this.ip;
+        return ip;
     }
 
     public void setIp(String ip){
@@ -60,7 +71,7 @@ public class ThriftEndpointConfig {
     }
 
     public String getAuthenticationPort(){
-        return this.authenticationPort;
+        return authenticationPort;
     }
 
     public void setAuthenticationPort(String authenticationPort){
@@ -76,24 +87,10 @@ public class ThriftEndpointConfig {
     }
 
     public boolean isSecure() {
-        return security;
+        return secure;
     }
 
-    public void setSecurity(boolean security) {
-        this.security = security;
-    }
-
-    public List<StreamConfiguration> getStreamConfigurations(){
-        return this.streamConfigurations;
-    }
-
-    public StreamConfiguration getAUniqueStreamConfiguration(String streamName, String streamVersion){
-        StreamConfiguration outputStreamConfiguration = new StreamConfiguration();
-        for (StreamConfiguration streamConfiguration : streamConfigurations) {
-            if(streamConfiguration.getName().equals(streamName) && streamConfiguration.getVersion().equals(streamVersion)){
-                outputStreamConfiguration = streamConfiguration;
-            }
-        }
-        return outputStreamConfiguration;
+    public void setSecure(boolean security) {
+        this.secure = security;
     }
 }

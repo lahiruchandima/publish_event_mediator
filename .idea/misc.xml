@@ -11,7 +11,33 @@
     <file type="Osmorc" url="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent.ui/4.2.0" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0" />
   </component>
-  <component name="IdProvider" IDEtalkID="52D0103E656C1639E87CCFBFD286A481" />
+  <component name="IdProvider" IDEtalkID="663D87F35E48C545C358905BF4321B10" />
+  <component name="MavenBuildProjectComponent">
+    <option name="mavenExecutable" value="" />
+    <option name="Settings File" value="" />
+    <option name="mavenCommandLineParams" value="" />
+    <option name="vmOptions" value="" />
+    <option name="useMavenEmbedder" value="false" />
+    <option name="useFilter" value="false" />
+    <option name="Batch Mode" value="false" />
+    <option name="Check Plugin Updates" value="false" />
+    <option name="Debug" value="false" />
+    <option name="Errors" value="false" />
+    <option name="Fail At End" value="false" />
+    <option name="Fail Fast" value="false" />
+    <option name="Fail Never" value="false" />
+    <option name="Lax Checksums" value="false" />
+    <option name="No Plugin Registry" value="false" />
+    <option name="No Plugin Updates" value="false" />
+    <option name="Non Recursive" value="false" />
+    <option name="Offline" value="false" />
+    <option name="Reactor" value="false" />
+    <option name="Strict Checksums" value="false" />
+    <option name="Update Plugins" value="false" />
+    <option name="Update Snapshots" value="false" />
+    <option name="Skip Tests" value="false" />
+    <pom-list />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
@@ -132,56 +158,6 @@
   </component>
   <component name="SvnBranchConfigurationManager">
     <option name="mySupportsUserInfoFilter" value="true" />
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="GlobalLibrariesConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="JdkListConfigurable.UI">
-        <settings>
-          <last-edited>1.6</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectJDKs.UI">
-        <settings>
-          <last-edited>1.6</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
   </component>
 </project>
 

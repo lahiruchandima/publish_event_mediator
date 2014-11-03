@@ -29,7 +29,6 @@
     <bytecodeTargetLevel>
       <module name="org.wso2.carbon.mediator.publishevent" target="1.6" />
       <module name="org.wso2.carbon.mediator.publishevent.ui" target="1.6" />
-      <module name="property-mediator" target="1.6" />
       <module name="publish-event-mediator" target="1.6" />
     </bytecodeTargetLevel>
   </component>
