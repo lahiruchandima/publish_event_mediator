@@ -79,7 +79,7 @@
 		resourceBundle="org.wso2.carbon.mediator.publishevent.ui.i18n.JSResources"
 		request="<%=request%>" i18nObjectName="propertyMediatorJsi18n"/>
     <div>
-        <script type="text/javascript" src="../publish-event-mediator/js/mediator-util.js"></script>
+        <script type="text/javascript" src="../publishEvent-mediator/js/mediator-util.js"></script>
 
         <table class="normal" width="100%">
             <tbody>
