@@ -33,7 +33,7 @@ DynamicImport-Package: *
 Fragment-Host: synapse-core
 Build-Jdk: 1.6.0_65
 Bundle-Version: 4.2.0
-Bnd-LastModified: 1414566153312
+Bnd-LastModified: 1414951118361
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
 Bundle-Description: Platform Parent pom hold the properties, plugins w

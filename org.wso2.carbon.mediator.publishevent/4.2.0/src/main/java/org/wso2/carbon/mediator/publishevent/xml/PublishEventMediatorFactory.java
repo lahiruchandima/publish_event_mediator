@@ -72,7 +72,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
         return PUBLISH_EVENT_Q;
     }
 
-    public static String getTagName() { return "publishevent"; }
+    public static String getTagName() { return "publishEvent"; }
 
     private String getServerProfileName(OMElement omElement){
         OMElement serverProfileElement = omElement.getFirstChildWithName(

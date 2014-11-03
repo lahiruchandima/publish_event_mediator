@@ -29,7 +29,7 @@
     <artifactId>org.wso2.carbon.mediator.publishevent</artifactId>
     <version>4.2.0</version>
     <packaging>bundle</packaging>    
-    <name>WSO2 Carbon - Event Publish mediator</name>
+    <name>WSO2 Carbon - Publish Event mediator</name>
     <url>http://wso2.org</url>
 
     <build>
