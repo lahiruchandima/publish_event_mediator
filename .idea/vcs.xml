@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent.ui/4.2.0" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0" vcs="svn" />
+  </component>
+</project>
+

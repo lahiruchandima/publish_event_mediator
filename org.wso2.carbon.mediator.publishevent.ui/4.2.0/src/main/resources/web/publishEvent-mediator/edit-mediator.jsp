@@ -18,10 +18,307 @@
 
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.ui.Mediator" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.NameSpacesRegistrar" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
+
+
+<%! public static final String PROPERTY_VALUES = "propertyValues";
+    public static final String PROPERTY_KEYS = "propertyKeys";
+    //public static final String STREAM_NAMES = "streamNames";
+    //public static final String STREAM_VERSIONS = "streamVersions";
+    //public static final String STREAM_NICKNAME = "streamNickname";
+    //public static final String STREAM_DESCRIPTION = "streamDescription";
+    //public static final String SERVER_PROFILE_LOCATION = "bamServerProfiles";
+%>
+
+
+<style type="text/css">
+    .no-border-all{
+        border: none!important;
+    }
+    .no-border-all td{
+        border: none!important;
+    }
+</style>
+<script id="source" type="text/javascript">
+
+
+
+
+/*var commonParameterString = "txtUsername=" + "<%=request.getParameter("txtUsername")%>" + "&"
+        + "txtPassword=" + "<%=request.getParameter("txtPassword")%>" + "&"
+        + "urlSet=" + "<%=request.getParameter("urlSet")%>" + "&"
+        + "txtIp=" + "<%=request.getParameter("txtIp")%>" + "&"
+        + "authPort=" + "<%=request.getParameter("authPort")%>" + "&"
+        + "receiverPort=" + "<%=request.getParameter("receiverPort")%>" + "&"
+        + "security=" + "<%=request.getParameter("security")%>" + "&"
+        + "loadbalancer=" + "<%=request.getParameter("loadbalancer")%>" + "&"
+        + "hfStreamTableData=" + "<%=request.getParameter("hfStreamTableData")%>" + "&"
+        + "txtServerProfileLocation=" + "<%=request.getParameter("txtServerProfileLocation")%>";
+
+function saveOverwrite(){
+    window.location.href = "configure_server_profiles.jsp?" + commonParameterString + "&hfAction=save&force=true";
+}
+
+function removeOverwrite(){
+    window.location.href = "configure_server_profiles.jsp?" + commonParameterString + "&hfAction=remove&force=true";
+}
+
+function reloadPage(){
+    window.location.href = "configure_server_profiles.jsp?" + commonParameterString + "&hfAction=load";
+}
+
+*/
+
+function showHideDiv(divId) {
+    var theDiv = document.getElementById(divId);
+    if (theDiv.style.display == "none") {
+        theDiv.style.display = "";
+    } else {
+        theDiv.style.display = "none";
+    }
+}
+
+//var streamRowNum = 1;
+var propertyRowNum = 1;
+
+function validatePropertyTable(){
+    var propertyRowInputs = document.getElementById("propertyTable").getElementsByTagName("input");
+    var inputName = "";
+    for(var i=0; i<propertyRowInputs.length; i++){
+        inputName = propertyRowInputs[i].name;
+        if((inputName == "<%=PROPERTY_KEYS%>" || inputName == "<%=PROPERTY_VALUES%>") && propertyRowInputs[i].value == ""){
+            return "Property Name or Property Value cannot be empty.";
+        }
+    }
+    return "true";
+}
+
+function onAddPropertyClicked(){
+    var result = validatePropertyTable();
+    if(result == "true"){
+        addPropertyRow();
+    } else {
+        CARBON.showInfoDialog(result);
+    }
+}
+
+function addPropertyRow() {
+    propertyRowNum++;
+    var sId = "propertyTable_" + propertyRowNum;
+
+    var tableContent = "<tr id=\"" + sId + "\">" +
+            "<td>\n" +
+            "                        <input type=\"text\" name=\"<%=PROPERTY_KEYS%>\" value=\"\">\n" +
+            "                    </td>\n" +
+            "                    <td>\n" +
+            "<table class=\"no-border-all\">" +
+            "         <tr> " +
+            "         <td> " +
+            "         <table> " +
+            "         <tr> " +
+            "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"value\" checked=\"checked\"/></td> " +
+            "          <td>Value</td> " +
+            "         <tr> " +
+            "         <tr> " +
+            "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"expression\"/></td> " +
+            "       <td>Expression</td> " +
+            "         <tr> " +
+            "       </table> " +
+            "       </td> " +
+            "         <td> " +
+            "<input type=\"text\" name=\"<%=PROPERTY_VALUES%>\" value=\"\"/>" +
+            "         </td> " +
+            "         </tr> " +
+            "         </table> " +
+            "         </td> " +
+
+            "<td>" +
+            "<select id=\"propertyType_" + sId + "\">" +
+            "<option value=\"STRING\" selected=\"selected\" >STRING</option>" +
+            "<option value=\"INTEGER\">INTEGER</option>" +
+            "<option value=\"BOOLEAN\">BOOLEAN</option>" +
+            "<option value=\"DOUBLE\">DOUBLE</option>" +
+            "<option value=\"FLOAT\">FLOAT</option>" +
+            "<option value=\"LONG\">LONG</option>" +
+            "</select>" +
+            "</td>" +
+
+            "<td> " +
+            "<a onClick='javaScript:removePropertyColumn(\"" + sId + "\")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a> " +
+            "</td> " +
+            "</tr>;" ;
+
+    jQuery("#propertyTable").append(tableContent);
+    //updatePropertyTableData();
+}
+
+
+function removePropertyColumn(id) {
+    jQuery("#" + id).remove();
+    updatePropertyTableData();
+}
+
+function updatePropertyTableData(){
+    var tableData = "", inputs, lists, numOfInputs;
+    inputs = document.getElementById("propertyTable").getElementsByTagName("input");
+    lists = document.getElementById("propertyTable").getElementsByTagName("select");
+    numOfInputs = inputs.length;
+    for(var i=0; i<numOfInputs; i=i+4){
+        if(inputs[i].value != "" && inputs[i+3].value != ""){
+            tableData = tableData + inputs[i].value + "::" + inputs[i+3].value + "::" + lists[i/4].value;
+            if(inputs[i+1].checked){
+                tableData = tableData + "::" + "value";
+            } else {
+                tableData = tableData + "::" + "expression";
+            }
+            tableData = tableData + ";";
+        }
+    }
+    document.getElementById("hfPropertyTableData").value = tableData;
+}
+
+function savePropertyTableData(){
+    updatePropertyTableData();
+    var streamRowNumber = document.getElementById("hfStreamTableRowNumber").value;
+    document.getElementById("hfStreamsTable_" + streamRowNumber).value = document.getElementById("hfPropertyTableData").value;
+    document.getElementById("propertiesTr").style.display = "none";
+    jQuery("#streamsTable_" + document.getElementById("hfStreamTableRowNumber").value).css("background-color","");
+}
+
+function saveDumpData(){
+    var data = "";
+    if(document.getElementById("mHeader").checked){
+        data = "dump";
+    } else{
+        data = "notDump";
+    }
+    data = data + ";";
+    if(document.getElementById("mBody").checked){
+        data = data + "dump";
+    } else{
+        data = data + "notDump";
+    }
+    var streamRowNumber = document.getElementById("hfStreamTableRowNumber").value;
+    document.getElementById("hfStreamsTable_" + streamRowNumber).value = document.getElementById("hfStreamsTable_" + streamRowNumber).value + "^" + data;
+    document.getElementById("mHeader").checked = "checked";
+    document.getElementById("mBody").checked = "checked";
+}
+
+function savePropertiesData(){
+    savePropertyTableData();
+    saveDumpData();
+}
+
+
+
+function loadPropertyDataTable(){
+    emptyPropertyTable();
+    var rowNumber =  document.getElementById("hfStreamTableRowNumber").value;
+    var configDataString = document.getElementById("streamsTable_" + rowNumber).getElementsByTagName("input")[4].value;
+    var propertyDataString = configDataString.split("^")[0];
+    var propertyDataArray = propertyDataString.split(";");
+    var numOfProperties = 0;
+    for(var i=0; i<propertyDataArray.length; i++){
+        if(propertyDataArray[i] != ""){
+            addPropertyRow();
+            numOfProperties++;
+        }
+    }
+
+    for(var i=0; i<numOfProperties; i=i+1){
+        if(propertyDataArray[i].split("::").length == 4){
+            jQuery("#propertyTable").find("tr").find("input")[4*i].value = propertyDataArray[i].split("::")[0];
+            jQuery("#propertyTable").find("tr").find("input")[4*i+3].value = propertyDataArray[i].split("::")[1];
+            jQuery("#propertyTable").find("tr").find("select")[i].value = propertyDataArray[i].split("::")[2];
+            if(propertyDataArray[i].split("::")[3] == "value"){
+                jQuery("#propertyTable").find("tr").find("input")[4*i+1].checked = true;
+            } else if(propertyDataArray[i].split("::")[3] == "expression"){
+                jQuery("#propertyTable").find("tr").find("input")[4*i+2].checked = true;
+            }
+        }
+    }
+    updatePropertyTableData();
+}
+
+function loadDumpData(){
+    cancelDumpData();
+    var rowNumber =  document.getElementById("hfStreamTableRowNumber").value;
+    var configDataString = document.getElementById("streamsTable_" + rowNumber).getElementsByTagName("input")[4].value;
+    var dumpDataString = "";
+    if(configDataString.split("^").length == 2){
+        dumpDataString = configDataString.split("^")[1];
+        var dumpDataArray = dumpDataString.split(";");
+        if(dumpDataArray.length == 2){
+            if(dumpDataArray[0] == "dump"){
+                document.getElementById("mHeader").checked = "checked";
+            } else {
+                document.getElementById("mHeader").checked = "";
+            }
+            if(dumpDataArray[1] == "dump"){
+                document.getElementById("mBody").checked = "checked";
+            } else {
+                document.getElementById("mBody").checked = "";
+            }
+        }
+    }
+}
+
+function emptyPropertyTable(){
+    document.getElementById("hfPropertyTableData").value = "";
+    jQuery("#propertyTable").find("tr").find("input")[0].value = "";
+    jQuery("#propertyTable").find("tr").find("input")[3].value = "";
+    jQuery("#propertyTable").find("tr").find("select")[0].value = "STRING";
+    jQuery("#propertyTable").find("tr").find("input")[1].checked = true;
+    var tableRowNumber = jQuery("#propertyTable").find("tr").length;
+    var isFirstRow = true;
+    //var firstRowId = "";
+    var currentRowId;
+    var trArray = new Array();
+    for(var i=0; i<tableRowNumber; i=i+1){
+        currentRowId = jQuery("#propertyTable").find("tr")[i].id;
+        if(currentRowId.split("_")[0] == "propertyTable"){
+            if(!isFirstRow){
+                //jQuery("#" + currentRowId).remove();
+                trArray.push(currentRowId);
+            }
+            isFirstRow = false;
+        }
+    }
+    for(var i=0; i<trArray.length; i++){
+        jQuery("#" + trArray[i]).remove();
+    }
+
+}
+
+function cancelPropertyTableData(){
+    emptyPropertyTable();
+    document.getElementById("propertiesTr").style.display = "none";
+    jQuery("#streamsTable_" + document.getElementById("hfStreamTableRowNumber").value).css("background-color","");
+}
+
+function cancelDumpData(){
+    document.getElementById("mHeader").checked = "checked";
+    document.getElementById("mBody").checked = "checked";
+}
+
+
+
+function submitPage(){
+    updateStreamTableData();
+    document.getElementById('hfAction').value='save';
+}
+
+
+</script>
+
+
 
 <%
     Mediator mediator = SequenceEditorHelper.getEditingMediator(request, session);
@@ -31,8 +328,6 @@
     if (!(mediator instanceof org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator)) {
         // todo : proper error handling
         throw new RuntimeException("Unable to edit the mediator");
-    }else{
-        out.print("mediator editable");
     }
     PublishEventMediator publishEventMediator = (org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator) mediator;
     boolean isOMValue = false;
@@ -77,13 +372,15 @@
 <fmt:bundle basename="org.wso2.carbon.mediator.publishevent.ui.i18n.Resources">
     <carbon:jsi18n
 		resourceBundle="org.wso2.carbon.mediator.publishevent.ui.i18n.JSResources"
-		request="<%=request%>" i18nObjectName="propertyMediatorJsi18n"/>
+		request="<%=request%>" i18nObjectName="publishEventMediatorJsi18n"/>
     <div>
         <script type="text/javascript" src="../publishEvent-mediator/js/mediator-util.js"></script>
 
         <table class="normal" width="100%">
             <tbody>
             <tr><td colspan="3"><h2><fmt:message key="mediator.publishevent.header"/></h2></td></tr>
+
+
             <tr>
                 <td style="width:130px;"><fmt:message key="name"/><font style="color: red; font-size: 8pt;"> *</font>
                 </td>
@@ -95,161 +392,299 @@
                 <td></td>
             </tr>
             <tr>
-                <td><fmt:message key="mediator.publishevent.action"/></td>
+                <td style="width:130px;"><fmt:message key="mediator.publishevent.stream.version"/><font style="color: red; font-size: 8pt;"> *</font>
+                </td>
                 <td>
-                    <input id="set" type="radio" name="mediator.publishevent.action"
-                           value="<%=publishEventMediator.ACTION_SET%>"
-                           onclick="displaySetProperties(true); "
-                            <%=publishEventMediator.getAction() == publishEventMediator.ACTION_SET ? "checked=\"checked\"" : ""%>/>
-                    <fmt:message key="mediator.publishevent.set"/>
-                    &nbsp;
-                    <input id="remove" type="radio" name="mediator.publishevent.action"
-                           value="<%=publishEventMediator.ACTION_REMOVE%>"
-                           onclick="displaySetProperties(false);"
-                            <%=publishEventMediator.getAction() == publishEventMediator.ACTION_REMOVE ? "checked=\"checked\"" : ""%>/>
-                    <fmt:message key="mediator.publishevent.remove"/>
+                    <input type="text" id="mediator.publishevent.stream.version" name="mediator.publishevent.stream.version"
+                           style="width:300px;"
+                           value='<%=publishEventMediator.getName() != null ? publishEventMediator.getName() : ""%>'/>
+                </td>
+                <td></td>
+            </tr>
+
+
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.meta.header"/></h4></td></tr>
+
+            <tr id="propertiesTr">
+                <td colspan="2">
+                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
+                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
+
+
+                    <table>
+                        <tr>
+                            <td>
+                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                    <thead>
+                                    <tr>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.meta.name"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.meta.value"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.meta.type"/>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr id="propertyTable_1">
+                                        <td>
+                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                        </td>
+                                        <td>
+                                            <table class="no-border-all">
+                                                <tr>
+                                                    <td>
+                                                        <table>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.meta.value"/></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.meta.expression"/></td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+
+                                        <td>
+                                            <select id="propertyType_1">
+                                                <option value="STRING" selected="selected" >STRING</option>
+                                                <option value="INTEGER">INTEGER</option>
+                                                <option value="BOOLEAN">BOOLEAN</option>
+                                                <option value="DOUBLE">DOUBLE</option>
+                                                <option value="FLOAT">FLOAT</option>
+                                                <option value="LONG">LONG</option>
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                            </span>
+                                        </td>
+
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
 
-            <tr id="mediator.publishevent.action_row" <%=publishEventMediator.ACTION_REMOVE == publishEventMediator.getAction() ? "style=\"display:none;\"" : ""%>>
-                <td style="padding-right: 10px;">
-                    <fmt:message key="mediator.publishevent.setAction"/>
-                </td>
-                <td style="padding-right: 5px;">
-                    <% if (!isExpression) { %>
-                    <input type="radio" id="value" name="mediator.publishevent.type"
-                           onclick="expressionChanged()"
-                           value="value" checked="checked"/>
-                    <fmt:message key="mediator.publishevent.value"/>
-                    <input type="radio" id="expression" name="mediator.publishevent.type"
-                           onclick="expressionChanged()"
-                           value="expression"/>
-                    <fmt:message key="mediator.publishevent.expression"/>
-                    <% } else { %>
-                    <input type="radio" id="value" name="mediator.publishevent.type"
-                           onclick="expressionChanged()"
-                           value="value"/>
-                    <fmt:message key="mediator.publishevent.value"/>
-                    <input type="radio" id="expression" name="mediator.publishevent.type"
-                           onclick="expressionChanged()"
-                           value="expression" checked="checked"/>
-                    <fmt:message key="mediator.publishevent.expression"/>
-                    <% } %>
-                </td>
-            </tr>
-            <tr id="type_row">
-                <td><fmt:message key="type"/></td>
-                <td>
-                    <select id="type_select" name="type_select" style="width:150px;" onchange="typeChanged()">
-                        <option value="STRING" <%=type.equals("STRING") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="string"/>
-                        </option>
-                        <option value="INTEGER" <%=type.equals("INTEGER") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="integer"/>
-                        </option>
-                        <option value="BOOLEAN" <%=type.equals("BOOLEAN") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="boolean"/>
-                        </option>
-                        <option value="DOUBLE" <%=type.equals("DOUBLE") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="double"/>
-                        </option>
-                        <option value="FLOAT" <%=type.equals("FLOAT") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="float"/>
-                        </option>
-                        <option value="LONG" <%=type.equals("LONG") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="long"/>
-                        </option>
-                        <option value="SHORT" <%=type.equals("SHORT") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="short"/>
-                        </option>
-                        <option value="OM" <%=isOMValue || type.equals("OM") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="om"/>
-                        </option>
-                    </select>
-                </td>
-            </tr>
-            <tr id="mediator.publishevent.value_row" <%=publishEventMediator.ACTION_REMOVE == publishEventMediator.getAction() ? "style=\"display:none;\"" : ""%>>
-                <td>
-                    <label id="expressionLabel" <%=!isExpression ? "style=\"display:none\"" : ""%>><fmt:message key="mediator.publishevent.expression"/></label>
-                    <label <%=isExpression ? "id=\"valueLabel\" style=\"display:none\"" : "id=\"valueLabel\"" %>><fmt:message key="mediator.publishevent.value"/></label><font
-                        style="color: red; font-size: 8pt;"> *</font>
-                </td>
-                <% if (!isOMValue) { %>
-                <td style="width:320px;" id="value_col">
-                    <input name="mediator.publishevent.val_ex"
-                           type="text" id="mediator.publishevent.val_ex"
-                           value="<%=val%>" style="width:300px;"/>
-                </td>
-                <td style="width:320px;display:none" id="om_text_td" colspan="2">
-                    <textarea name="om_text" rows="10" cols="20"
-                           id="om_text"
-                           style="width:300px;"><%=omValue%></textarea>
-                </td>
-                <td id="namespace_col">
-                    <a href="#nsEditorLink" id="mediator.publishevent.nmsp_button"
-                       onclick="showNameSpaceEditor('mediator.publishevent.val_ex')" class="nseditor-icon-link"
-                       style="padding-left:40px;<%=!isExpression ? "display:none;" : ""%>">
-                        <fmt:message key="mediator.publishevent.namespace"/></a>
-                    <a name="nsEditorLink"></a>
-                </td>
-                <% } else { %>
-                <td style="width:320px;display:none" id="value_col">
-                    <input name="mediator.publishevent.val_ex"
-                           type="text" id="mediator.publishevent.val_ex"
-                           value="<%=val%>" style="width:300px;"/>
-                </td>
-                <td style="width:320px;" id="om_text_td" colspan="2">
-                    <textarea name="om_text" rows="10" cols="20"
-                           id="om_text"
-                           style="width:300px;"><%=omValue%></textarea>
-                </td>
-                <td id="namespace_col" style="display:none">
-                    <a href="#nsEditorLink" id="mediator.publishevent.nmsp_button"
-                       onclick="showNameSpaceEditor('mediator.publishevent.val_ex')" class="nseditor-icon-link"
-                       style="padding-left:40px;<%=!isExpression ? "display:none;" : ""%>">
-                        <fmt:message key="mediator.publishevent.namespace"/></a>
-                    <a name="nsEditorLink"></a>
-                </td>
-                <% } %>
-            </tr>
-            <tr id="pattern_row" <%= !displayPatternAndGroup ? "style=\"display:none;\"" : ""%>>
-                <td>
-                    <fmt:message key="pattern"/>
-                </td>
-                <td style="width:320px;" <%=isOMValue ? "style=\"display:none\"" : ""%>>
-                    <input name="pattern"
-                           type="text" id="pattern"
-                           value="<%=pattern%>" style="width:300px;"/>
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.correlated.header"/></h4></td></tr>
+
+            <tr id="propertiesTr">
+                <td colspan="2">
+                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
+                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
+
+
+                    <table>
+                        <tr>
+                            <td>
+                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                    <thead>
+                                    <tr>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.correlated.name"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.correlated.value"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.correlated.type"/>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr id="propertyTable_1">
+                                        <td>
+                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                        </td>
+                                        <td>
+                                            <table class="no-border-all">
+                                                <tr>
+                                                    <td>
+                                                        <table>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.correlated.value"/></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.correlated.expression"/></td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+
+                                        <td>
+                                            <select id="propertyType_1">
+                                                <option value="STRING" selected="selected" >STRING</option>
+                                                <option value="INTEGER">INTEGER</option>
+                                                <option value="BOOLEAN">BOOLEAN</option>
+                                                <option value="DOUBLE">DOUBLE</option>
+                                                <option value="FLOAT">FLOAT</option>
+                                                <option value="LONG">LONG</option>
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                            </span>
+                                        </td>
+
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
-            <tr id="group_row" <%= !displayPatternAndGroup ? "style=\"display:none;\"" : ""%>>
-                <td>
-                    <fmt:message key="group"/>
-                </td>
-                <td style="width:320px;" <%=isOMValue ? "style=\"display:none\"" : ""%>>
-                    <input name="group"
-                           type="text" id="group"
-                           value="<%=group%>" style="width:300px;"/>
-                </td>
-            </tr>
-            <tr>
-                <td><fmt:message key="mediator.publishevent.scope"/></td>
-                <td>
-                    <select id="mediator.publishevent.scope" name="mediator.publishevent.scope"
-                            style="width:150px;">
-                        <option value="default" <%=publishEventMediator.getScope() != null && publishEventMediator.getScope().equals("default") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="synapse"/>
-                        </option>
-                        <option value="transport" <%=publishEventMediator.getScope() != null && publishEventMediator.getScope().equals("transport") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="transport"/>
-                        </option>
-                        <option value="axis2" <%=publishEventMediator.getScope() != null && publishEventMediator.getScope().equals("axis2") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="axis2"/>
-                        </option>
-                        <option value="axis2-client" <%=publishEventMediator.getScope() != null && publishEventMediator.getScope().equals("axis2-client") ? "selected=\"selected\"" : ""%>>
-                            <fmt:message key="axis2.client"/>
-                        </option>
-                    </select>
+
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.payload.header"/></h4></td></tr>
+
+            <tr id="propertiesTr">
+                <td colspan="2">
+                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
+                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
+
+
+                    <table>
+                        <tr>
+                            <td>
+                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                    <thead>
+                                    <tr>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.payload.name"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.payload.value"/>
+                                        </th>
+                                        <th width="30%">
+                                            <fmt:message key="mediator.publishevent.payload.type"/>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr id="propertyTable_1">
+                                        <td>
+                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                        </td>
+                                        <td>
+                                            <table class="no-border-all">
+                                                <tr>
+                                                    <td>
+                                                        <table>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.payload.value"/></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishevent.payload.expression"/></td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+
+                                        <td>
+                                            <select id="propertyType_1">
+                                                <option value="STRING" selected="selected" >STRING</option>
+                                                <option value="INTEGER">INTEGER</option>
+                                                <option value="BOOLEAN">BOOLEAN</option>
+                                                <option value="DOUBLE">DOUBLE</option>
+                                                <option value="FLOAT">FLOAT</option>
+                                                <option value="LONG">LONG</option>
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                            </span>
+                                        </td>
+
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
             </tbody>
