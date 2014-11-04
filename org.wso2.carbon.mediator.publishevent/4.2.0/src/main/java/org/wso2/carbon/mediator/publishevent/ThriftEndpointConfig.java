@@ -20,23 +20,10 @@
 package org.wso2.carbon.mediator.publishevent;
 
 public class ThriftEndpointConfig {
-
+    private String receiverUrlSet;
+    private String authenticationUrlSet;
     private String username;
     private String password;
-    private String urlSet;
-    private String ip;
-    private String authenticationPort;
-    private String receiverPort;
-    private boolean secure = true;
-    private boolean loadbalancer = false;
-
-    public boolean isLoadbalanced() {
-        return loadbalancer;
-    }
-
-    public void setLoadbalanced(boolean loadbalancer) {
-        this.loadbalancer = loadbalancer;
-    }
 
     public String getUsername(){
         return username;
@@ -54,43 +41,19 @@ public class ThriftEndpointConfig {
         this.password = password;
     }
 
-    public String getUrlSet() {
-        return urlSet;
+    public String getReceiverUrlSet() {
+        return receiverUrlSet;
     }
 
-    public void setUrlSet(String urlSet) {
-        this.urlSet = urlSet;
+    public void setReceiverUrlSet(String urlSet) {
+        this.receiverUrlSet = urlSet;
     }
 
-    public String getIp(){
-        return ip;
+    public String getAuthenticationUrlSet() {
+        return authenticationUrlSet;
     }
 
-    public void setIp(String ip){
-        this.ip = ip;
-    }
-
-    public String getAuthenticationPort(){
-        return authenticationPort;
-    }
-
-    public void setAuthenticationPort(String authenticationPort){
-        this.authenticationPort = authenticationPort;
-    }
-
-    public String getReceiverPort() {
-        return receiverPort;
-    }
-
-    public void setReceiverPort(String receiverPort) {
-        this.receiverPort = receiverPort;
-    }
-
-    public boolean isSecure() {
-        return secure;
-    }
-
-    public void setSecure(boolean security) {
-        this.secure = security;
+    public void setAuthenticationUrlSet(String urlSet) {
+        this.authenticationUrlSet = urlSet;
     }
 }
