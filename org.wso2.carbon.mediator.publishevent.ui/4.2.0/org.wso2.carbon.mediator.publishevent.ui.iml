@@ -187,6 +187,8 @@
     <orderEntry type="library" name="Maven: org.eclipse.equinox:javax.servlet.jsp:2.2.0.v201112011158" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.core.commons.stub:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet.jsp.jstl.wso2:jstl:1.2.1.wso2v2" level="project" />
+    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.databridge.agent.thrift:4.2.0" level="project" />
+    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.databridge.commons:4.2.0" level="project" />
   </component>
 </module>
 

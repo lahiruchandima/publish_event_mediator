@@ -385,7 +385,7 @@ function submitPage(){
                 <td style="width:130px;"><fmt:message key="name"/><font style="color: red; font-size: 8pt;"> *</font>
                 </td>
                 <td>
-                    <input type="text" id="mediator.publishevent.name" name="mediator.publishevent.name"
+                    <input type="text" id="mediator.publishEvent.name" name="mediator.publishEvent.name"
                            style="width:300px;"
                            value='<%=publishEventMediator.getName() != null ? publishEventMediator.getName() : ""%>'/>
                 </td>
