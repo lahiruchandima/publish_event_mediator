@@ -23,11 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.util.xpath.SynapseXPath;
-import org.jaxen.JaxenException;
 import org.wso2.carbon.databridge.commons.AttributeType;
-import org.wso2.carbon.mediator.publishevent.util.PropertyTypeConverter;
-
-import java.util.Map;
 
 /**
  * Property of a Stream Definition

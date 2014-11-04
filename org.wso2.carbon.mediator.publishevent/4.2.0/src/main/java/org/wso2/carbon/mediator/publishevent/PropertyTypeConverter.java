@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.mediator.publishevent.util;
+package org.wso2.carbon.mediator.publishevent;
 
 /**
  * Convert Stream Properties to appropriate types.

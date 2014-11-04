@@ -20,7 +20,6 @@
 package org.wso2.carbon.mediator.publishevent;
 
 public class ThriftEndpointConfig {
-
     private String receiverUrlSet;
     private String authenticationUrlSet;
     private String username;

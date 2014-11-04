@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.mediator.publishevent.util;
+package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +37,7 @@ public class ActivityIDSetter {
     private static final String ACTIVITY_ID = "activityID";
     private static final Log log = LogFactory.getLog(ActivityIDSetter.class);
 
-    public void setActivityIdInTransportHeader(MessageContext synapseContext) throws SynapseException {
+    public static void setActivityIdInTransportHeader(MessageContext synapseContext) throws SynapseException {
         try {
             //get the unique ID used for correlating messages for BAM activity monitoring
             String idString = getUniqueId();
@@ -112,9 +112,8 @@ public class ActivityIDSetter {
         }
     }
 
-    //TODO: find a better way
     //Generate unique ID (cheaper than generating a UUID)
-    private String getUniqueId() {
+    private static String getUniqueId() {
         return (String.valueOf(System.nanoTime()) + Math.round(Math.random() * 123456789));
     }
 }
