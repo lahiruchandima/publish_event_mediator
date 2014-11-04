@@ -28,7 +28,9 @@ import org.apache.synapse.Mediator;
 import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.SynapseException;
 import org.apache.synapse.config.xml.AbstractMediatorFactory;
+import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.XMLConfigConstants;
+import org.jaxen.JaxenException;
 import org.wso2.carbon.mediator.publishevent.*;
 
 import javax.xml.namespace.QName;
@@ -49,18 +51,11 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
     public static final QName STREAM_DESCRIPTION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamDescription");
     public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
     public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
-    public static final QName NAMESPACE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespace");
-    public static final QName NAMESPACES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "namespaces");
     public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
     public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
     public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
-    public static final QName NAME_Q = new QName("name");
-    public static final QName VALUE_Q = new QName("value");
     public static final QName TYPE_Q = new QName("type");
-    public static final QName DEFAULT_Q = new QName("default");
-    public static final QName PREFIX_Q = new QName("prefix");
-    public static final QName EXPRESSION_Q = new QName("expression");
-    public static final QName URI_Q = new QName("uri");
+    public static final QName DEFAULT_Q = new QName("defaultValue");
 
     public static String getTagName() {
         return "publishEvent";
@@ -99,48 +94,27 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
             streamConfiguration.setDescription(streamDescription.getText());
         }
 
-        Map<String, String> namespaceMap = new HashMap<String, String>();
-        OMElement namespaces = omElement.getFirstChildWithName(NAMESPACES_Q);
-        if (namespaces != null) {
-            Iterator iter = namespaces.getChildrenWithName(NAMESPACE_Q);
-
-            while (iter.hasNext()) {
-                OMElement namespaceElement = (OMElement) iter.next();
-
-                OMAttribute prefixAtr = namespaceElement.getAttribute(PREFIX_Q);
-                if (prefixAtr == null) {
-                    throw new SynapseException(PREFIX_Q.getLocalPart() + " attribute missing in " + NAMESPACE_Q.getLocalPart());
-                }
-                OMAttribute uriAtr = namespaceElement.getAttribute(URI_Q);
-                if (uriAtr == null) {
-                    throw new SynapseException(URI_Q.getLocalPart() + " attribute missing in " + NAMESPACE_Q.getLocalPart());
-                }
-                namespaceMap.put(prefixAtr.getAttributeValue(), uriAtr.getAttributeValue());
-            }
-        }
-        streamConfiguration.setNamespaceMap(namespaceMap);
-
         OMElement attributes = omElement.getFirstChildWithName(ATTRIBUTES_Q);
         if (attributes != null) {
             OMElement meta = attributes.getFirstChildWithName(META_Q);
             if (meta != null) {
                 List<Property> propertyList = new ArrayList<Property>();
                 Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter, META_Q, namespaceMap);
+                populateAttributes(propertyList, iter);
                 streamConfiguration.setMetaProperties(propertyList);
             }
             OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
             if (correlation != null) {
                 List<Property> propertyList = new ArrayList<Property>();
                 Iterator iter = correlation.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter, CORRELATION_Q, namespaceMap);
+                populateAttributes(propertyList, iter);
                 streamConfiguration.setCorrelationProperties(propertyList);
             }
             OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
             if (payload != null) {
                 List<Property> propertyList = new ArrayList<Property>();
                 Iterator iter = payload.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter, PAYLOAD_Q, namespaceMap);
+                populateAttributes(propertyList, iter);
                 streamConfiguration.setPayloadProperties(propertyList);
             }
         } else {
@@ -150,10 +124,12 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
         mediator.getStream().setStreamConfiguration(streamConfiguration);
 
         String endpointConfigString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<serverProfile xmlns=\"http://ws.apache.org/ns/synapse\">\n" +
-                "    <connection loadbalancer=\"false\" secure=\"true\" urlSet=\"\" ip=\"localhost\" authPort=\"7711\" receiverPort=\"\" />\n" +
-                "    <credential userName=\"admin\" password=\"kuv2MubUUveMyv6GeHrXr9il59ajJIqUI4eoYHcgGKf/BBFOWn96NTjJQI+wYbWjKW6r79S7L7ZzgYeWx7DlGbff5X3pBN2Gh9yV0BHP1E93QtFqR7uTWi141Tr7V7ZwScwNqJbiNoV+vyLbsqKJE7T3nP8Ih9Y6omygbcLcHzg=\" />\n" +
-                "</serverProfile>";
+                "<eventSink xmlns=\"http://ws.apache.org/ns/synapse\" name=\"bam_event_sink\">\n" +
+                "    <receiverUrl>tcp://localhost:7611</receiverUrl>\n" +
+                "    <authenticatorUrl>ssl://localhost:7711</authenticatorUrl>\n" +
+                "    <userName>admin</userName>\n" +
+                "    <password>kuv2MubUUveMyv6GeHrXr9il59ajJIqUI4eoYHcgGKf/BBFOWn96NTjJQI+wYbWjKW6r79S7L7ZzgYeWx7DlGbff5X3pBN2Gh9yV0BHP1E93QtFqR7uTWi141Tr7V7ZwScwNqJbiNoV+vyLbsqKJE7T3nP8Ih9Y6omygbcLcHzg=</password>\n" +
+                "</eventSink>";
 
         try {
             OMElement resourceElement = new StAXOMBuilder(new ByteArrayInputStream(endpointConfigString.getBytes(Charset.forName("UTF-8")))).getDocumentElement();
@@ -167,47 +143,60 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
         return mediator;
     }
 
-    private void populateAttributes(List<Property> propertyList, Iterator iter, QName qName, Map<String, String> namespaceMap) {
+    private void populateAttributes(List<Property> propertyList, Iterator iter) {
         while (iter.hasNext()) {
             OMElement element = (OMElement) iter.next();
-            OMAttribute nameAtr = element.getAttribute(NAME_Q);
-            if (nameAtr == null) {
-                throw new SynapseException(NAME_Q.getLocalPart() + " attribute missing in " + qName.getLocalPart());
+            OMAttribute nameAttr = element.getAttribute(ATT_NAME);
+            if (nameAttr == null) {
+                throw new SynapseException(ATT_NAME.getLocalPart() + " attribute missing in " + element.getLocalName());
             }
-            OMAttribute typeAtr = element.getAttribute(TYPE_Q);
-            if (typeAtr == null) {
-                throw new SynapseException(TYPE_Q.getLocalPart() + " attribute missing in " + qName.getLocalPart());
+            OMAttribute typeAttr = element.getAttribute(TYPE_Q);
+            if (typeAttr == null) {
+                throw new SynapseException(TYPE_Q.getLocalPart() + " attribute missing in " + element.getLocalName());
             }
-            OMAttribute valueAtr = element.getAttribute(VALUE_Q);
-            if (valueAtr == null) {
-                throw new SynapseException(VALUE_Q.getLocalPart() + " attribute missing in " + qName.getLocalPart());
-            }
-
-            OMAttribute expressionAttr = element.getAttribute(EXPRESSION_Q);
-            boolean isExpression = (expressionAttr == null || "true".equals(expressionAttr.getAttributeValue()));
-
-            OMAttribute defaultAtr = element.getAttribute(DEFAULT_Q);
-            String defaultAtrValue = "";
-            if (defaultAtr != null) {
-                defaultAtrValue = defaultAtr.getAttributeValue();
+            OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
+            OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
+            if (valueAttr != null && expressionAttr != null) {
+                throw new SynapseException(element.getLocalName() + " element can either have \"" + ATT_VALUE.getLocalPart() +
+                        "\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute but not both");
             }
 
-            //attributeList.add(new Attribute(nameAtr.getAttributeValue(), getType(typeAtr.getAttributeValue())));
+            if (valueAttr == null && expressionAttr == null) {
+                throw new SynapseException(element.getLocalName() + " element must have either \"" + ATT_VALUE.getLocalPart() +
+                        "\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute");
+            }
 
             Property property = new Property();
-            property.setKey(nameAtr.getAttributeValue());
-            property.setValue(valueAtr.getAttributeValue());
-            property.setDefaultValue(defaultAtrValue);
-            property.setType(typeAtr.getAttributeValue());
-            property.setExpression(isExpression);
-            if (isExpression) {
-                property.generateXPath(namespaceMap);
+            property.setKey(nameAttr.getAttributeValue());
+            property.setType(typeAttr.getAttributeValue());
+            if (valueAttr != null) {
+                property.setValue(valueAttr.getAttributeValue());
+            } else {
+                try {
+                    property.setExpression(SynapseXPathFactory.getSynapseXPath(element, ATT_EXPRN));
+                } catch (JaxenException e) {
+                    throw new SynapseException("Invalid expression attribute in " + element.getLocalName(), e);
+                }
             }
+
+            OMAttribute defaultAtr = element.getAttribute(DEFAULT_Q);
+            if (defaultAtr != null) {
+                property.setDefaultValue(defaultAtr.getAttributeValue());
+            }
+
             propertyList.add(property);
         }
     }
 
-    private boolean isNotNullOrEmpty(String string) {
-        return string != null && !string.equals("");
+    public static QName getNameAttributeQ() {
+        return ATT_NAME;
+    }
+
+    public static QName getValueAttributeQ() {
+        return ATT_VALUE;
+    }
+
+    public static QName getExpressionAttributeQ() {
+        return ATT_EXPRN;
     }
 }

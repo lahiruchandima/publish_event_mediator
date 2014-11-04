@@ -35,11 +35,10 @@ import java.util.Map;
 public class Property {
 
     private String key = "";
-    private String value = "";
+    private String value = null;
+    private SynapseXPath expression = null;
     private String defaultValue = "";
     private String type = "";
-    private boolean isExpression = false;
-    SynapseXPath synapseXPath = null;
 
     private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
     private static final Log log = LogFactory.getLog(Property.class);
@@ -60,17 +59,6 @@ public class Property {
         this.value = value;
     }
 
-    public void generateXPath(Map<String, String> namespaceMap) {
-        try {
-            synapseXPath = new SynapseXPath(value);
-            for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
-                synapseXPath.addNamespace(entry.getKey(), entry.getValue());
-            }
-        } catch (JaxenException e) {
-            log.error("Invalid XPath specified for property \"" + key + "\". Error: " + e.getLocalizedMessage());
-        }
-    }
-
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -79,18 +67,19 @@ public class Property {
         this.defaultValue = defaultValue;
     }
 
-    public boolean isExpression() {
-        return isExpression;
+    public SynapseXPath getExpression() {
+        return expression;
     }
 
-    public void setExpression(boolean expression) {
-        isExpression = expression;
+    public void setExpression(SynapseXPath expression) {
+        this.expression = expression;
     }
 
     public String getType() {
         return type;
     }
     public AttributeType getDatabridgeAttributeType() {
+        //TODO:
         if ("STRING".equals(type)) {
             return AttributeType.STRING;
         }
@@ -119,24 +108,25 @@ public class Property {
     public Object extractPropertyValue(MessageContext messageContext) {
         try {
             String stringProperty;
-            String propertyType;
-            if (isExpression()) {
-                stringProperty = synapseXPath.stringValueOf(messageContext);
+            if (expression  != null) {
+                stringProperty = expression.stringValueOf(messageContext);
             } else {
-                stringProperty =  getValue();
+                stringProperty = getValue();
             }
-            propertyType = getType();
-            if ("STRING".equals(propertyType)) {
+            if (stringProperty == null || "".equals(stringProperty)) {
+                stringProperty = defaultValue;
+            }
+            if ("STRING".equals(getType())) {
                 return propertyTypeConverter.convertToString(stringProperty);
-            } else if ("INTEGER".equals(propertyType)) {
+            } else if ("INTEGER".equals(getType())) {
                 return propertyTypeConverter.convertToInt(stringProperty);
-            } else if ("FLOAT".equals(propertyType)) {
+            } else if ("FLOAT".equals(getType())) {
                 return propertyTypeConverter.convertToFloat(stringProperty);
-            } else if ("DOUBLE".equals(propertyType)) {
+            } else if ("DOUBLE".equals(getType())) {
                 return propertyTypeConverter.convertToDouble(stringProperty);
-            } else if ("BOOLEAN".equals(propertyType)) {
+            } else if ("BOOLEAN".equals(getType())) {
                 return propertyTypeConverter.convertToBoolean(stringProperty);
-            } else if ("LONG".equals(propertyType)) {
+            } else if ("LONG".equals(getType())) {
                 return propertyTypeConverter.convertToLong(stringProperty);
             } else {
                 return stringProperty;

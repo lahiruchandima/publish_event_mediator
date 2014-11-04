@@ -39,91 +39,39 @@ public class ThriftEndpointConfigBuilder {
 
     private static final Log log = LogFactory.getLog(ThriftEndpointConfigBuilder.class);
 
-    static final QName CREDENTIAL_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "credential");
-    static final QName USERNAME_Q = new QName("userName");
-    static final QName PASSWORD_Q = new QName("password");
-    static final QName CONNECTION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "connection");
-    static final QName LOADBALANCER_Q = new QName("loadbalancer");
-    static final QName SECURE_Q = new QName("secure");
-    static final QName URLSET_Q = new QName("urlSet");
-    static final QName IP_Q = new QName("ip");
-    static final QName AUTHPORT_Q = new QName("authPort");
-    static final QName RECEIVERPORT_Q = new QName("receiverPort");
+    static final QName RECEIVER_URL_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "receiverUrl");
+    static final QName AUTHENTICATOR_URL_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "authenticatorUrl");
+    static final QName USERNAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "userName");
+    static final QName PASSWORD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "password");
 
     public static ThriftEndpointConfig createThriftEndpointConfig(OMElement thriftEndpointConfigElement) {
 
         ThriftEndpointConfig thriftEndpointConfig = new ThriftEndpointConfig();
 
-        OMElement credentialElement = thriftEndpointConfigElement.getFirstChildWithName(CREDENTIAL_Q);
+        OMElement receiverUrl = thriftEndpointConfigElement.getFirstChildWithName(RECEIVER_URL_Q);
+        if (receiverUrl == null || "".equals(receiverUrl.getText())) {
+            throw new SynapseException(RECEIVER_URL_Q.getLocalPart() + " is missing in thrift endpoint config");
+        }
+        thriftEndpointConfig.setReceiverUrlSet(receiverUrl.getText());
 
-        if (credentialElement == null) {
-            throw new SynapseException(CREDENTIAL_Q.getLocalPart() + " element missing in thrift endpoint config");
+        OMElement authenticatorUrl = thriftEndpointConfigElement.getFirstChildWithName(AUTHENTICATOR_URL_Q);
+        if (authenticatorUrl != null) {
+            thriftEndpointConfig.setAuthenticationUrlSet(authenticatorUrl.getText());
         }
 
-        OMAttribute userNameAttr = credentialElement.getAttribute(USERNAME_Q);
-        if (!isNotNullOrEmpty(userNameAttr)) {
-            throw new SynapseException(USERNAME_Q.getLocalPart() + " attribute missing in thrift endpoint config");
+        OMElement userName = thriftEndpointConfigElement.getFirstChildWithName(USERNAME_Q);
+        if (userName == null || "".equals(userName.getText())) {
+            throw new SynapseException(USERNAME_Q.getLocalPart() + " is missing in thrift endpoint config");
         }
+        thriftEndpointConfig.setUsername(userName.getText());
 
-        OMAttribute passwordAttr = credentialElement.getAttribute(PASSWORD_Q);
-        if (!isNotNullOrEmpty(passwordAttr)) {
+        OMElement password = thriftEndpointConfigElement.getFirstChildWithName(PASSWORD_Q);
+        if (password == null || "".equals(password.getText())) {
             throw new SynapseException(PASSWORD_Q.getLocalPart() + " attribute missing in thrift endpoint config");
         }
-
-        thriftEndpointConfig.setUsername(userNameAttr.getAttributeValue());
-        thriftEndpointConfig.setPassword(base64DecodeAndDecrypt(passwordAttr.getAttributeValue()));
-
-        OMElement connectionElement = thriftEndpointConfigElement.getFirstChildWithName(CONNECTION_Q);
-
-        if (connectionElement == null) {
-            throw new SynapseException(CONNECTION_Q.getLocalPart() + " element missing in thrift endpoint config");
-        }
-
-        OMAttribute loadbalancerAttr = connectionElement.getAttribute(LOADBALANCER_Q);
-        OMAttribute secureAttr = connectionElement.getAttribute(SECURE_Q);
-        OMAttribute urlSet = connectionElement.getAttribute(URLSET_Q);
-        OMAttribute ipAttr = connectionElement.getAttribute(IP_Q);
-        OMAttribute authenticationPortAttr = connectionElement.getAttribute(AUTHPORT_Q);
-        OMAttribute receiverPortAttr = connectionElement.getAttribute(RECEIVERPORT_Q);
-
-        if (isNotNullOrEmpty(loadbalancerAttr) && "true".equals(loadbalancerAttr.getAttributeValue())) {
-            thriftEndpointConfig.setLoadbalanced(true);
-            thriftEndpointConfig.setUrlSet(urlSet.getAttributeValue());
-        } else {
-            if (!isNotNullOrEmpty(ipAttr)) {
-                throw new SynapseException(IP_Q + " attribute missing in thrift endpoint config");
-            }
-            if (!isNotNullOrEmpty(secureAttr)) {
-                throw new SynapseException(SECURE_Q + " attribute missing in thrift endpoint config");
-            }
-            if (!isNotNullOrEmpty(authenticationPortAttr)) {
-                throw new SynapseException(AUTHPORT_Q + " attribute missing in thrift endpoint config");
-            }
-
-            thriftEndpointConfig.setIp(ipAttr.getAttributeValue());
-
-            String security = secureAttr.getAttributeValue();
-            if ("true".equals(security)) {
-                thriftEndpointConfig.setSecure(true);
-            } else if ("false".equals(security)) {
-                thriftEndpointConfig.setSecure(false);
-            } else {
-                throw new SynapseException("Invalid security value \"" + security + "\" specified in thrift " +
-                        " endpoint config. Value should be \"true\" or \"false\"");
-            }
-            thriftEndpointConfig.setAuthenticationPort(authenticationPortAttr.getAttributeValue());
-            if (receiverPortAttr.getAttributeValue() != null && !receiverPortAttr.getAttributeValue().equals("")) {
-                thriftEndpointConfig.setReceiverPort(receiverPortAttr.getAttributeValue());
-            } else {
-                thriftEndpointConfig.setReceiverPort("");
-            }
-        }
+        thriftEndpointConfig.setPassword(base64DecodeAndDecrypt(password.getText()));
 
         return thriftEndpointConfig;
-    }
-
-    private static boolean isNotNullOrEmpty(OMAttribute omAttribute) {
-        return omAttribute != null && !omAttribute.getAttributeValue().equals("");
     }
 
     private static String encryptAndBase64Encode(String plainText) {

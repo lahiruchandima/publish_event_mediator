@@ -22,13 +22,12 @@ package org.wso2.carbon.mediator.publishevent.xml;
 import org.apache.synapse.config.xml.AbstractMediatorSerializer;
 import org.apache.synapse.Mediator;
 import org.apache.axiom.om.OMElement;
+import org.apache.synapse.config.xml.SynapseXPathSerializer;
 import org.wso2.carbon.mediator.publishevent.Property;
 import org.wso2.carbon.mediator.publishevent.PublishEventMediator;
 import org.wso2.carbon.mediator.publishevent.StreamConfiguration;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
@@ -53,6 +52,7 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
         streamVersionElement.setText(streamConfig.getVersion());
         mediatorElement.addChild(streamVersionElement);
 
+        /*
         OMElement streamNicknameElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_NICKNAME_Q.getLocalPart(), synNS);
         streamNicknameElement.setText(streamConfig.getNickname());
         mediatorElement.addChild(streamNicknameElement);
@@ -60,6 +60,7 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
         OMElement streamDescriptionElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_DESCRIPTION_Q.getLocalPart(), synNS);
         streamDescriptionElement.setText(streamConfig.getDescription());
         mediatorElement.addChild(streamDescriptionElement);
+        */
 
         OMElement streamAttributesElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTES_Q.getLocalPart(), synNS);
 
@@ -86,16 +87,6 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
         mediatorElement.addChild(streamAttributesElement);
 
-        OMElement namespacesElement = fac.createOMElement(PublishEventMediatorFactory.NAMESPACES_Q.getLocalPart(), synNS);
-        Set<Map.Entry<String, String>> namespaceEntrySet = streamConfig.getNamespaceMap().entrySet();
-        for (Map.Entry<String, String> namespaceEntry : namespaceEntrySet) {
-            OMElement namespaceElement = fac.createOMElement(PublishEventMediatorFactory.NAMESPACE_Q.getLocalPart(), synNS);
-            namespaceElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.PREFIX_Q.getLocalPart(), nullNS, namespaceEntry.getKey()));
-            namespaceElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.URI_Q.getLocalPart(), nullNS, namespaceEntry.getValue()));
-            namespacesElement.addChild(namespaceElement);
-        }
-        mediatorElement.addChild(namespacesElement);
-
         return mediatorElement;
     }
 
@@ -106,11 +97,15 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
     private OMElement createElementForProperty(Property property) {
         OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_Q.getLocalPart(), synNS);
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.NAME_Q.getLocalPart(), nullNS, property.getKey()));
+        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.getNameAttributeQ().getLocalPart(), nullNS, property.getKey()));
         attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.TYPE_Q.getLocalPart(), nullNS, property.getType()));
         attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.DEFAULT_Q.getLocalPart(), nullNS, property.getDefaultValue()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.VALUE_Q.getLocalPart(), nullNS, property.getValue()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.EXPRESSION_Q.getLocalPart(), nullNS, property.isExpression() ? "true" : "false"));
+
+        if (property.getExpression() != null) {
+            SynapseXPathSerializer.serializeXPath(property.getExpression(), attributeElement, PublishEventMediatorFactory.getExpressionAttributeQ().getLocalPart());
+        } else {
+            attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.getValueAttributeQ().getLocalPart(), nullNS, property.getValue()));
+        }
         return attributeElement;
     }
 }

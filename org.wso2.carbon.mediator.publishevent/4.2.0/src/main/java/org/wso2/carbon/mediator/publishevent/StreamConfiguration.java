@@ -35,7 +35,6 @@ public class StreamConfiguration {
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
-    private Map<String, String> namespaceMap = null;
 
     public void setName(String name){
         this.name = name;
@@ -59,10 +58,6 @@ public class StreamConfiguration {
 
     public void setCorrelationProperties(List<Property> correlationProperties) {
         this.correlationProperties = correlationProperties;
-    }
-
-    public void setNamespaceMap(Map<String, String> namespaceMap) {
-        this.namespaceMap = namespaceMap;
     }
 
     public void setPayloadProperties(List<Property> payloadProperties) {
@@ -95,9 +90,5 @@ public class StreamConfiguration {
 
     public List<Property> getPayloadProperties() {
         return payloadProperties;
-    }
-
-    public Map<String, String> getNamespaceMap() {
-        return namespaceMap;
     }
 }

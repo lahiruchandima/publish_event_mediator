@@ -33,7 +33,7 @@ import java.util.TreeMap;
  */
 public class ActivityIDSetter {
 
-    public static final String MSG_BAM_ACTIVITY_ID = "bam_activity_id";
+    private static final String MSG_BAM_ACTIVITY_ID = "activity_id";
     private static final String ACTIVITY_ID = "activityID";
     private static final Log log = LogFactory.getLog(ActivityIDSetter.class);
 
@@ -60,7 +60,7 @@ public class ActivityIDSetter {
                         if (!(inID.equals(""))) {
                             idString = inID;
                             if (log.isDebugEnabled()) {
-                                log.debug("Incoming message had no activity ID, using the ID '"+inID+"' from the Synapse context instead.");
+                                log.debug("Incoming message had no activity ID, using the ID '" + inID + "' from the Synapse context instead.");
                             }
                         }
                     } else {
@@ -72,15 +72,14 @@ public class ActivityIDSetter {
                         }
                     }
                     //Add the recovered (case1) or generated (case2) activity ID to the transport header
-                    ((Map) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS)).
-                            put(ACTIVITY_ID, idString);
+                    headers.put(ACTIVITY_ID, idString);
                 } else {
                     //case 3 - activity ID is present in the transport header
                     //Just propagate this ID rather than use the generated ID, and expose it to the synapse context
                     idString = idFromHeader;
                     synapseContext.setProperty(MSG_BAM_ACTIVITY_ID, idString);
                     if (log.isDebugEnabled()) {
-                        log.debug("Propagating activity ID found in transport header :" + idFromHeader);
+                        log.debug("Propagating activity ID found in transport header: " + idFromHeader);
                     }
                 }
             } else {
@@ -91,10 +90,10 @@ public class ActivityIDSetter {
                         //Use the ID from the context to replace the generated activity ID
                         idString = inID;
                         if (log.isDebugEnabled()) {
-                            log.debug("Using activity ID '"+inID+"' from synapse context, transport headers do not exist");
+                            log.debug("Using activity ID '" + inID + "' from synapse context, transport headers do not exist");
                         }
                     }
-                }else {
+                } else {
                     if (log.isDebugEnabled()) {
                         log.info("Activity ID not found anywhere, creating new.");
                     }
