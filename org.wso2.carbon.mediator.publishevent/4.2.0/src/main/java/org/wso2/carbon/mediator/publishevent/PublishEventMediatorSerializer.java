@@ -23,9 +23,6 @@ import org.apache.synapse.config.xml.AbstractMediatorSerializer;
 import org.apache.synapse.Mediator;
 import org.apache.axiom.om.OMElement;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
-import org.wso2.carbon.mediator.publishevent.Property;
-import org.wso2.carbon.mediator.publishevent.PublishEventMediator;
-import org.wso2.carbon.mediator.publishevent.PublishEventMediatorFactory;
 
 public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
@@ -36,8 +33,8 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
         PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
         OMElement mediatorElement = fac.createOMElement(PublishEventMediatorFactory.getTagName(), synNS);
 
-        OMElement serverProfileElement = fac.createOMElement("serverProfile", synNS);
-        serverProfileElement.addAttribute(fac.createOMAttribute("name", nullNS, publishEventMediator.getServerProfile().split("/")[publishEventMediator.getServerProfile().split("/").length - 1]));
+        OMElement serverProfileElement = fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
+        serverProfileElement.setText(publishEventMediator.getEventSink());
         mediatorElement.addChild(serverProfileElement);
 
         OMElement streamNameElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_Q.getLocalPart(), synNS);
