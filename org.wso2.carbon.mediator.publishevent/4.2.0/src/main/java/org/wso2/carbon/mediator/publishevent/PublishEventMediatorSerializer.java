@@ -1,5 +1,5 @@
 /*
- * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -33,9 +33,9 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
         PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
         OMElement mediatorElement = fac.createOMElement(PublishEventMediatorFactory.getTagName(), synNS);
 
-        OMElement serverProfileElement = fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
-        serverProfileElement.setText(publishEventMediator.getEventSink());
-        mediatorElement.addChild(serverProfileElement);
+        OMElement eventSinkElement = fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
+        eventSinkElement.setText(publishEventMediator.getEventSink());
+        mediatorElement.addChild(eventSinkElement);
 
         OMElement streamNameElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_Q.getLocalPart(), synNS);
         streamNameElement.setText(publishEventMediator.getStreamName());

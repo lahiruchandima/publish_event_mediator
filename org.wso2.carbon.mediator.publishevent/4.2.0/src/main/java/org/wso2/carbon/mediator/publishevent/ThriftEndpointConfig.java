@@ -1,5 +1,5 @@
 /*
- * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -117,7 +117,7 @@ public class ThriftEndpointConfig {
     private static String base64DecodeAndDecrypt(String cipherText) {
         try {
             return new String(CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(cipherText), Charset.forName("UTF-8"));
-        } catch (CryptoException e) {
+        } catch (Exception e) {
             String errorMsg = "Base64 decoding and decryption error. " + e.getMessage();
             log.error(errorMsg, e);
         }
