@@ -1,5 +1,5 @@
 /*
- * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.mediator.publishevent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.util.xpath.SynapseXPath;
 import org.wso2.carbon.databridge.commons.AttributeType;
@@ -29,15 +27,12 @@ import org.wso2.carbon.databridge.commons.AttributeType;
  * Property of a Stream Definition
  */
 public class Property {
-
     private String key = "";
     private String value = null;
     private SynapseXPath expression = null;
     private String defaultValue = "";
     private String type = "";
-
     private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
-    private static final Log log = LogFactory.getLog(Property.class);
 
     public String getKey() {
         return key;
@@ -74,8 +69,8 @@ public class Property {
     public String getType() {
         return type;
     }
+
     public AttributeType getDatabridgeAttributeType() {
-        //TODO:
         if ("STRING".equals(type)) {
             return AttributeType.STRING;
         }
@@ -102,35 +97,33 @@ public class Property {
     }
 
     public Object extractPropertyValue(MessageContext messageContext) {
-        try {
-            String stringProperty;
-            if (expression  != null) {
-                stringProperty = expression.stringValueOf(messageContext);
-            } else {
-                stringProperty = getValue();
-            }
-            if (stringProperty == null || "".equals(stringProperty)) {
-                stringProperty = defaultValue;
-            }
-            if ("STRING".equals(getType())) {
-                return propertyTypeConverter.convertToString(stringProperty);
-            } else if ("INTEGER".equals(getType())) {
-                return propertyTypeConverter.convertToInt(stringProperty);
-            } else if ("FLOAT".equals(getType())) {
-                return propertyTypeConverter.convertToFloat(stringProperty);
-            } else if ("DOUBLE".equals(getType())) {
-                return propertyTypeConverter.convertToDouble(stringProperty);
-            } else if ("BOOLEAN".equals(getType())) {
-                return propertyTypeConverter.convertToBoolean(stringProperty);
-            } else if ("LONG".equals(getType())) {
-                return propertyTypeConverter.convertToLong(stringProperty);
-            } else {
-                return stringProperty;
-            }
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while extracting property value. " + e.getMessage();
-            log.error(errorMsg, e);
-            return null;
+        String stringProperty;
+        if (expression != null) {
+            stringProperty = expression.stringValueOf(messageContext);
+        } else {
+            stringProperty = getValue();
         }
+        if (stringProperty == null || "".equals(stringProperty)) {
+            stringProperty = defaultValue;
+        }
+        if ("STRING".equals(getType())) {
+            return propertyTypeConverter.convertToString(stringProperty);
+        }
+        if ("INTEGER".equals(getType())) {
+            return propertyTypeConverter.convertToInt(stringProperty);
+        }
+        if ("FLOAT".equals(getType())) {
+            return propertyTypeConverter.convertToFloat(stringProperty);
+        }
+        if ("DOUBLE".equals(getType())) {
+            return propertyTypeConverter.convertToDouble(stringProperty);
+        }
+        if ("BOOLEAN".equals(getType())) {
+            return propertyTypeConverter.convertToBoolean(stringProperty);
+        }
+        if ("LONG".equals(getType())) {
+            return propertyTypeConverter.convertToLong(stringProperty);
+        }
+        return stringProperty;
     }
 }

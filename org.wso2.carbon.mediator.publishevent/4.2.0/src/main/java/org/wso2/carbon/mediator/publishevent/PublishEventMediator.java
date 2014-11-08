@@ -1,5 +1,5 @@
 /*
- * Copyright (c) {$year}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -35,7 +35,6 @@ import org.wso2.carbon.databridge.agent.thrift.util.DataPublisherUtil;
 import org.wso2.carbon.databridge.commons.Attribute;
 import org.wso2.carbon.databridge.commons.StreamDefinition;
 import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
-import org.wso2.carbon.mediator.publishevent.PublishEventMediatorFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +48,12 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
     private static final String ADMIN_SERVICE_PARAMETER = "adminService";
     private static final String HIDDEN_SERVICE_PARAMETER = "hiddenService";
 
+    private String eventSink = "";
+    private String streamName = "";
     private String streamVersion = "";
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
-    private String serverProfile = "";
     private LoadBalancingDataPublisher loadBalancingDataPublisher;
     private ThriftEndpointConfig thriftEndpointConfig;
 
@@ -134,7 +134,6 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
 
         if (synLog.isTraceOrDebugEnabled()) {
             synLog.traceOrDebug("Start : " + PublishEventMediatorFactory.getTagName() + " mediator");
-
             if (synLog.isTraceTraceEnabled()) {
                 synLog.traceTrace("Message : " + messageContext.getEnvelope());
             }
@@ -183,7 +182,6 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
 
         if (synLog.isTraceOrDebugEnabled()) {
             synLog.traceOrDebug("End : " + PublishEventMediatorFactory.getTagName() + " mediator");
-
             if (synLog.isTraceTraceEnabled()) {
                 synLog.traceTrace("Message : " + messageContext.getEnvelope());
             }
@@ -200,8 +198,12 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
         return attributeList;
     }
 
-    public String getServerProfile() {
-        return serverProfile;
+    public String getEventSink() {
+        return eventSink;
+    }
+
+    public String getStreamName() {
+        return streamName;
     }
 
     public String getStreamVersion() {
@@ -220,19 +222,13 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
         return payloadProperties;
     }
 
-    public String getStreamName() {
-        return streamName;
-    }
-
-    public void setServerProfile(String serverProfile) {
-        this.serverProfile = serverProfile;
+    public void setEventSink(String eventSink) {
+        this.eventSink = eventSink;
     }
 
     public void setStreamName(String streamName) {
         this.streamName = streamName;
     }
-
-    private String streamName = "";
 
     public void setStreamVersion(String streamVersion) {
         this.streamVersion = streamVersion;
