@@ -44,11 +44,17 @@ function displayElement(elementId, isDisplay) {
 
 function publishEventMediatorValidate() {
     var radio = document.getElementById('set');
-    var name = document.getElementById('mediator.publishevent.name');
+    var name = document.getElementById('mediator.publishEvent.stream.name');
     if (name && name.value == "") {
-        CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.name"]);
+        CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.StreamName"]);
         return false;
     }
+    var version = document.getElementById('mediator.publishEvent.stream.version');
+    if (version && version.value == "") {
+        CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.StreamVersion"]);
+        return false;
+    }
+
     if (radio && radio.checked) {
         var val = document.getElementById('mediator.publishevent.val_ex');
         var type = document.getElementById('type_select');

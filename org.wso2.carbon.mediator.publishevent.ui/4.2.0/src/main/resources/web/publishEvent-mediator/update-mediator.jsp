@@ -27,6 +27,7 @@
 <%@ page import="org.apache.synapse.util.xpath.SynapseJsonPath" %>
 
 <%
+
     Mediator mediator = SequenceEditorHelper.getEditingMediator(request, session);
     String uri = "", prefix = "";
     if (!(mediator instanceof PublishEventMediator)) {
@@ -34,5 +35,16 @@
         throw new RuntimeException("Unable to edit the mediator");
     }
     PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
+
+    publishEventMediator.setStreamName(request.getParameter("mediator.publishEvent.stream.name"));
+    publishEventMediator.setStreamVersion(request.getParameter("mediator.publishEvent.stream.version"));
+    publishEventMediator.extractProperties(request.getParameter("hfmetaPropertyTableData"),"meta");
+    publishEventMediator.extractProperties(request.getParameter("hfcorrelationPropertyTableData"),"correlation");
+    publishEventMediator.extractProperties(request.getParameter("hfpayloadPropertyTableData"),"payload");
+
+
+
+
+
 %>
 

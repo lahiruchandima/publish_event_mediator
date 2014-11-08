@@ -101,6 +101,10 @@ public class Property {
         this.type = type;
     }
 
+    public boolean isNotNullOrEmpty(String string){
+        return string != null && !string.equals("");
+    }
+
     public Object extractPropertyValue(MessageContext messageContext) {
         try {
             String stringProperty;

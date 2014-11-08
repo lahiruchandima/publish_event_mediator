@@ -28,8 +28,12 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
 
-<%! public static final String PROPERTY_VALUES = "propertyValues";
-    public static final String PROPERTY_KEYS = "propertyKeys";
+<%! public static final String META_PROPERTY_VALUES = "metaPropertyValues";
+    public static final String META_PROPERTY_KEYS = "metaPropertyKeys";
+    public static final String CORRELATION_PROPERTY_VALUES = "correlationPropertyValues";
+    public static final String CORRELATION_PROPERTY_KEYS = "correlationPropertyKeys";
+    public static final String PAYLOAD_PROPERTY_VALUES = "payloadPropertyValues";
+    public static final String PAYLOAD_PROPERTY_KEYS = "payloadPropertyKeys";
     //public static final String STREAM_NAMES = "streamNames";
     //public static final String STREAM_VERSIONS = "streamVersions";
     //public static final String STREAM_NICKNAME = "streamNickname";
@@ -86,77 +90,173 @@ function showHideDiv(divId) {
 }
 
 //var streamRowNum = 1;
-var propertyRowNum = 1;
+var metaPropertyRowNum = 1;
+var correlationPropertyRowNum = 1;
+var payloadPropertyRowNum = 1;
 
-function validatePropertyTable(){
-    var propertyRowInputs = document.getElementById("propertyTable").getElementsByTagName("input");
+function validatePropertyTable(propertyType){
+    var propertyRowInputs = document.getElementById(propertyType+"PropertyTable").getElementsByTagName("input");
     var inputName = "";
     for(var i=0; i<propertyRowInputs.length; i++){
         inputName = propertyRowInputs[i].name;
-        if((inputName == "<%=PROPERTY_KEYS%>" || inputName == "<%=PROPERTY_VALUES%>") && propertyRowInputs[i].value == ""){
-            return "Property Name or Property Value cannot be empty.";
+        if(propertyType=="meta" && ((inputName == "<%=META_PROPERTY_KEYS%>" || inputName == "<%=META_PROPERTY_VALUES%>") && propertyRowInputs[i].value == "")){
+            return "Meta Property Name or Property Value cannot be empty.";
+        }else if(propertyType=="correlation" && ((inputName == "<%=CORRELATION_PROPERTY_KEYS%>" || inputName == "<%=CORRELATION_PROPERTY_VALUES%>") && propertyRowInputs[i].value == "")){
+            return "Correlation Property Name or Property Value cannot be empty.";
+        }else if(propertyType=="payload" && ((inputName == "<%=PAYLOAD_PROPERTY_KEYS%>" || inputName == "<%=PAYLOAD_PROPERTY_VALUES%>") && propertyRowInputs[i].value == "")){
+            return "Payload Property Name or Property Value cannot be empty.";
         }
+
     }
     return "true";
 }
 
-function onAddPropertyClicked(){
-    var result = validatePropertyTable();
+function onAddPropertyClicked(propertyType){
+    var result = validatePropertyTable(propertyType);
     if(result == "true"){
-        addPropertyRow();
+        addPropertyRow(propertyType);
     } else {
         CARBON.showInfoDialog(result);
     }
 }
 
-function addPropertyRow() {
-    propertyRowNum++;
-    var sId = "propertyTable_" + propertyRowNum;
+function addPropertyRow(propertyType) {
+    if(propertyType=="meta"){
+        metaPropertyRowNum++;
+        var sId = propertyType+"PropertyTable_" + metaPropertyRowNum;
+        var tableContent = "<tr id=\""  + sId + "\">" +
+                "<td>\n" +
+                "                        <input type=\"text\" name=\"<%=META_PROPERTY_KEYS%>\" value=\"\">\n" +
+                "                    </td>\n" +
+                "                    <td>\n" +
+                "<table class=\"no-border-all\">" +
+                "         <tr> " +
+                "         <td> " +
+                "         <table> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" +  sId + "\" value=\"value\" checked=\"checked\"/></td> " +
+                "          <td>Value</td> " +
+                "         <tr> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"expression\"/></td> " +
+                "       <td>Expression</td> " +
+                "         <tr> " +
+                "       </table> " +
+                "       </td> " +
+                "         <td> " +
+                "<input type=\"text\" name=\"<%=META_PROPERTY_VALUES%>\" value=\"\"/>" +
+                "         </td> " +
+                "         </tr> " +
+                "         </table> " +
+                "         </td> " +
 
-    var tableContent = "<tr id=\"" + sId + "\">" +
-            "<td>\n" +
-            "                        <input type=\"text\" name=\"<%=PROPERTY_KEYS%>\" value=\"\">\n" +
-            "                    </td>\n" +
-            "                    <td>\n" +
-            "<table class=\"no-border-all\">" +
-            "         <tr> " +
-            "         <td> " +
-            "         <table> " +
-            "         <tr> " +
-            "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"value\" checked=\"checked\"/></td> " +
-            "          <td>Value</td> " +
-            "         <tr> " +
-            "         <tr> " +
-            "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"expression\"/></td> " +
-            "       <td>Expression</td> " +
-            "         <tr> " +
-            "       </table> " +
-            "       </td> " +
-            "         <td> " +
-            "<input type=\"text\" name=\"<%=PROPERTY_VALUES%>\" value=\"\"/>" +
-            "         </td> " +
-            "         </tr> " +
-            "         </table> " +
-            "         </td> " +
+                "<td>" +
+                "<select id=\"PropertyType_" + sId + "\">" +
+                "<option value=\"STRING\" selected=\"selected\" >STRING</option>" +
+                "<option value=\"INTEGER\">INTEGER</option>" +
+                "<option value=\"BOOLEAN\">BOOLEAN</option>" +
+                "<option value=\"DOUBLE\">DOUBLE</option>" +
+                "<option value=\"FLOAT\">FLOAT</option>" +
+                "<option value=\"LONG\">LONG</option>" +
+                "</select>" +
+                "</td>" +
 
-            "<td>" +
-            "<select id=\"propertyType_" + sId + "\">" +
-            "<option value=\"STRING\" selected=\"selected\" >STRING</option>" +
-            "<option value=\"INTEGER\">INTEGER</option>" +
-            "<option value=\"BOOLEAN\">BOOLEAN</option>" +
-            "<option value=\"DOUBLE\">DOUBLE</option>" +
-            "<option value=\"FLOAT\">FLOAT</option>" +
-            "<option value=\"LONG\">LONG</option>" +
-            "</select>" +
-            "</td>" +
+                "<td> " +
+                "<a onClick='javaScript:removePropertyColumn(\""+ sId + "\")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a> " +
+                "</td> " +
+                "</tr>;" ;
 
-            "<td> " +
-            "<a onClick='javaScript:removePropertyColumn(\"" + sId + "\")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a> " +
-            "</td> " +
-            "</tr>;" ;
+    }else if(propertyType=="correlation"){
+        correlationPropertyRowNum++;
+        var sId = propertyType+"PropertyTable_" + correlationPropertyRowNum;
+        var tableContent = "<tr id=\""  + sId + "\">" +
+                "<td>\n" +
+                "                        <input type=\"text\" name=\"<%=CORRELATION_PROPERTY_KEYS%>\" value=\"\">\n" +
+                "                    </td>\n" +
+                "                    <td>\n" +
+                "<table class=\"no-border-all\">" +
+                "         <tr> " +
+                "         <td> " +
+                "         <table> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" +  sId + "\" value=\"value\" checked=\"checked\"/></td> " +
+                "          <td>Value</td> " +
+                "         <tr> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"expression\"/></td> " +
+                "       <td>Expression</td> " +
+                "         <tr> " +
+                "       </table> " +
+                "       </td> " +
+                "         <td> " +
+                "<input type=\"text\" name=\"<%=CORRELATION_PROPERTY_VALUES%>\" value=\"\"/>" +
+                "         </td> " +
+                "         </tr> " +
+                "         </table> " +
+                "         </td> " +
+                "<td>" +
+                "<select id=\"PropertyType_" + sId + "\">" +
+                "<option value=\"STRING\" selected=\"selected\" >STRING</option>" +
+                "<option value=\"INTEGER\">INTEGER</option>" +
+                "<option value=\"BOOLEAN\">BOOLEAN</option>" +
+                "<option value=\"DOUBLE\">DOUBLE</option>" +
+                "<option value=\"FLOAT\">FLOAT</option>" +
+                "<option value=\"LONG\">LONG</option>" +
+                "</select>" +
+                "</td>" +
+                "<td> " +
+                "<a onClick='javaScript:removePropertyColumn(\""+ sId + "\")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a> " +
+                "</td> " +
+                "</tr>;" ;
 
-    jQuery("#propertyTable").append(tableContent);
-    //updatePropertyTableData();
+    }else{
+        payloadPropertyRowNum++;
+        var sId = propertyType+"PropertyTable_" + payloadPropertyRowNum;
+        var tableContent = "<tr id=\""  + sId + "\">" +
+                "<td>\n" +
+                "                        <input type=\"text\" name=\"<%=PAYLOAD_PROPERTY_KEYS%>\" value=\"\">\n" +
+                "                    </td>\n" +
+                "                    <td>\n" +
+                "<table class=\"no-border-all\">" +
+                "         <tr> " +
+                "         <td> " +
+                "         <table> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" +  sId + "\" value=\"value\" checked=\"checked\"/></td> " +
+                "          <td>Value</td> " +
+                "         <tr> " +
+                "         <tr> " +
+                "         <td><input type=\"radio\" name=\"fieldType_" + sId + "\" value=\"expression\"/></td> " +
+                "       <td>Expression</td> " +
+                "         <tr> " +
+                "       </table> " +
+                "       </td> " +
+                "         <td> " +
+                "<input type=\"text\" name=\"<%=PAYLOAD_PROPERTY_VALUES%>\" value=\"\"/>" +
+                "         </td> " +
+                "         </tr> " +
+                "         </table> " +
+                "         </td> " +
+                "<td>" +
+                "<select id=\"PropertyType_" + sId + "\">" +
+                "<option value=\"STRING\" selected=\"selected\" >STRING</option>" +
+                "<option value=\"INTEGER\">INTEGER</option>" +
+                "<option value=\"BOOLEAN\">BOOLEAN</option>" +
+                "<option value=\"DOUBLE\">DOUBLE</option>" +
+                "<option value=\"FLOAT\">FLOAT</option>" +
+                "<option value=\"LONG\">LONG</option>" +
+                "</select>" +
+                "</td>" +
+                "<td> " +
+                "<a onClick='javaScript:removePropertyColumn(\""+ sId + "\")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a> " +
+                "</td> " +
+                "</tr>;" ;
+    }
+
+
+
+    jQuery("#"+propertyType+"PropertyTable").append(tableContent);
+    updatePropertyTableData(propertyType);
 }
 
 
@@ -165,30 +265,31 @@ function removePropertyColumn(id) {
     updatePropertyTableData();
 }
 
-function updatePropertyTableData(){
+function updatePropertyTableData(propertyType){
     var tableData = "", inputs, lists, numOfInputs;
-    inputs = document.getElementById("propertyTable").getElementsByTagName("input");
-    lists = document.getElementById("propertyTable").getElementsByTagName("select");
+    inputs = document.getElementById(propertyType+"PropertyTable").getElementsByTagName("input");
+    lists = document.getElementById(propertyType+"PropertyTable").getElementsByTagName("select");
     numOfInputs = inputs.length;
+    alert(numOfInputs);
     for(var i=0; i<numOfInputs; i=i+4){
         if(inputs[i].value != "" && inputs[i+3].value != ""){
-            tableData = tableData + inputs[i].value + "::" + inputs[i+3].value + "::" + lists[i/4].value;
+            tableData = tableData + inputs[i].value;
             if(inputs[i+1].checked){
                 tableData = tableData + "::" + "value";
             } else {
                 tableData = tableData + "::" + "expression";
             }
-            tableData = tableData + ";";
+            tableData = tableData + "::" + inputs[i+3].value + "::" + lists[i/4].value + ";";
         }
     }
-    document.getElementById("hfPropertyTableData").value = tableData;
+    document.getElementById("hf"+propertyType+"PropertyTableData").value = tableData;
 }
 
-function savePropertyTableData(){
-    updatePropertyTableData();
+function savePropertyTableData(propertyType){
+    updatePropertyTableData(propertyType);
     var streamRowNumber = document.getElementById("hfStreamTableRowNumber").value;
-    document.getElementById("hfStreamsTable_" + streamRowNumber).value = document.getElementById("hfPropertyTableData").value;
-    document.getElementById("propertiesTr").style.display = "none";
+    //document.getElementById("hfStreamsTable_" + streamRowNumber).value = document.getElementById("hfPropertyTableData").value;
+    document.getElementById(propertyType+"PropertiesTr").style.display = "none";
     jQuery("#streamsTable_" + document.getElementById("hfStreamTableRowNumber").value).css("background-color","");
 }
 
@@ -211,15 +312,15 @@ function saveDumpData(){
     document.getElementById("mBody").checked = "checked";
 }
 
-function savePropertiesData(){
-    savePropertyTableData();
+function savePropertiesData(propertyType){
+    savePropertyTableData(propertyType);
     saveDumpData();
 }
 
 
 
-function loadPropertyDataTable(){
-    emptyPropertyTable();
+function loadPropertyDataTable(propertyType){
+    emptyPropertyTable(propertyType);
     var rowNumber =  document.getElementById("hfStreamTableRowNumber").value;
     var configDataString = document.getElementById("streamsTable_" + rowNumber).getElementsByTagName("input")[4].value;
     var propertyDataString = configDataString.split("^")[0];
@@ -234,17 +335,17 @@ function loadPropertyDataTable(){
 
     for(var i=0; i<numOfProperties; i=i+1){
         if(propertyDataArray[i].split("::").length == 4){
-            jQuery("#propertyTable").find("tr").find("input")[4*i].value = propertyDataArray[i].split("::")[0];
-            jQuery("#propertyTable").find("tr").find("input")[4*i+3].value = propertyDataArray[i].split("::")[1];
-            jQuery("#propertyTable").find("tr").find("select")[i].value = propertyDataArray[i].split("::")[2];
+            jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[4*i].value = propertyDataArray[i].split("::")[0];
+            jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[4*i+3].value = propertyDataArray[i].split("::")[1];
+            jQuery("#"+propertyType+"PropertyTable").find("tr").find("select")[i].value = propertyDataArray[i].split("::")[2];
             if(propertyDataArray[i].split("::")[3] == "value"){
-                jQuery("#propertyTable").find("tr").find("input")[4*i+1].checked = true;
+                jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[4*i+1].checked = true;
             } else if(propertyDataArray[i].split("::")[3] == "expression"){
-                jQuery("#propertyTable").find("tr").find("input")[4*i+2].checked = true;
+                jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[4*i+2].checked = true;
             }
         }
     }
-    updatePropertyTableData();
+    updatePropertyTableData(propertyType);
 }
 
 function loadDumpData(){
@@ -270,20 +371,20 @@ function loadDumpData(){
     }
 }
 
-function emptyPropertyTable(){
-    document.getElementById("hfPropertyTableData").value = "";
-    jQuery("#propertyTable").find("tr").find("input")[0].value = "";
-    jQuery("#propertyTable").find("tr").find("input")[3].value = "";
-    jQuery("#propertyTable").find("tr").find("select")[0].value = "STRING";
-    jQuery("#propertyTable").find("tr").find("input")[1].checked = true;
-    var tableRowNumber = jQuery("#propertyTable").find("tr").length;
+function emptyPropertyTable(propertyType){
+    document.getElementById("hf"+propertyType+"PropertyTableData").value = "";
+    jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[0].value = "";
+    jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[3].value = "";
+    jQuery("#"+propertyType+"PropertyTable").find("tr").find("select")[0].value = "STRING";
+    jQuery("#"+propertyType+"PropertyTable").find("tr").find("input")[1].checked = true;
+    var tableRowNumber = jQuery("#"+propertyType+"PropertyTable").find("tr").length;
     var isFirstRow = true;
     //var firstRowId = "";
     var currentRowId;
     var trArray = new Array();
     for(var i=0; i<tableRowNumber; i=i+1){
-        currentRowId = jQuery("#propertyTable").find("tr")[i].id;
-        if(currentRowId.split("_")[0] == "propertyTable"){
+        currentRowId = jQuery("#"+propertyType+"PropertyTable").find("tr")[i].id;
+        if(currentRowId.split("_")[0] == ""+propertyType+"PropertyTable"){
             if(!isFirstRow){
                 //jQuery("#" + currentRowId).remove();
                 trArray.push(currentRowId);
@@ -297,9 +398,9 @@ function emptyPropertyTable(){
 
 }
 
-function cancelPropertyTableData(){
-    emptyPropertyTable();
-    document.getElementById("propertiesTr").style.display = "none";
+function cancelPropertyTableData(propertyType){
+    emptyPropertyTable(propertyType);
+    document.getElementById(propertyType+"PropertiesTr").style.display = "none";
     jQuery("#streamsTable_" + document.getElementById("hfStreamTableRowNumber").value).css("background-color","");
 }
 
@@ -311,7 +412,7 @@ function cancelDumpData(){
 
 
 function submitPage(){
-    updateStreamTableData();
+    //updateStreamTableData();
     document.getElementById('hfAction').value='save';
 }
 
@@ -329,44 +430,19 @@ function submitPage(){
         // todo : proper error handling
         throw new RuntimeException("Unable to edit the mediator");
     }
-    PublishEventMediator publishEventMediator = (org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator) mediator;
-    boolean isOMValue = false;
-    boolean displayPatternAndGroup = true;
-    String type = "STRING";
-    String omValue = "";
-    if (publishEventMediator.getType() != null) {
-        type = publishEventMediator.getType();
-        if (!type.equals("STRING") || publishEventMediator.ACTION_REMOVE
-                == publishEventMediator.getAction()) {
-            displayPatternAndGroup = false;
-        }
-    }
-    if (publishEventMediator.getValue() != null) {
-        isExpression = false;
-        val = publishEventMediator.getValue();
-        val = val.replace("\"","&quot;");//replace quote sign with &quot;
-    } else if (publishEventMediator.getExpression() != null) {
-        isExpression = true;
-        val = publishEventMediator.getExpression().toString();
-        val = val.replace("\"","&quot;");//replace quote sign with &quot;
-        NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
-        nameSpacesRegistrar.registerNameSpaces(publishEventMediator.getExpression(), "mediator.publishevent.val_ex", session);
-    } else if (publishEventMediator.getValueElement() != null) {
-        omValue = publishEventMediator.getValueElement().toString();
-        isOMValue = true;
-    }
-    String pattern = "";
-    String group = "";
+    PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
+    String streamName = "";
+    String streamVersion = "";
 
-    if (type.equals("STRING")) {
-        if (publishEventMediator.getPattern() != null) {
-            pattern = publishEventMediator.getPattern();
-        }
-
-        if (publishEventMediator.getGroup() != 0) {
-            group = Integer.toString(publishEventMediator.getGroup());
-        }
+    if(publishEventMediator.getStreamName() != null){
+        streamName = publishEventMediator.getStreamName();
     }
+
+    if(publishEventMediator.getStreamVersion() != null){
+        streamVersion = publishEventMediator.getStreamVersion();
+    }
+
+
 %>
 
 <fmt:bundle basename="org.wso2.carbon.mediator.publishevent.ui.i18n.Resources">
@@ -378,61 +454,60 @@ function submitPage(){
 
         <table class="normal" width="100%">
             <tbody>
-            <tr><td colspan="3"><h2><fmt:message key="mediator.publishevent.header"/></h2></td></tr>
+            <tr><td colspan="3"><h2><fmt:message key="mediator.publishEvent.header"/></h2></td></tr>
 
 
             <tr>
-                <td style="width:130px;"><fmt:message key="name"/><font style="color: red; font-size: 8pt;"> *</font>
+                <td style="width:130px;"><fmt:message key="mediator.publishEvent.stream.name"/><font style="color: red; font-size: 8pt;"> *</font>
                 </td>
                 <td>
-                    <input type="text" id="mediator.publishEvent.name" name="mediator.publishEvent.name"
+                    <input type="text" id="mediator.publishEvent.stream.name" name="mediator.publishEvent.stream.name"
                            style="width:300px;"
-                           value='<%=publishEventMediator.getName() != null ? publishEventMediator.getName() : ""%>'/>
+                           value='<%=publishEventMediator.getStreamName() != null ? publishEventMediator.getStreamName() : ""%>'/>
                 </td>
                 <td></td>
             </tr>
             <tr>
-                <td style="width:130px;"><fmt:message key="mediator.publishevent.stream.version"/><font style="color: red; font-size: 8pt;"> *</font>
+                <td style="width:130px;"><fmt:message key="mediator.publishEvent.stream.version"/><font style="color: red; font-size: 8pt;"> *</font>
                 </td>
                 <td>
-                    <input type="text" id="mediator.publishevent.stream.version" name="mediator.publishevent.stream.version"
+                    <input type="text" id="mediator.publishEvent.stream.version" name="mediator.publishEvent.stream.version"
                            style="width:300px;"
-                           value='<%=publishEventMediator.getName() != null ? publishEventMediator.getName() : ""%>'/>
+                           value='<%=publishEventMediator.getStreamVersion() != null ? publishEventMediator.getStreamVersion() : ""%>'/>
                 </td>
                 <td></td>
             </tr>
 
 
-            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.meta.header"/></h4></td></tr>
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.meta.header"/></h4></td></tr>
 
-            <tr id="propertiesTr">
+            <tr id="metaPropertyTr">
                 <td colspan="2">
-                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
-                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
+                    <input name="hfmetaPropertyTableData" id="hfmetaPropertyTableData" type="hidden" value="" />
 
 
                     <table>
                         <tr>
                             <td>
-                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                <table id="metaPropertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
                                     <thead>
                                     <tr>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.meta.name"/>
+                                            <fmt:message key="mediator.publishEvent.meta.name"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.meta.value"/>
+                                            <fmt:message key="mediator.publishEvent.meta.value"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.meta.type"/>
+                                            <fmt:message key="mediator.publishEvent.meta.type"/>
                                         </th>
                                         <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr id="propertyTable_1">
+                                    <tr id="metaPropertyTable_1">
                                         <td>
-                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                            <input type="text" name="<%=META_PROPERTY_KEYS%>" value=""/>
                                         </td>
                                         <td>
                                             <table class="no-border-all">
@@ -440,24 +515,24 @@ function submitPage(){
                                                     <td>
                                                         <table>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.meta.value"/></td>
+                                                                <td><input type="radio" name="fieldType_metaPropertyTable_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.meta.value"/></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.meta.expression"/></td>
+                                                                <td><input type="radio" name="fieldType_metaPropertyTable_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.meta.expression"/></td>
                                                             </tr>
                                                         </table>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                        <input type="text" name="<%=META_PROPERTY_VALUES%>" value=""/>
                                                     </td>
                                                 </tr>
                                             </table>
                                         </td>
 
                                         <td>
-                                            <select id="propertyType_1">
+                                            <select id="metaPropertyType_1">
                                                 <option value="STRING" selected="selected" >STRING</option>
                                                 <option value="INTEGER">INTEGER</option>
                                                 <option value="BOOLEAN">BOOLEAN</option>
@@ -468,7 +543,7 @@ function submitPage(){
                                         </td>
 
                                         <td>
-                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                            <a onClick='javaScript:removePropertyColumn("metaPropertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -481,12 +556,12 @@ function submitPage(){
                                     <tr>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                                <a onClick='javaScript:onAddPropertyClicked("meta")' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
                                             </span>
                                         </td>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                                <a onClick='javaScript:savePropertiesData("meta")' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
                                             </span>
                                         </td>
 
@@ -498,36 +573,34 @@ function submitPage(){
                 </td>
             </tr>
 
-            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.correlated.header"/></h4></td></tr>
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.correlated.header"/></h4></td></tr>
 
-            <tr id="propertiesTr">
+            <tr id="correlationPropertyTr">
                 <td colspan="2">
-                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
-                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
-
+                    <input name="hfcorrelationPropertyTableData" id="hfcorrelationPropertyTableData" type="hidden" value="" />
 
                     <table>
                         <tr>
                             <td>
-                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                <table id="correlationPropertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
                                     <thead>
                                     <tr>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.correlated.name"/>
+                                            <fmt:message key="mediator.publishEvent.correlated.name"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.correlated.value"/>
+                                            <fmt:message key="mediator.publishEvent.correlated.value"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.correlated.type"/>
+                                            <fmt:message key="mediator.publishEvent.correlated.type"/>
                                         </th>
                                         <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr id="propertyTable_1">
+                                    <tr id="correlationPropertyTable_1">
                                         <td>
-                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                            <input type="text" name="<%=CORRELATION_PROPERTY_KEYS%>" value=""/>
                                         </td>
                                         <td>
                                             <table class="no-border-all">
@@ -535,24 +608,24 @@ function submitPage(){
                                                     <td>
                                                         <table>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.correlated.value"/></td>
+                                                                <td><input type="radio" name="fieldType_correlationPropertyTable_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.correlated.value"/></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.correlated.expression"/></td>
+                                                                <td><input type="radio" name="fieldType_correlationPropertyTable_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.correlated.expression"/></td>
                                                             </tr>
                                                         </table>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                        <input type="text" name="<%=CORRELATION_PROPERTY_VALUES%>" value=""/>
                                                     </td>
                                                 </tr>
                                             </table>
                                         </td>
 
                                         <td>
-                                            <select id="propertyType_1">
+                                            <select id="correlationPropertyType_1">
                                                 <option value="STRING" selected="selected" >STRING</option>
                                                 <option value="INTEGER">INTEGER</option>
                                                 <option value="BOOLEAN">BOOLEAN</option>
@@ -563,7 +636,7 @@ function submitPage(){
                                         </td>
 
                                         <td>
-                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                            <a onClick='javaScript:removePropertyColumn("correlationPropertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -576,12 +649,12 @@ function submitPage(){
                                     <tr>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                                <a onClick='javaScript:onAddPropertyClicked("correlation")' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
                                             </span>
                                         </td>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                                <a onClick='javaScript:savePropertiesData("correlation")' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
                                             </span>
                                         </td>
 
@@ -593,36 +666,34 @@ function submitPage(){
                 </td>
             </tr>
 
-            <tr><td colspan="3"><h4><fmt:message key="mediator.publishevent.payload.header"/></h4></td></tr>
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.payload.header"/></h4></td></tr>
 
-            <tr id="propertiesTr">
+            <tr id="payloadPropertyTr">
                 <td colspan="2">
-                    <input name="hfPropertyTableData" id="hfPropertyTableData" type="hidden" value="" />
-                    <input id="hfStreamTableRowNumber" type="hidden" value="1" />
-
+                    <input name="hfpayloadPropertyTableData" id="hfpayloadPropertyTableData" type="hidden" value="" />
 
                     <table>
                         <tr>
                             <td>
-                                <table id="propertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
+                                <table id="payloadPropertyTable" width="100%" class="styledLeft" style="margin-left: 0px;">
                                     <thead>
                                     <tr>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.payload.name"/>
+                                            <fmt:message key="mediator.publishEvent.payload.name"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.payload.value"/>
+                                            <fmt:message key="mediator.publishEvent.payload.value"/>
                                         </th>
                                         <th width="30%">
-                                            <fmt:message key="mediator.publishevent.payload.type"/>
+                                            <fmt:message key="mediator.publishEvent.payload.type"/>
                                         </th>
                                         <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr id="propertyTable_1">
+                                    <tr id="payloadPropertyTable_1">
                                         <td>
-                                            <input type="text" name="<%=PROPERTY_KEYS%>" value=""/>
+                                            <input type="text" name="<%=PAYLOAD_PROPERTY_KEYS%>" value=""/>
                                         </td>
                                         <td>
                                             <table class="no-border-all">
@@ -630,24 +701,24 @@ function submitPage(){
                                                     <td>
                                                         <table>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="value" checked="checked"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.payload.value"/></td>
+                                                                <td><input type="radio" name="fieldType_payloadPropertyTable_1" value="value" checked="checked"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.payload.value"/></td>
                                                             </tr>
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_1" value="expression"/></td>
-                                                                <td><fmt:message key="mediator.publishevent.payload.expression"/></td>
+                                                                <td><input type="radio" name="fieldType_payloadPropertyTable_1" value="expression"/></td>
+                                                                <td><fmt:message key="mediator.publishEvent.payload.expression"/></td>
                                                             </tr>
                                                         </table>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="<%=PROPERTY_VALUES%>" value=""/>
+                                                        <input type="text" name="<%=PAYLOAD_PROPERTY_VALUES%>" value=""/>
                                                     </td>
                                                 </tr>
                                             </table>
                                         </td>
 
                                         <td>
-                                            <select id="propertyType_1">
+                                            <select id="payloadPropertyType_1">
                                                 <option value="STRING" selected="selected" >STRING</option>
                                                 <option value="INTEGER">INTEGER</option>
                                                 <option value="BOOLEAN">BOOLEAN</option>
@@ -658,7 +729,7 @@ function submitPage(){
                                         </td>
 
                                         <td>
-                                            <a onClick='javaScript:removePropertyColumn("propertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                            <a onClick='javaScript:removePropertyColumn("payloadPropertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -671,12 +742,12 @@ function submitPage(){
                                     <tr>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:onAddPropertyClicked()' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
+                                                <a onClick='javaScript:onAddPropertyClicked("payload")' style='background-image: url(../admin/images/add.gif);'class='icon-link addIcon'>Add</a>
                                             </span>
                                         </td>
                                         <td>
                                             <span>
-                                                <a onClick='javaScript:savePropertiesData()' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
+                                                <a onClick='javaScript:savePropertiesData("payload")' style='background-image: url(images/save-button.gif);'class='icon-link addIcon'>Update</a>
                                             </span>
                                         </td>
 
