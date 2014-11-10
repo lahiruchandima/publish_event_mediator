@@ -283,7 +283,7 @@ public class PublishEventMediator extends AbstractMediator {
     }
 
 
-    private boolean isNotNullOrEmpty(String string){
+    public boolean isNotNullOrEmpty(String string){
         return string != null && !string.equals("");
     }
 
@@ -329,6 +329,16 @@ public class PublishEventMediator extends AbstractMediator {
             }
 
             propertyList.add(property);
+        }
+    }
+
+    public void clearList(String type){
+        if(type.equals("meta")){
+            metaProperties.clear();
+        }else if (type.equals("correlation")){
+            correlationProperties.clear();
+        }else if (type.equals("payload")){
+            payloadProperties.clear();
         }
     }
 

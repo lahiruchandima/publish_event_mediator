@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.NameSpacesRegistrar" %>
+<%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -485,7 +486,6 @@ function submitPage(){
                 <td colspan="2">
                     <input name="hfmetaPropertyTableData" id="hfmetaPropertyTableData" type="hidden" value="" />
 
-
                     <table>
                         <tr>
                             <td>
@@ -505,47 +505,95 @@ function submitPage(){
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr id="metaPropertyTable_1">
-                                        <td>
-                                            <input type="text" name="<%=META_PROPERTY_KEYS%>" value=""/>
-                                        </td>
-                                        <td>
-                                            <table class="no-border-all">
-                                                <tr>
+
+                                    <%
+                                        int i=0;
+                                        if(publishEventMediator.getMetaProperties() != null){
+
+                                            for(Property property:publishEventMediator.getMetaProperties()){
+                                                System.out.print("PublishEvent Property name : "+property.getKey());
+                                    %>
+                                                <tr id="metaPropertyTable_<%=i%>">
+                                                <td>
+                                                <input type="text" name="<%=META_PROPERTY_KEYS%>" value="<%=property.getKey()%>"/>
+                                    </td>
+
+                                                            <%
+                                                                if(!(property.getValue().equals(""))){
+
+                                                            %>
                                                     <td>
-                                                        <table>
+                                                        <table class="no-border-all">
                                                             <tr>
-                                                                <td><input type="radio" name="fieldType_metaPropertyTable_1" value="value" checked="checked"/></td>
-                                                                <td><fmt:message key="mediator.publishEvent.meta.value"/></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><input type="radio" name="fieldType_metaPropertyTable_1" value="expression"/></td>
-                                                                <td><fmt:message key="mediator.publishEvent.meta.expression"/></td>
+                                                                <td>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td><input type="radio" name="fieldType_metaPropertyTable_<%=i%>" value="value" checked="checked"/></td>
+                                                                            <td><fmt:message key="mediator.publishEvent.meta.value"/></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><input type="radio" name="fieldType_metaPropertyTable_<%=i%>" value="expression"/></td>
+                                                                            <td><fmt:message key="mediator.publishEvent.meta.expression"/></td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="<%=META_PROPERTY_VALUES%>" value="<%=property.getValue()%>"/>
+                                                                </td>
                                                             </tr>
                                                         </table>
                                                     </td>
+                                                            <%
+                                                                    }else if(!(property.getExpression().equals(""))){
+                                                             %>
                                                     <td>
-                                                        <input type="text" name="<%=META_PROPERTY_VALUES%>" value=""/>
+                                                        <table class="no-border-all">
+                                                            <tr>
+                                                                <td>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td><input type="radio" name="fieldType_metaPropertyTable_<%=i%>" value="value" /></td>
+                                                                            <td><fmt:message key="mediator.publishEvent.meta.value"/></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><input type="radio" name="fieldType_metaPropertyTable_<%=i%>" value="expression"  checked="checked"/></td>
+                                                                            <td><fmt:message key="mediator.publishEvent.meta.expression"/></td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="<%=META_PROPERTY_VALUES%>" value="<%=property.getExpression()%>"/>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </td>
-                                                </tr>
-                                            </table>
-                                        </td>
+                                                    <%
 
-                                        <td>
-                                            <select id="metaPropertyType_1">
-                                                <option value="STRING" selected="selected" >STRING</option>
-                                                <option value="INTEGER">INTEGER</option>
-                                                <option value="BOOLEAN">BOOLEAN</option>
-                                                <option value="DOUBLE">DOUBLE</option>
-                                                <option value="FLOAT">FLOAT</option>
-                                                <option value="LONG">LONG</option>
-                                            </select>
-                                        </td>
+                                                                    }%>
 
-                                        <td>
-                                            <a onClick='javaScript:removePropertyColumn("metaPropertyTable_1")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
-                                        </td>
-                                    </tr>
+
+                                    <td>
+                                        <select id="metaPropertyType_<%=i%>">
+                                            <option value="STRING" selected="selected" >STRING</option>
+                                            <option value="INTEGER">INTEGER</option>
+                                            <option value="BOOLEAN">BOOLEAN</option>
+                                            <option value="DOUBLE">DOUBLE</option>
+                                            <option value="FLOAT">FLOAT</option>
+                                            <option value="LONG">LONG</option>
+                                        </select>
+                                    </td>
+
+                                    <td>
+                                        <a onClick='javaScript:removePropertyColumn("metaPropertyTable_<%=i%>")' style='background-image: url(../admin/images/delete.gif);'class='icon-link addIcon'>Remove Property</a>
+                                    </td>
+
+                                     <%
+                                        i++;
+                                            }
+                                        }
+
+
+                                    %>
                                     </tbody>
                                 </table>
                             </td>
