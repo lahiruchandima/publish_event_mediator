@@ -50,32 +50,56 @@
     publishEventMediator.clearList("payload");
 
     String propertyString =request.getParameter("hfmetaPropertyTableData");
+    XPathFactory xPathFactory = XPathFactory.getInstance();
+    String propertyCountParameter = request.getParameter("propertyCount");
+    if (propertyCountParameter != null && !"".equals(propertyCountParameter)) {
+        Property currentProperty;
+        List<Property> metaProperties = new ArrayList<Property>();
+        int propertyCount = 0;
 
-    Property currentProperty;
-    List<Property> metaProperties = new ArrayList<Property>();
-    int i;
-    String[] properties = propertyString.split(PROPERTY_SEPARATOR);
-    for (String property : properties) {
-    if(property != null && !property.equals("")){
-    i = 0;
-    currentProperty = new Property();
-    currentProperty.setKey(property.split(PROPERTY_VALUE_SEPARATOR)[i++]);
-    if(PROPERTY_TYPE_VALUE.equals(property.split(PROPERTY_VALUE_SEPARATOR)[i])){
-    currentProperty.setValue(property.split(PROPERTY_VALUE_SEPARATOR)[++i]);
-    } else if(PROPERTY_TYPE_EXPRESSION.equals(property.split(PROPERTY_VALUE_SEPARATOR)[i])){
-    currentProperty.setExpression(SynapseXPath.parseXPathString(property.split(PROPERTY_VALUE_SEPARATOR)[++i]));
+        try {
+
+
+            propertyCount = Integer.parseInt(propertyCountParameter.trim());
+            for (int i = 0; i <= propertyCount; i++) {
+                String name = request.getParameter("propertyName" + i);
+                if (name != null && !"".equals(name)) {
+                    String valueId = "propertyValue" + i;
+                    String value = request.getParameter(valueId);
+                    currentProperty = new Property();
+                    currentProperty.setKey(name);
+
+                    String expression = request.getParameter("propertyTypeSelection" + i);
+                    boolean isExpression = expression != null && "expression".equals(expression.trim());
+
+                    if (value != null) {
+                        if (isExpression) {
+                            if(value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                                currentProperty.setExpression(jsonPath);
+                            } else {
+                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                            }
+                        } else {
+                            currentProperty.setValue(value);
+                        }
+                    }
+
+                    String type=request.getParameter("propertyValueTypeSelection" + i);
+                    currentProperty.setType(type);
+
+
+                    metaProperties.add(currentProperty);
+                }
+            }
+
+            ((PublishEventMediator) mediator).setMetaProperties(metaProperties);
+        }catch (NumberFormatException ignored) {
+            throw new RuntimeException("Invalid number format");
+        } catch (Exception exception) {
+            throw new RuntimeException("Invalid Path Expression");
+        }
     }
-    currentProperty.setType(property.split(PROPERTY_VALUE_SEPARATOR)[++i]);
-
-
-    metaProperties.add(currentProperty);
-
-    }
-    }
-
-    ((PublishEventMediator) mediator).setMetaProperties(metaProperties);
-
-
     //publishEventMediator.extractProperties(request.getParameter("hfmetaPropertyTableData"),"meta");
     //publishEventMediator.extractProperties(request.getParameter("hfcorrelationPropertyTableData"),"correlation");
     //publishEventMediator.extractProperties(request.getParameter("hfpayloadPropertyTableData"),"payload");

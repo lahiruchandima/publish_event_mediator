@@ -25,7 +25,6 @@ import org.apache.synapse.SynapseException;
 import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
 import org.apache.synapse.config.xml.XMLConfigConstants;
-import org.apache.synapse.util.xpath.SynapseXPath;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
 import org.wso2.carbon.databridge.commons.Attribute;
@@ -117,7 +116,9 @@ public class PublishEventMediator extends AbstractMediator {
 
         publishEventElement.addChild(streamAttributesElement);
 
-
+        if (parent != null) {
+            parent.addChild(publishEventElement);
+        }
 
         return publishEventElement;
     }
@@ -140,7 +141,7 @@ public class PublishEventMediator extends AbstractMediator {
             OMElement meta = attributes.getFirstChildWithName(META_Q);
             if (meta != null) {
                 List<Property> propertyList = new ArrayList<Property>();
-                Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
+                    Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
                 populateAttributes(propertyList, iter);
                 this.setMetaProperties(propertyList);
             }
@@ -251,40 +252,6 @@ public class PublishEventMediator extends AbstractMediator {
 
     public static QName getExpressionAttributeQ() {
         return ATT_EXPRN;
-    }
-
-    public void extractProperties(String propertyString,String propertyType) throws JaxenException {
-        Property currentProperty;
-        int i;
-        String[] properties = propertyString.split(PROPERTY_SEPARATOR);
-        for (String property : properties) {
-            if(this.isNotNullOrEmpty(property)){
-                i = 0;
-                currentProperty = new Property();
-                currentProperty.setKey(property.split(PROPERTY_VALUE_SEPARATOR)[i++]);
-                if(PROPERTY_TYPE_VALUE.equals(property.split(PROPERTY_VALUE_SEPARATOR)[i])){
-                    currentProperty.setValue(property.split(PROPERTY_VALUE_SEPARATOR)[++i]);
-                } else if(PROPERTY_TYPE_EXPRESSION.equals(property.split(PROPERTY_VALUE_SEPARATOR)[i])){
-                    currentProperty.setExpression(SynapseXPath.parseXPathString(property.split(PROPERTY_VALUE_SEPARATOR)[++i]));
-                }
-                currentProperty.setType(property.split(PROPERTY_VALUE_SEPARATOR)[++i]);
-
-                if(propertyType.equals("meta")){
-                    this.metaProperties.add(currentProperty);
-                }else if(propertyType.equals("correlation")){
-                    this.correlationProperties.add(currentProperty);
-                }else if(propertyType.equals("payload")){
-                    this.payloadProperties.add(currentProperty);
-                }
-
-
-            }
-        }
-    }
-
-
-    public boolean isNotNullOrEmpty(String string){
-        return string != null && !string.equals("");
     }
 
     private void populateAttributes(List<Property> propertyList, Iterator iter) {

@@ -14,36 +14,260 @@
  *  limitations under the License.
  */
 
-function displaySetProperties(isDisply) {
-    var toDisplayElement;
-    displayElement("mediator.publishevent.action_row", isDisply);
-    displayElement("mediator.publishevent.value_row", isDisply);
-    displayElement("type_row", isDisply);
-    displayElement("pattern_row", isDisply);
-    displayElement("group_row", isDisply);
-    toDisplayElement = document.getElementById("mediator.namespace.editor");
-    if (toDisplayElement != null) {
-        if (isDisply) {
-            toDisplayElement.style.display = '';
-        } else {
-            toDisplayElement.style.display = 'none';
+function addproperty(name,nameemptymsg, valueemptymsg) {
+
+    if (!isValidProperties(nameemptymsg, valueemptymsg)) {
+        return false;
+    }
+    var displayStyleOfNSEditor = document.getElementById('ns-edior-th').style.display;
+
+    var propertyCount = document.getElementById("propertyCount");
+    var i = propertyCount.value;
+
+    var currentCount = parseInt(i);
+    currentCount = currentCount + 1;
+
+    propertyCount.value = currentCount;
+
+    var propertytable = document.getElementById("propertytable");
+    propertytable.style.display = "";
+    var propertytbody = document.getElementById("propertytbody");
+
+    var propertyRaw = document.createElement("tr");
+    propertyRaw.setAttribute("id", "propertyRaw" + i);
+
+    var nameTD = document.createElement("td");
+    nameTD.innerHTML = "<input type='text' name='propertyName" + i + "' id='propertyName" + i + "'" +
+        " />";
+
+    var typeTD = document.createElement("td");
+    typeTD.appendChild(createproperttypecombobox('propertyTypeSelection' + i, i, name))
+
+    var valueTD = document.createElement("td");
+    valueTD.innerHTML = "<input type='text' name='propertyValue" + i + "' id='propertyValue" + i + "'" +
+        " class='esb-edit small_textbox' />";
+    var nsTD = document.createElement("td");
+    nsTD.setAttribute("id", "nsEditorButtonTD" + i);
+    nsTD.style.display = displayStyleOfNSEditor;
+
+    var valueTypeTD = document.createElement("td");
+    valueTypeTD.appendChild(createpropertvaluetypecombobox('propertyValueTypeSelection' + i, i, name))
+
+    var deleteTD = document.createElement("td");
+    deleteTD.innerHTML =  "<a href='#' class='delete-icon-link' onclick='deleteproperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
+
+    propertyRaw.appendChild(nameTD);
+    propertyRaw.appendChild(typeTD);
+    propertyRaw.appendChild(valueTD);
+    propertyRaw.appendChild(nsTD);
+    propertyRaw.appendChild(valueTypeTD);
+    propertyRaw.appendChild(deleteTD);
+
+    propertytbody.appendChild(propertyRaw);
+    return true;
+}
+
+function isValidProperties(nameemptymsg, valueemptymsg) {
+
+    var nsCount = document.getElementById("propertyCount");
+    var i = nsCount.value;
+
+    var currentCount = parseInt(i);
+
+    if (currentCount >= 1) {
+        for (var k = 0; k < currentCount; k++) {
+            var prefix = document.getElementById("propertyName" + k);
+            if (prefix != null && prefix != undefined) {
+                if (prefix.value == "") {
+                    CARBON.showWarningDialog(nameemptymsg)
+                    return false;
+                }
+            }
+            var uri = document.getElementById("propertyValue" + k);
+            if (uri != null && uri != undefined) {
+                if (uri.value == "") {
+                    CARBON.showWarningDialog(valueemptymsg)
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+function createproperttypecombobox(id, i, name) {
+    // Create the element:
+    var combo_box = document.createElement('select');
+
+    // Set some properties:
+    combo_box.name = id;
+    combo_box.setAttribute("id", id);
+    combo_box.onchange = function () {
+        onPropertyTypeSelectionChange(i, name)
+    };
+    // Add some choices:
+    var choice = document.createElement('option');
+    choice.value = 'literal';
+    choice.appendChild(document.createTextNode('Value'));
+    combo_box.appendChild(choice);
+
+    choice = document.createElement('option');
+    choice.value = 'expression';
+    choice.appendChild(document.createTextNode('Expression'));
+    combo_box.appendChild(choice);
+
+    return combo_box;
+}
+
+function createpropertvaluetypecombobox(id, i, name) {
+    // Create the element:
+    var combo_box = document.createElement('select');
+
+    // Set some properties:
+    combo_box.name = id;
+    combo_box.setAttribute("id", id);
+    combo_box.onchange = function () {
+        onPropertyValueTypeSelectionChange(i, name)
+    };
+    // Add some choices:
+    var choice = document.createElement('option');
+    choice.value = 'string';
+    choice.appendChild(document.createTextNode('STRING'));
+    combo_box.appendChild(choice);
+
+    choice = document.createElement('option');
+    choice.value = 'integer';
+    choice.appendChild(document.createTextNode('INTEGER'));
+    combo_box.appendChild(choice);
+
+    var choice = document.createElement('option');
+    choice.value = 'boolen';
+    choice.appendChild(document.createTextNode('BOOLEAN'));
+    combo_box.appendChild(choice);
+
+    choice = document.createElement('option');
+    choice.value = 'double';
+    choice.appendChild(document.createTextNode('DOUBLE'));
+    combo_box.appendChild(choice);
+
+    var choice = document.createElement('option');
+    choice.value = 'float';
+    choice.appendChild(document.createTextNode('FLOAT'));
+    combo_box.appendChild(choice);
+
+    choice = document.createElement('option');
+    choice.value = 'long';
+    choice.appendChild(document.createTextNode('LONG'));
+    combo_box.appendChild(choice);
+
+    return combo_box;
+}
+
+function deleteproperty(i) {
+    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"],function(){
+        var propRow = document.getElementById("propertyRaw" + i);
+        if (propRow != undefined && propRow != null) {
+            var parentTBody = propRow.parentNode;
+            if (parentTBody != undefined && parentTBody != null) {
+                parentTBody.removeChild(propRow);
+                if (!isContainRaw(parentTBody)) {
+                    var propertyTable = document.getElementById("propertytable");
+                    propertyTable.style.display = "none";
+                }
+            }
+        }
+    });
+}
+
+function isContainRaw(tbody) {
+    if (tbody.childNodes == null || tbody.childNodes.length == 0) {
+        return false;
+    } else {
+        for (var i = 0; i < tbody.childNodes.length; i++) {
+            var child = tbody.childNodes[i];
+            if (child != undefined && child != null) {
+                if (child.nodeName == "tr" || child.nodeName == "TR") {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+function onPropertyTypeSelectionChange(i, name) {
+    var propertyType = getSelectedValue('propertyTypeSelection' + i);
+    if (propertyType != null) {
+        settype(propertyType, i, name);
+    }
+}
+
+function settype(type, i, name) {
+    var nsEditorButtonTD = document.getElementById("nsEditorButtonTD" + i);
+    if (nsEditorButtonTD == null || nsEditorButtonTD == undefined) {
+        return;
+    }
+    if ("expression" == type) {
+        resetDisplayStyle("");
+        nsEditorButtonTD.innerHTML = "<a href='#nsEditorLink' class='nseditor-icon-link' style='padding-left:40px' onclick=\"showNameSpaceEditor('propertyValue" + i + "')\">" + name + "</a>";
+    } else {
+        nsEditorButtonTD.innerHTML = "";
+        if (!isRemainPropertyExpressions()) {
+            resetDisplayStyle("none");
         }
     }
 }
 
-function displayElement(elementId, isDisplay) {
-    var toDisplayElement = document.getElementById(elementId);
-    if (toDisplayElement != null) {
-        if (isDisplay) {
-            toDisplayElement.style.display = '';
-        } else {
-            toDisplayElement.style.display = 'none';
+function getSelectedValue(id) {
+    var propertyType = document.getElementById(id);
+    var propertyType_indexstr = null;
+    var propertyType_value = null;
+    if (propertyType != null) {
+        propertyType_indexstr = propertyType.selectedIndex;
+        if (propertyType_indexstr != null) {
+            propertyType_value = propertyType.options[propertyType_indexstr].value;
         }
     }
+    return propertyType_value;
+}
+
+function resetDisplayStyle(displayStyle) {
+    document.getElementById('ns-edior-th').style.display = displayStyle;
+    var nsCount = document.getElementById("propertyCount");
+    var i = nsCount.value;
+
+    var currentCount = parseInt(i);
+
+    if (currentCount >= 1) {
+        for (var k = 0; k < currentCount; k++) {
+            var nsEditorButtonTD = document.getElementById("nsEditorButtonTD" + k);
+            if (nsEditorButtonTD != undefined && nsEditorButtonTD != null) {
+                nsEditorButtonTD.style.display = displayStyle;
+            }
+        }
+    }
+}
+
+function isRemainPropertyExpressions() {
+    var nsCount = document.getElementById("propertyCount");
+    var i = nsCount.value;
+
+    var currentCount = parseInt(i);
+
+    if (currentCount >= 1) {
+        for (var k = 0; k < currentCount; k++) {
+            var propertyType = getSelectedValue('propertyTypeSelection' + k);
+            if ("expression" == propertyType) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function publishEventMediatorValidate() {
-    var radio = document.getElementById('set');
     var name = document.getElementById('mediator.publishEvent.stream.name');
     if (name && name.value == "") {
         CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.StreamName"]);
@@ -54,94 +278,10 @@ function publishEventMediatorValidate() {
         CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.StreamVersion"]);
         return false;
     }
-
-    if (radio && radio.checked) {
-        var val = document.getElementById('mediator.publishevent.val_ex');
-        var type = document.getElementById('type_select');
-
-        var check = document.getElementById("value");
-        if (check && check.checked) {
-            if (type && type.value == "OM") {
-                var text = document.getElementById("om_text");
-                if (text && text.value == "") {
-                    CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.element"]);
-                }
-            } else if (val && val.value == "") {
-                CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.value"]);
-            }
-        } else {
-            if (val && val.value == "") {
-                CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.expression"]);
-            }
-        }
-    }
     return true;
 }
 
-function expressionChanged() {
-    var exprEle = document.getElementById('expression');
-    var type = document.getElementById('type_select').value;
-//    alert(exprEle.checked);
-    if (exprEle && exprEle.checked) {
-        displayElement('namespace_col', true);
-
-        displayElement('mediator.publishevent.nmsp_button', true);
-        displayElement('expressionLabel', true);
-        displayElement('valueLabel', false);
-        if (type == "OM") {
-            displayElement('namespace_col', true);
-            displayElement('value_col', true);
-            displayElement('om_text_td', false);
-        }
-    } else {
-        displayElement('namespace_col', false);
-        displayElement('mediator.publishevent.nmsp_button', false);
-        displayElement('expressionLabel', false);
-        displayElement('valueLabel', true);
-        hideNameSpaceEditor('nsEditor', 'nsEditorLink');
-
-        if (type == "OM") {
-            displayElement('namespace_col', false);
-            displayElement('value_col', false);
-            displayElement('om_text_td', true);
-        }
-    }
+function onPropertyValueTypeSelectionChange(i, name) {
+    var propertyType = getSelectedValue('propertyTypeSelection' + i);
+    return propertyType;
 }
-
-
-function typeChanged() {
-    var val = document.getElementById('type_select').value;
-    var exprEle = document.getElementById('expression');
-    if (val && val == "OM") {
-
-        //valueRadio.disabled = "disabled";
-        //expressionRadio.disabled = "disabled";
-        if (exprEle && exprEle.checked) {
-            displayElement('namespace_col', true);
-            displayElement('value_col', true);
-            displayElement('om_text_td', false);
-        } else {
-            displayElement('namespace_col', false);
-            displayElement('value_col', false);
-            displayElement('om_text_td', true);
-        }
-        displayElement('pattern_row', false);
-        displayElement('group_row', false);
-    } else if (val){
-        expressionChanged();
-
-        displayElement('value_col', true);
-        displayElement('om_text_td', false);
-        if (val == "STRING") {
-            displayElement('pattern_row', true);
-            displayElement('group_row', true);
-        } else {
-            displayElement('pattern_row', false);
-            displayElement('group_row', false);            
-        }
-
-        //valueRadio.disabled = "";
-        //expressionRadio.disabled = "";
-    }
-}
-
