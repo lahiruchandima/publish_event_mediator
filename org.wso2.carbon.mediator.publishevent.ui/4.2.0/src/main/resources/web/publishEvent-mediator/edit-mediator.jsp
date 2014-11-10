@@ -24,6 +24,21 @@
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.io.File" %>
+<%@ page import="java.io.BufferedInputStream" %>
+<%@ page import="java.io.FileInputStream" %>
+<%@ page import="javax.xml.stream.XMLStreamReader" %>
+<%@ page import="javax.xml.stream.XMLInputFactory" %>
+<%@ page import="org.apache.axiom.om.impl.builder.StAXOMBuilder" %>
+<%@ page import="org.apache.axiom.om.OMElement" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="org.apache.axiom.om.OMAttribute" %>
+<%@ page import="javax.xml.namespace.QName" %>
+<%@ page import="org.apache.synapse.SynapseException" %>
+<%@ page import="java.io.FileNotFoundException" %>
+<%@ page import="javax.xml.stream.XMLStreamException" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -58,6 +73,7 @@
 
 
     List<Property> mediatorPropertyList = publishEventMediator.getMetaProperties();
+    List<String> eventSinkList = publishEventMediator.getEventSinkList();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
     //nameSpacesRegistrar.registerNameSpaces(mediatorPropertyList, "propertyValue", session);
     String propertyTableStyle = mediatorPropertyList.isEmpty() ? "display:none;" : "";
@@ -106,6 +122,69 @@
                     <input type="text" id="mediator.publishEvent.stream.version" name="mediator.publishEvent.stream.version"
                            style="width:300px;"
                            value='<%=publishEventMediator.getStreamVersion() != null ? publishEventMediator.getStreamVersion() : ""%>'/>
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td style="width:130px;"><fmt:message key="mediator.publishEvent.eventSink.name"/><font style="color: red; font-size: 8pt;"> *</font>
+                </td>
+                <td>
+
+
+                    <select class="esb-edit small_textbox" name="mediator.publishEvent.eventSink.select" id="mediator.publishEvent.eventSink.select" >
+
+                        <%
+                            String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+                            String filePath = carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "event-sinks.xml";
+                            try {
+                                BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(filePath)));
+                                XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+                                StAXOMBuilder builder = new StAXOMBuilder(reader);
+                                OMElement eventSinks = builder.getDocumentElement();
+                                eventSinks.build();
+                                List<String> eventSinksList = new ArrayList<String>();
+                                Iterator iterator = eventSinks.getChildrenWithLocalName("eventSink");
+                                boolean eventSinkFound = false;
+                                while (iterator.hasNext()) {
+                                    OMElement eventSink = (OMElement)iterator.next();
+                                    OMAttribute nameAttribute = eventSink.getAttribute(new QName("name"));
+                                    if (nameAttribute != null) {
+                                        //mediator.setThriftEndpointConfig(ThriftEndpointConfig.createThriftEndpointConfig(eventSink));
+                                        eventSinksList.add(eventSink.getLocalName());
+                                        System.out.println("events sink name : "+nameAttribute.getAttributeValue());
+                                        eventSinkFound = true;
+
+
+
+
+                        %>
+                        <option <% if (publishEventMediator.getEventSink().equals(nameAttribute.getAttributeValue())) out.print("selected"); %> value="<%=nameAttribute.getAttributeValue()%>">
+                            <%=nameAttribute.getAttributeValue().trim()%>
+                        </option>
+
+                        <%
+
+
+                                }
+                            }
+
+                                if (!eventSinkFound) {
+                                    throw new SynapseException("Event sink  not found in event-sinks.xml");
+                                }
+                            } catch (FileNotFoundException e) {
+                                throw new SynapseException("event-sinks.xml file is not found in configuration directory", e);
+                            } catch (XMLStreamException e) {
+                                throw new SynapseException("event-sinks.xml content is invalid", e);
+                            }
+
+
+                        %>
+
+
+
+                    </select>
+
                 </td>
                 <td></td>
             </tr>

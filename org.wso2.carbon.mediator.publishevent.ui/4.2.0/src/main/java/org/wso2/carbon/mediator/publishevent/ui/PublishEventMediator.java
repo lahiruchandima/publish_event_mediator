@@ -26,7 +26,6 @@ import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 import org.jaxen.JaxenException;
-import org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
 import org.wso2.carbon.databridge.commons.Attribute;
 import org.wso2.carbon.mediator.service.MediatorException;
 import org.wso2.carbon.mediator.service.ui.AbstractMediator;
@@ -46,6 +45,7 @@ public class PublishEventMediator extends AbstractMediator {
     private static final String PROPERTY_TYPE_VALUE = "value";
     private static final String PROPERTY_TYPE_EXPRESSION = "expression";
     //public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
+    public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
     public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
     public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
     public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
@@ -58,12 +58,12 @@ public class PublishEventMediator extends AbstractMediator {
 
     private String streamName = "";
     private String streamVersion = "";
+    private String eventSink = "";
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
+    private List<String> eventSinkList = new ArrayList();
     private String serverProfile = "";
-    private LoadBalancingDataPublisher loadBalancingDataPublisher;
-    private ThriftEndpointConfig thriftEndpointConfig;
 
 
 
@@ -93,6 +93,11 @@ public class PublishEventMediator extends AbstractMediator {
         } else {
             throw new MediatorException("Stream version not specified");
         }
+
+        OMElement eventSinkElement = fac.createOMElement(PublishEventMediator.EVENT_SINK_Q.getLocalPart(), synNS);
+        eventSinkElement.setText(this.getEventSink());
+        publishEventElement.addChild(eventSinkElement);
+
 
         OMElement streamAttributesElement = fac.createOMElement(PublishEventMediator.ATTRIBUTES_Q.getLocalPart(), synNS);
 
@@ -136,6 +141,13 @@ public class PublishEventMediator extends AbstractMediator {
         }
         this.setStreamVersion(streamVersion.getText());
 
+        OMElement eventSinkName = elem.getFirstChildWithName(EVENT_SINK_Q);
+        if (eventSinkName == null) {
+            throw new SynapseException(EVENT_SINK_Q.getLocalPart() + " element missing");
+        }
+        this.setEventSink(eventSinkName.getText());
+
+
         OMElement attributes = elem.getFirstChildWithName(ATTRIBUTES_Q);
         if (attributes != null) {
             OMElement meta = attributes.getFirstChildWithName(META_Q);
@@ -163,9 +175,6 @@ public class PublishEventMediator extends AbstractMediator {
             throw new SynapseException(ATTRIBUTES_Q.getLocalPart() + " attribute missing");
         }
 
-
-
-
     }
 
     private List<Attribute> generateAttributeList(List<Property> propertyList) {
@@ -184,6 +193,10 @@ public class PublishEventMediator extends AbstractMediator {
         return streamVersion;
     }
 
+    public String getEventSink() {
+        return eventSink;
+    }
+
     public List<Property> getMetaProperties() {
         return metaProperties;
     }
@@ -200,6 +213,14 @@ public class PublishEventMediator extends AbstractMediator {
         return streamName;
     }
 
+    public List<String> getEventSinkList() {
+        return eventSinkList;
+    }
+
+    public void setEventSinkList(List<String> eventSinkList) {
+        this.eventSinkList = eventSinkList;
+    }
+
     public void setServerProfile(String serverProfile) {
         this.serverProfile = serverProfile;
     }
@@ -212,6 +233,10 @@ public class PublishEventMediator extends AbstractMediator {
         this.streamVersion = streamVersion;
     }
 
+    public void setEventSink(String eventSink) {
+        this.eventSink = eventSink;
+    }
+
     public void setMetaProperties(List<Property> metaProperties) {
         this.metaProperties = metaProperties;
     }
@@ -222,10 +247,6 @@ public class PublishEventMediator extends AbstractMediator {
 
     public void setPayloadProperties(List<Property> payloadProperties) {
         this.payloadProperties = payloadProperties;
-    }
-
-    public void setThriftEndpointConfig(ThriftEndpointConfig thriftEndpointConfig) {
-        this.thriftEndpointConfig = thriftEndpointConfig;
     }
 
     private OMElement createElementForProperty(Property property) {
@@ -308,5 +329,6 @@ public class PublishEventMediator extends AbstractMediator {
             payloadProperties.clear();
         }
     }
+
 
 }

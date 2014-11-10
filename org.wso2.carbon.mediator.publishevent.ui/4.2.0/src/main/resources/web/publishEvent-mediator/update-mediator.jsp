@@ -45,6 +45,7 @@
 
     publishEventMediator.setStreamName(request.getParameter("mediator.publishEvent.stream.name"));
     publishEventMediator.setStreamVersion(request.getParameter("mediator.publishEvent.stream.version"));
+    publishEventMediator.setEventSink(request.getParameter("mediator.publishEvent.eventSink.select"));
     publishEventMediator.clearList("meta");
     publishEventMediator.clearList("correlation ");
     publishEventMediator.clearList("payload");
