@@ -43,26 +43,6 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
 
-<%! public static final String META_PROPERTY_VALUES = "metaPropertyValue";
-    public static final String META_PROPERTY_KEYS = "metaPropertyKey";
-    public static final String CORRELATION_PROPERTY_VALUES = "correlationPropertyValues";
-    public static final String CORRELATION_PROPERTY_KEYS = "correlationPropertyKeys";
-    public static final String PAYLOAD_PROPERTY_VALUES = "payloadPropertyValues";
-    public static final String PAYLOAD_PROPERTY_KEYS = "payloadPropertyKeys";
-%>
-
-
-<style type="text/css">
-    .no-border-all{
-        border: none!important;
-    }
-    .no-border-all td{
-        border: none!important;
-    }
-</style>
-
-
-
 <%
     Mediator mediator = SequenceEditorHelper.getEditingMediator(request, session);
     if (!(mediator instanceof org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator)) {
@@ -72,11 +52,13 @@
     PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
 
 
-    List<Property> mediatorPropertyList = publishEventMediator.getMetaProperties();
+    List<Property> mediatorMetaPropertyList = publishEventMediator.getMetaProperties();
+    List<Property> mediatorCorrelationPropertyList = publishEventMediator.getCorrelationProperties();
+    List<Property> mediatorPayloadPropertyList = publishEventMediator.getPayloadProperties();
     List<String> eventSinkList = publishEventMediator.getEventSinkList();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
-    //nameSpacesRegistrar.registerNameSpaces(mediatorPropertyList, "propertyValue", session);
-    String propertyTableStyle = mediatorPropertyList.isEmpty() ? "display:none;" : "";
+    //nameSpacesRegistrar.registerNameSpaces(mediatorMetaPropertyList, "metaPropertyValue", session);
+    String propertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
 
 
     String streamName = "";
@@ -104,7 +86,9 @@
             <tbody>
             <tr><td colspan="3"><h2><fmt:message key="mediator.publishEvent.header"/></h2></td></tr>
 
-
+            <tr>
+            <td>
+            <table class="normal">
             <tr>
                 <td style="width:130px;"><fmt:message key="mediator.publishEvent.stream.name"/><font style="color: red; font-size: 8pt;"> *</font>
                 </td>
@@ -188,6 +172,9 @@
                 </td>
                 <td></td>
             </tr>
+            </table>
+            </td>
+            </tr>
 
 
             <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.meta.header"/></h4></td></tr>
@@ -198,21 +185,21 @@
 
                     <div style="margin-top:0px;">
 
-                        <table id="propertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+                        <table id="metapropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
                             <thead>
                             <tr>
                                 <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
                                 <th width="10%"><fmt:message key="mediator.publishEvent.propertyValue"/></th>
                                 <th width="15%"><fmt:message key="mediator.publishEvent.propertyExp"/></th>
-                                <th id="ns-edior-th" style="display:none;" width="15%"><fmt:message
+                                <th id="meta-ns-editor-th" style="display:none;" width="15%"><fmt:message
                                         key="mediator.publishEvent.nsEditor"/></th>
                                 <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
                                 <th><fmt:message key="mediator.publishEvent.action"/></th>
                             </tr>
-                            <tbody id="propertytbody">
+                            <tbody id="metapropertytbody">
                             <%
                                 int i = 0;
-                                for (Property mp : mediatorPropertyList) {
+                                for (Property mp : mediatorMetaPropertyList) {
                                     if (mp != null) {
                                         String value = mp.getValue();
                                         String type = mp.getType();
@@ -226,15 +213,15 @@
                                         }
                                         boolean isLiteral = value != null && !"".equals(value);
                             %>
-                            <tr id="propertyRaw<%=i%>">
-                                <td><input type="text" name="propertyName<%=i%>" id="propertyName<%=i%>"
+                            <tr id="metaPropertyRaw<%=i%>">
+                                <td><input type="text" name="metaPropertyName<%=i%>" id="metaPropertyName<%=i%>"
                                            class="esb-edit small_textbox"
                                            value="<%=mp.getKey()%>"/>
                                 </td>
                                 <td>
-                                    <select class="esb-edit small_textbox" name="propertyTypeSelection<%=i%>"
-                                            id="propertyTypeSelection<%=i%>"
-                                            onchange="onPropertyTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>')">
+                                    <select class="esb-edit small_textbox" name="metaPropertyTypeSelection<%=i%>"
+                                            id="metaPropertyTypeSelection<%=i%>"
+                                            onchange="onMetaPropertyTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>')">
                                         <% if (isLiteral) {%>
                                         <option value="literal">
                                             <fmt:message key="mediator.publishEvent.value"/>
@@ -261,67 +248,67 @@
                                 </td>
                                 <td>
                                     <% if (value != null && !"".equals(value)) {%>
-                                    <input id="propertyValue<%=i%>" name="propertyValue<%=i%>" type="text"
+                                    <input id="metaPropertyValue<%=i%>" name="metaPropertyValue<%=i%>" type="text"
                                            value="<%=value%>"
                                            class="esb-edit"/>
                                     <%} else if (path != null) {%>
-                                    <input id="propertyValue<%=i%>" name="propertyValue<%=i%>" type="text"
+                                    <input id="metaPropertyValue<%=i%>" name="metaPropertyValue<%=i%>" type="text"
                                            value="<%=pathValue%>" class="esb-edit"/>
                                     <%} else { %>
-                                    <input id="propertyValue<%=i%>" name="propertyValue<%=i%>" type="text"
+                                    <input id="metaPropertyValue<%=i%>" name="metaPropertyValue<%=i%>" type="text"
                                            class="esb-edit"/>
                                     <% }%>
                                 </td>
-                                <td id="nsEditorButtonTD<%=i%>" style="<%=isLiteral?"display:none;":""%>">
+                                <td id="metaNsEditorButtonTD<%=i%>" style="<%=isLiteral?"display:none;":""%>">
                                     <% if (!isLiteral && path != null) {%>
                                     <script type="text/javascript">
-                                        document.getElementById("ns-edior-th").style.display = "";
+                                        document.getElementById("meta-ns-editor-th").style.display = "";
                                     </script>
                                     <a href="#nsEditorLink" class="nseditor-icon-link"
                                        style="padding-left:40px"
-                                       onclick="showNameSpaceEditor('propertyValue<%=i%>')">
+                                       onclick="showNameSpaceEditor('metaPropertyValue<%=i%>')">
                                         <fmt:message key="mediator.publishEvent.namespace"/></a>
                                 </td>
                                 <%}%>
                                 <td>
-                                    <select class="esb-edit small_textbox" name="propertyValueTypeSelection<%=i%>"
-                                            id="propertyValueTypeSelection<%=i%>"
-                                            onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>')">
+                                    <select class="esb-edit small_textbox" name="metaPropertyValueTypeSelection<%=i%>"
+                                            id="metaPropertyValueTypeSelection<%=i%>"
+                                            onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>', 'meta')">
 
-                                        <option <% if (type.equals("string")) out.print("selected"); %> value="string">
+                                        <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
                                             <fmt:message key="mediator.publishEvent.type.string"/>
                                         </option>
-                                        <option <% if (type.equals("integer")) out.print("selected"); %> value="integer">
+                                        <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
                                             <fmt:message key="mediator.publishEvent.type.integer"/>
                                         </option>
 
-                                        <option <% if (type.equals("boolean")) out.print("selected"); %> value="boolean">
+                                        <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
                                             <fmt:message key="mediator.publishEvent.type.boolean"/>
                                         </option>
 
-                                        <option <% if (type.equals("double")) out.print("selected"); %> value="double">
+                                        <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
                                             <fmt:message key="mediator.publishEvent.type.double"/>
                                         </option>
-                                        <option <% if (type.equals("float")) out.print("selected"); %> value="float">
+                                        <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
                                             <fmt:message key="mediator.publishEvent.type.float"/>
                                         </option>
-                                        <option <% if (type.equals("long")) out.print("selected"); %> value="long">
+                                        <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
                                             <fmt:message key="mediator.publishEvent.type.long"/>
                                         </option>
 
                                     </select>
                                 </td>
                                 <td><a href="#" class="delete-icon-link"
-                                       onclick="deleteproperty(<%=i%>);return false;"><fmt:message
+                                       onclick="deleteMetaProperty(<%=i%>);return false;"><fmt:message
                                         key="mediator.publishEvent.delete"/></a></td>
                             </tr>
                             <% }
                                 i++;
                             } %>
-                            <input type="hidden" name="propertyCount" id="propertyCount" value="<%=i%>"/>
+                            <input type="hidden" name="metaPropertyCount" id="metaPropertyCount" value="<%=i%>"/>
                             <script type="text/javascript">
-                                if (isRemainPropertyExpressions()) {
-                                    resetDisplayStyle("");
+                                if (isRemainPropertyExpressions('meta')) {
+                                    resetDisplayStyle("",'meta');
                                 }
                             </script>
                             </tbody>
@@ -335,7 +322,7 @@
                 <a name="addNameLink"></a>
                 <a class="add-icon-link"
                    href="#addNameLink"
-                   onclick="addproperty('<fmt:message key="mediator.publishEvent.namespace"/>','<fmt:message key="mediator.publishEvent.propemptyerror"/>','<fmt:message key="mediator.publishEvent.valueemptyerror"/>')"><fmt:message
+                   onclick="addproperty('<fmt:message key="mediator.publishEvent.namespace"/>','<fmt:message key="mediator.publishEvent.propemptyerror"/>','<fmt:message key="mediator.publishEvent.valueemptyerror"/>','meta')"><fmt:message
                         key="mediator.publishEvent.addProperty"/></a>
             </div>
         </td>
@@ -344,7 +331,318 @@
 
 
 
+         <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.correlated.header"/></h4></td></tr>
+
+            <tr>
+                <td>
+
+
+                    <div style="margin-top:0px;">
+
+                        <table id="correlationpropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+                            <thead>
+                            <tr>
+                                <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
+                                <th width="10%"><fmt:message key="mediator.publishEvent.propertyValue"/></th>
+                                <th width="15%"><fmt:message key="mediator.publishEvent.propertyExp"/></th>
+                                <th id="correlation-ns-editor-th" style="display:none;" width="15%"><fmt:message
+                                        key="mediator.publishEvent.nsEditor"/></th>
+                                <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
+                                <th><fmt:message key="mediator.publishEvent.action"/></th>
+                            </tr>
+                            <tbody id="correlationpropertytbody">
+                            <%
+                                i = 0;
+                                for (Property mp : mediatorCorrelationPropertyList) {
+                                    if (mp != null) {
+                                        String value = mp.getValue();
+                                        String type = mp.getType();
+                                        String pathValue;
+                                        SynapseXPath path = mp.getExpression();
+                                        if(path == null) {
+                                            pathValue="";
+                                        } else {
+
+                                            pathValue = path.toString();
+                                        }
+                                        boolean isLiteral = value != null && !"".equals(value);
+                            %>
+                            <tr id="correlationPropertyRaw<%=i%>">
+                                <td><input type="text" name="correlationPropertyName<%=i%>" id="correlationPropertyName<%=i%>"
+                                           class="esb-edit small_textbox"
+                                           value="<%=mp.getKey()%>"/>
+                                </td>
+                                <td>
+                                    <select class="esb-edit small_textbox" name="correlationPropertyTypeSelection<%=i%>"
+                                            id="correlationPropertyTypeSelection<%=i%>"
+                                            onchange="onCorrelationPropertyTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>')">
+                                        <% if (isLiteral) {%>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <%} else if (path != null) {%>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <%} else { %>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <% }%>
+                                    </select>
+                                </td>
+                                <td>
+                                    <% if (value != null && !"".equals(value)) {%>
+                                    <input id="correlationPropertyValue<%=i%>" name="correlationPropertyValue<%=i%>" type="text"
+                                           value="<%=value%>"
+                                           class="esb-edit"/>
+                                    <%} else if (path != null) {%>
+                                    <input id="correlationPropertyValue<%=i%>" name="correlationPropertyValue<%=i%>" type="text"
+                                           value="<%=pathValue%>" class="esb-edit"/>
+                                    <%} else { %>
+                                    <input id="correlationPropertyValue<%=i%>" name="correlationPropertyValue<%=i%>" type="text"
+                                           class="esb-edit"/>
+                                    <% }%>
+                                </td>
+                                <td id="correlationNsEditorButtonTD<%=i%>" style="<%=isLiteral?"display:none;":""%>">
+                                    <% if (!isLiteral && path != null) {%>
+                                    <script type="text/javascript">
+                                        document.getElementById("correlation-ns-editor-th").style.display = "";
+                                    </script>
+                                    <a href="#nsEditorLink" class="nseditor-icon-link"
+                                       style="padding-left:40px"
+                                       onclick="showNameSpaceEditor('correlationPropertyValue<%=i%>')">
+                                        <fmt:message key="mediator.publishEvent.namespace"/></a>
+                                </td>
+                                <%}%>
+                                <td>
+                                    <select class="esb-edit small_textbox" name="correlationPropertyValueTypeSelection<%=i%>"
+                                            id="correlationPropertyValueTypeSelection<%=i%>"
+                                            onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>','correlation')">
+
+                                        <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
+                                            <fmt:message key="mediator.publishEvent.type.string"/>
+                                        </option>
+                                        <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
+                                            <fmt:message key="mediator.publishEvent.type.integer"/>
+                                        </option>
+
+                                        <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
+                                            <fmt:message key="mediator.publishEvent.type.boolean"/>
+                                        </option>
+
+                                        <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
+                                            <fmt:message key="mediator.publishEvent.type.double"/>
+                                        </option>
+                                        <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
+                                            <fmt:message key="mediator.publishEvent.type.float"/>
+                                        </option>
+                                        <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
+                                            <fmt:message key="mediator.publishEvent.type.long"/>
+                                        </option>
+
+                                    </select>
+                                </td>
+                                <td><a href="#" class="delete-icon-link"
+                                       onclick="deleteCorrelationProperty(<%=i%>);return false;"><fmt:message
+                                        key="mediator.publishEvent.delete"/></a></td>
+                            </tr>
+                            <% }
+                                i++;
+                            } %>
+                            <input type="hidden" name="correlationPropertyCount" id="correlationPropertyCount" value="<%=i%>"/>
+                            <script type="text/javascript">
+                                if (isRemainPropertyExpressions('correlation')) {
+                                    resetDisplayStyle("",'correlation');
+                                }
+                            </script>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="margin-top:10px;">
+                        <a name="addCorrelationNameLink"></a>
+                        <a class="add-icon-link"
+                           href="#addCorrelationNameLink"
+                           onclick="addproperty('<fmt:message key="mediator.publishEvent.namespace"/>','<fmt:message key="mediator.publishEvent.propemptyerror"/>','<fmt:message key="mediator.publishEvent.valueemptyerror"/>','correlation')"><fmt:message
+                                key="mediator.publishEvent.addProperty"/></a>
+                    </div>
+                </td>
+            </tr>
+
+
+            <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+            <tr><td colspan="3"><h4><fmt:message key="mediator.publishEvent.payload.header"/></h4></td></tr>
+
+            <tr>
+                <td>
+
+
+                    <div style="margin-top:0px;">
+
+                        <table id="payloadpropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+                            <thead>
+                            <tr>
+                                <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
+                                <th width="10%"><fmt:message key="mediator.publishEvent.propertyValue"/></th>
+                                <th width="15%"><fmt:message key="mediator.publishEvent.propertyExp"/></th>
+                                <th id="payload-ns-editor-th" style="display:none;" width="15%"><fmt:message
+                                        key="mediator.publishEvent.nsEditor"/></th>
+                                <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
+                                <th><fmt:message key="mediator.publishEvent.action"/></th>
+                            </tr>
+                            <tbody id="payloadpropertytbody">
+                            <%
+                                i = 0;
+                                for (Property mp : mediatorPayloadPropertyList) {
+                                    if (mp != null) {
+                                        String value = mp.getValue();
+                                        String type = mp.getType();
+                                        String pathValue;
+                                        SynapseXPath path = mp.getExpression();
+                                        if(path == null) {
+                                            pathValue="";
+                                        } else {
+
+                                            pathValue = path.toString();
+                                        }
+                                        boolean isLiteral = value != null && !"".equals(value);
+                            %>
+                            <tr id="payloadPropertyRaw<%=i%>">
+                                <td><input type="text" name="payloadPropertyName<%=i%>" id="payloadPropertyName<%=i%>"
+                                           class="esb-edit small_textbox"
+                                           value="<%=mp.getKey()%>"/>
+                                </td>
+                                <td>
+                                    <select class="esb-edit small_textbox" name="payloadPropertyTypeSelection<%=i%>"
+                                            id="payloadPropertyTypeSelection<%=i%>"
+                                            onchange="onPayloadPropertyTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>', 'payload')">
+                                        <% if (isLiteral) {%>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <%} else if (path != null) {%>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <%} else { %>
+                                        <option value="literal">
+                                            <fmt:message key="mediator.publishEvent.value"/>
+                                        </option>
+                                        <option value="expression">
+                                            <fmt:message key="mediator.publishEvent.expression"/>
+                                        </option>
+                                        <% }%>
+                                    </select>
+                                </td>
+                                <td>
+                                    <% if (value != null && !"".equals(value)) {%>
+                                    <input id="payloadPropertyValue<%=i%>" name="payloadPropertyValue<%=i%>" type="text"
+                                           value="<%=value%>"
+                                           class="esb-edit"/>
+                                    <%} else if (path != null) {%>
+                                    <input id="payloadPropertyValue<%=i%>" name="payloadPropertyValue<%=i%>" type="text"
+                                           value="<%=pathValue%>" class="esb-edit"/>
+                                    <%} else { %>
+                                    <input id="payloadPropertyValue<%=i%>" name="payloadPropertyValue<%=i%>" type="text"
+                                           class="esb-edit"/>
+                                    <% }%>
+                                </td>
+                                <td id="payloadNsEditorButtonTD<%=i%>" style="<%=isLiteral?"display:none;":""%>">
+                                    <% if (!isLiteral && path != null) {%>
+                                    <script type="text/javascript">
+                                        document.getElementById("payload-ns-editor-th").style.display = "";
+                                    </script>
+                                    <a href="#nsEditorLink" class="nseditor-icon-link"
+                                       style="padding-left:40px"
+                                       onclick="showNameSpaceEditor('payloadPropertyValue<%=i%>')">
+                                        <fmt:message key="mediator.publishEvent.namespace"/></a>
+                                </td>
+                                <%}%>
+                                <td>
+                                    <select class="esb-edit small_textbox" name="payloadPropertyValueTypeSelection<%=i%>"
+                                            id="payloadPropertyValueTypeSelection<%=i%>"
+                                            onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message key="mediator.publishEvent.namespace"/>','payload')">
+
+                                        <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
+                                            <fmt:message key="mediator.publishEvent.type.string"/>
+                                        </option>
+                                        <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
+                                            <fmt:message key="mediator.publishEvent.type.integer"/>
+                                        </option>
+
+                                        <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
+                                            <fmt:message key="mediator.publishEvent.type.boolean"/>
+                                        </option>
+
+                                        <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
+                                            <fmt:message key="mediator.publishEvent.type.double"/>
+                                        </option>
+                                        <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
+                                            <fmt:message key="mediator.publishEvent.type.float"/>
+                                        </option>
+                                        <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
+                                            <fmt:message key="mediator.publishEvent.type.long"/>
+                                        </option>
+
+                                    </select>
+                                </td>
+                                <td><a href="#" class="delete-icon-link"
+                                       onclick="deletePayloadProperty(<%=i%>);return false;"><fmt:message
+                                        key="mediator.publishEvent.delete"/></a></td>
+                            </tr>
+                            <% }
+                                i++;
+                            } %>
+                            <input type="hidden" name="payloadPropertyCount" id="payloadPropertyCount" value="<%=i%>"/>
+                            <script type="text/javascript">
+                                if (isRemainPropertyExpressions('payload')) {
+                                    resetDisplayStyle("",'payload');
+                                }
+                            </script>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="margin-top:10px;">
+                        <a name="addPayloadNameLink"></a>
+                        <a class="add-icon-link"
+                           href="#addPayloadNameLink"
+                           onclick="addproperty('<fmt:message key="mediator.publishEvent.namespace"/>','<fmt:message key="mediator.publishEvent.propemptyerror"/>','<fmt:message key="mediator.publishEvent.valueemptyerror"/>','payload')"><fmt:message
+                                key="mediator.publishEvent.addProperty"/></a>
+                    </div>
+                </td>
+            </tr>
+
+
             </tbody>
         </table>
+
+        <a name="nsEditorLink"></a>
+
+        <div id="nsEditor" style="display:none;"></div>
     </div>
 </fmt:bundle>

@@ -32,11 +32,6 @@
 <%
 
     Mediator mediator = SequenceEditorHelper.getEditingMediator(request, session);
-    String PROPERTY_SEPARATOR = ";";
-    String PROPERTY_VALUE_SEPARATOR = "::";
-    String PROPERTY_TYPE_VALUE = "value";
-    String PROPERTY_TYPE_EXPRESSION = "expression";
-    String uri = "", prefix = "";
     if (!(mediator instanceof PublishEventMediator)) {
         // todo : proper error handling
         throw new RuntimeException("Unable to edit the mediator");
@@ -50,10 +45,9 @@
     publishEventMediator.clearList("correlation ");
     publishEventMediator.clearList("payload");
 
-    String propertyString =request.getParameter("hfmetaPropertyTableData");
     XPathFactory xPathFactory = XPathFactory.getInstance();
-    String propertyCountParameter = request.getParameter("propertyCount");
-    if (propertyCountParameter != null && !"".equals(propertyCountParameter)) {
+    String metaPropertyCountParameter = request.getParameter("metaPropertyCount");
+    if (metaPropertyCountParameter != null && !"".equals(metaPropertyCountParameter)) {
         Property currentProperty;
         List<Property> metaProperties = new ArrayList<Property>();
         int propertyCount = 0;
@@ -61,16 +55,16 @@
         try {
 
 
-            propertyCount = Integer.parseInt(propertyCountParameter.trim());
+            propertyCount = Integer.parseInt(metaPropertyCountParameter.trim());
             for (int i = 0; i <= propertyCount; i++) {
-                String name = request.getParameter("propertyName" + i);
+                String name = request.getParameter("metaPropertyName" + i);
                 if (name != null && !"".equals(name)) {
-                    String valueId = "propertyValue" + i;
+                    String valueId = "metaPropertyValue" + i;
                     String value = request.getParameter(valueId);
                     currentProperty = new Property();
                     currentProperty.setKey(name);
 
-                    String expression = request.getParameter("propertyTypeSelection" + i);
+                    String expression = request.getParameter("metaPropertyTypeSelection" + i);
                     boolean isExpression = expression != null && "expression".equals(expression.trim());
 
                     if (value != null) {
@@ -86,7 +80,7 @@
                         }
                     }
 
-                    String type=request.getParameter("propertyValueTypeSelection" + i);
+                    String type=request.getParameter("metaPropertyValueTypeSelection" + i);
                     currentProperty.setType(type);
 
 
@@ -101,9 +95,106 @@
             throw new RuntimeException("Invalid Path Expression");
         }
     }
-    //publishEventMediator.extractProperties(request.getParameter("hfmetaPropertyTableData"),"meta");
-    //publishEventMediator.extractProperties(request.getParameter("hfcorrelationPropertyTableData"),"correlation");
-    //publishEventMediator.extractProperties(request.getParameter("hfpayloadPropertyTableData"),"payload");
+
+    String correlationPropertyCountParameter = request.getParameter("correlationPropertyCount");
+    if (correlationPropertyCountParameter != null && !"".equals(correlationPropertyCountParameter)) {
+        Property currentProperty;
+        List<Property> correlationProperties = new ArrayList<Property>();
+        int propertyCount = 0;
+
+        try {
+
+
+            propertyCount = Integer.parseInt(correlationPropertyCountParameter.trim());
+            for (int i = 0; i <= propertyCount; i++) {
+                String name = request.getParameter("correlationPropertyName" + i);
+                if (name != null && !"".equals(name)) {
+                    String valueId = "correlationPropertyValue" + i;
+                    String value = request.getParameter(valueId);
+                    currentProperty = new Property();
+                    currentProperty.setKey(name);
+
+                    String expression = request.getParameter("correlationPropertyTypeSelection" + i);
+                    boolean isExpression = expression != null && "expression".equals(expression.trim());
+
+                    if (value != null) {
+                        if (isExpression) {
+                            if(value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                                currentProperty.setExpression(jsonPath);
+                            } else {
+                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                            }
+                        } else {
+                            currentProperty.setValue(value);
+                        }
+                    }
+
+                    String type=request.getParameter("correlationPropertyValueTypeSelection" + i);
+                    currentProperty.setType(type);
+
+
+                    correlationProperties.add(currentProperty);
+                }
+            }
+
+            ((PublishEventMediator) mediator).setCorrelationProperties(correlationProperties);
+        }catch (NumberFormatException ignored) {
+            throw new RuntimeException("Invalid number format");
+        } catch (Exception exception) {
+            throw new RuntimeException("Invalid Path Expression");
+        }
+    }
+
+    String payloadPropertyCountParameter = request.getParameter("payloadPropertyCount");
+    if (payloadPropertyCountParameter != null && !"".equals(payloadPropertyCountParameter)) {
+        Property currentProperty;
+        List<Property> payloadProperties = new ArrayList<Property>();
+        int propertyCount = 0;
+
+        try {
+
+
+            propertyCount = Integer.parseInt(payloadPropertyCountParameter.trim());
+            for (int i = 0; i <= propertyCount; i++) {
+                String name = request.getParameter("payloadPropertyName" + i);
+                if (name != null && !"".equals(name)) {
+                    String valueId = "payloadPropertyValue" + i;
+                    String value = request.getParameter(valueId);
+                    currentProperty = new Property();
+                    currentProperty.setKey(name);
+
+                    String expression = request.getParameter("payloadPropertyTypeSelection" + i);
+                    boolean isExpression = expression != null && "expression".equals(expression.trim());
+
+                    if (value != null) {
+                        if (isExpression) {
+                            if(value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                                currentProperty.setExpression(jsonPath);
+                            } else {
+                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                            }
+                        } else {
+                            currentProperty.setValue(value);
+                        }
+                    }
+
+                    String type=request.getParameter("payloadPropertyValueTypeSelection" + i);
+                    currentProperty.setType(type);
+
+
+                    payloadProperties.add(currentProperty);
+                }
+            }
+
+            ((PublishEventMediator) mediator).setPayloadProperties(payloadProperties);
+        }catch (NumberFormatException ignored) {
+            throw new RuntimeException("Invalid number format");
+        } catch (Exception exception) {
+            throw new RuntimeException("Invalid Path Expression");
+        }
+    }
 
 
 
