@@ -62,7 +62,9 @@
     nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorMetaPropertyList), "metaPropertyValue", session);
     nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorCorrelationPropertyList), "correlationPropertyValue", session);
     nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorPayloadPropertyList), "payloadPropertyValue", session);
-    String propertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
+    String metaPropertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
+    String correlationPropertyTableStyle = mediatorCorrelationPropertyList.isEmpty() ? "display:none;" : "";
+    String payloadPropertyTableStyle = mediatorPayloadPropertyList.isEmpty() ? "display:none;" : "";
 
 
     String streamName = "";
@@ -140,14 +142,11 @@
                                 eventSinks.build();
                                 List<String> eventSinksList = new ArrayList<String>();
                                 Iterator iterator = eventSinks.getChildrenWithLocalName("eventSink");
-                                boolean eventSinkFound = false;
                                 while (iterator.hasNext()) {
                                     OMElement eventSink = (OMElement) iterator.next();
                                     OMAttribute nameAttribute = eventSink.getAttribute(new QName("name"));
                                     if (nameAttribute != null) {
-                                        //mediator.setThriftEndpointConfig(ThriftEndpointConfig.createThriftEndpointConfig(eventSink));
                                         eventSinksList.add(eventSink.getLocalName());
-                                        eventSinkFound = true;
                         %>
                         <option <%if (publishEventMediator.getEventSink().equals(nameAttribute.getAttributeValue()))
                             out.print("selected"); %> value="<%=nameAttribute.getAttributeValue()%>">
@@ -156,10 +155,6 @@
 
                         <%
                                     }
-                                }
-
-                                if (!eventSinkFound) {
-                                    throw new SynapseException("Event sink  not found in event-sinks.xml");
                                 }
                             } catch (FileNotFoundException e) {
                                 throw new SynapseException("event-sinks.xml file is not found in configuration directory", e);
@@ -191,7 +186,7 @@
 
         <div style="margin-top:0px;">
 
-            <table id="metapropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+            <table id="metapropertytable" style="<%=metaPropertyTableStyle%>;" class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -202,6 +197,7 @@
                     <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
                     <th><fmt:message key="mediator.publishEvent.action"/></th>
                 </tr>
+                </thead>
                 <tbody id="metapropertytbody">
                 <%
                     int i = 0;
@@ -351,7 +347,7 @@
 
         <div style="margin-top:0px;">
 
-            <table id="correlationpropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+            <table id="correlationpropertytable" style="<%=correlationPropertyTableStyle%>;" class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -362,6 +358,7 @@
                     <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
                     <th><fmt:message key="mediator.publishEvent.action"/></th>
                 </tr>
+                </thead>
                 <tbody id="correlationpropertytbody">
                 <%
                     i = 0;
@@ -510,7 +507,7 @@
 
         <div style="margin-top:0px;">
 
-            <table id="payloadpropertytable" style="<%=propertyTableStyle%>;" class="styledInner">
+            <table id="payloadpropertytable" style="<%=payloadPropertyTableStyle%>;" class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -521,6 +518,7 @@
                     <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
                     <th><fmt:message key="mediator.publishEvent.action"/></th>
                 </tr>
+                </thead>
                 <tbody id="payloadpropertytbody">
                 <%
                     i = 0;
