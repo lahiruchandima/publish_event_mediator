@@ -442,6 +442,17 @@ function publishEventMediatorValidate() {
         CARBON.showErrorDialog(publishEventMediatorJsi18n["specify.StreamVersion"]);
         return false;
     }
+
+    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"meta")){
+       return false;
+    }
+    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"correlation")){
+        return false;
+    }
+    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"payload")){
+        return false;
+    }
+
     return true;
 }
 

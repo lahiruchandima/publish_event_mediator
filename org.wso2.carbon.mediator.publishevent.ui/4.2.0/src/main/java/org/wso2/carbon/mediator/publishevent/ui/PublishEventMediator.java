@@ -180,7 +180,7 @@ public class PublishEventMediator extends AbstractMediator {
     private List<Attribute> generateAttributeList(List<Property> propertyList) {
         List<Attribute> attributeList = new ArrayList<Attribute>();
         for (Property property : propertyList) {
-            attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
+            attributeList.add(new Attribute(property.getName(), property.getDatabridgeAttributeType()));
         }
         return attributeList;
     }
@@ -251,7 +251,7 @@ public class PublishEventMediator extends AbstractMediator {
 
     private OMElement createElementForProperty(Property property) {
         OMElement attributeElement = fac.createOMElement(PublishEventMediator.ATTRIBUTE_Q.getLocalPart(), synNS);
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.getNameAttributeQ().getLocalPart(), nullNS, property.getKey()));
+        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.getNameAttributeQ().getLocalPart(), nullNS, property.getName()));
         attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.TYPE_Q.getLocalPart(), nullNS, property.getType()));
         attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.DEFAULT_Q.getLocalPart(), nullNS, property.getDefaultValue()));
 
@@ -299,7 +299,7 @@ public class PublishEventMediator extends AbstractMediator {
             }
 
             Property property = new Property();
-            property.setKey(nameAttr.getAttributeValue());
+            property.setName(nameAttr.getAttributeValue());
             property.setType(typeAttr.getAttributeValue());
             if (valueAttr != null) {
                 property.setValue(valueAttr.getAttributeValue());

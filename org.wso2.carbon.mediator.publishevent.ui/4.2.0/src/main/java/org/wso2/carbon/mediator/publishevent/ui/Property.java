@@ -22,38 +22,20 @@ package org.wso2.carbon.mediator.publishevent.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
-import org.apache.synapse.util.xpath.SynapseXPath;
 import org.wso2.carbon.databridge.commons.AttributeType;
+import org.wso2.carbon.mediator.service.util.MediatorProperty;
 
 /**
  * Property of a Stream Definition
  */
-public class Property {
+public class Property extends MediatorProperty{
 
-    private String key = "";
-    private String value = null;
-    private SynapseXPath expression = null;
     private String defaultValue = "";
     private String type = "";
 
     private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
+
     private static final Log log = LogFactory.getLog(Property.class);
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     public String getDefaultValue() {
         return defaultValue;
@@ -63,17 +45,10 @@ public class Property {
         this.defaultValue = defaultValue;
     }
 
-    public SynapseXPath getExpression() {
-        return expression;
-    }
-
-    public void setExpression(SynapseXPath expression) {
-        this.expression = expression;
-    }
-
     public String getType() {
         return type;
     }
+
     public AttributeType getDatabridgeAttributeType() {
         //TODO:
         if ("STRING".equals(type)) {
@@ -108,8 +83,8 @@ public class Property {
     public Object extractPropertyValue(MessageContext messageContext) {
         try {
             String stringProperty;
-            if (expression  != null) {
-                stringProperty = expression.stringValueOf(messageContext);
+            if (getExpression()  != null) {
+                stringProperty = getExpression().stringValueOf(messageContext);
             } else {
                 stringProperty = getValue();
             }

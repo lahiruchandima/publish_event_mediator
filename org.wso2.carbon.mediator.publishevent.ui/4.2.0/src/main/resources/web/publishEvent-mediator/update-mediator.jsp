@@ -62,7 +62,7 @@
                     String valueId = "metaPropertyValue" + i;
                     String value = request.getParameter(valueId);
                     currentProperty = new Property();
-                    currentProperty.setKey(name);
+                    currentProperty.setName(name);
 
                     String expression = request.getParameter("metaPropertyTypeSelection" + i);
                     boolean isExpression = expression != null && "expression".equals(expression.trim());
@@ -112,7 +112,7 @@
                     String valueId = "correlationPropertyValue" + i;
                     String value = request.getParameter(valueId);
                     currentProperty = new Property();
-                    currentProperty.setKey(name);
+                    currentProperty.setName(name);
 
                     String expression = request.getParameter("correlationPropertyTypeSelection" + i);
                     boolean isExpression = expression != null && "expression".equals(expression.trim());
@@ -162,7 +162,7 @@
                     String valueId = "payloadPropertyValue" + i;
                     String value = request.getParameter(valueId);
                     currentProperty = new Property();
-                    currentProperty.setKey(name);
+                    currentProperty.setName(name);
 
                     String expression = request.getParameter("payloadPropertyTypeSelection" + i);
                     boolean isExpression = expression != null && "expression".equals(expression.trim());
