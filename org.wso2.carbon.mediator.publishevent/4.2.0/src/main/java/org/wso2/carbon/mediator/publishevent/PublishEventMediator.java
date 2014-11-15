@@ -35,6 +35,7 @@ import org.wso2.carbon.databridge.agent.thrift.util.DataPublisherUtil;
 import org.wso2.carbon.databridge.commons.Attribute;
 import org.wso2.carbon.databridge.commons.StreamDefinition;
 import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
+import org.wso2.carbon.event.sink.EventSink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,27 +49,26 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
     private static final String ADMIN_SERVICE_PARAMETER = "adminService";
     private static final String HIDDEN_SERVICE_PARAMETER = "hiddenService";
 
-    private String eventSink = "";
     private String streamName = "";
     private String streamVersion = "";
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
     private LoadBalancingDataPublisher loadBalancingDataPublisher;
-    private ThriftEndpointConfig thriftEndpointConfig;
+    private EventSink eventSink;
 
     @Override
     public void init(SynapseEnvironment synapseEnvironment) {
         ArrayList<ReceiverGroup> allReceiverGroups = new ArrayList<ReceiverGroup>();
-        ArrayList<String> receiverUrlGroups = DataPublisherUtil.getReceiverGroups(thriftEndpointConfig.getReceiverUrlSet());
+        ArrayList<String> receiverUrlGroups = DataPublisherUtil.getReceiverGroups(eventSink.getReceiverUrlSet());
 
         ArrayList<String> authenticatorUrlGroups = null;
-        if (thriftEndpointConfig.getAuthenticationUrlSet() != null && thriftEndpointConfig.getAuthenticationUrlSet().length() > 0) {
-            authenticatorUrlGroups = DataPublisherUtil.getReceiverGroups(thriftEndpointConfig.getAuthenticationUrlSet());
+        if (eventSink.getAuthenticationUrlSet() != null && eventSink.getAuthenticationUrlSet().length() > 0) {
+            authenticatorUrlGroups = DataPublisherUtil.getReceiverGroups(eventSink.getAuthenticationUrlSet());
             if (authenticatorUrlGroups.size() != receiverUrlGroups.size()) {
                 throw new SynapseException("Receiver URL group count is not equal to Authenticator URL group count." +
-                        " Receiver URL groups: " + thriftEndpointConfig.getReceiverUrlSet() + " & Authenticator URL " +
-                        " groups: " + thriftEndpointConfig.getAuthenticationUrlSet());
+                        " Receiver URL groups: " + eventSink.getReceiverUrlSet() + " & Authenticator URL " +
+                        " groups: " + eventSink.getAuthenticationUrlSet());
             }
         }
 
@@ -89,7 +89,7 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
             ArrayList<DataPublisherHolder> dataPublisherHolders = new ArrayList<DataPublisherHolder>();
             for (int j = 0; j < receiverUrls.length; ++j) {
                 DataPublisherHolder holder = new DataPublisherHolder(authenticatorUrls[j], receiverUrls[j],
-                        thriftEndpointConfig.getUsername(), thriftEndpointConfig.getPassword());
+                        eventSink.getUsername(), eventSink.getPassword());
                 dataPublisherHolders.add(holder);
             }
             ReceiverGroup group = new ReceiverGroup(dataPublisherHolders);
@@ -198,7 +198,7 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
         return attributeList;
     }
 
-    public String getEventSink() {
+    public EventSink getEventSink() {
         return eventSink;
     }
 
@@ -222,7 +222,7 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
         return payloadProperties;
     }
 
-    public void setEventSink(String eventSink) {
+    public void setEventSink(EventSink eventSink) {
         this.eventSink = eventSink;
     }
 
@@ -244,9 +244,5 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
 
     public void setPayloadProperties(List<Property> payloadProperties) {
         this.payloadProperties = payloadProperties;
-    }
-
-    public void setThriftEndpointConfig(ThriftEndpointConfig thriftEndpointConfig) {
-        this.thriftEndpointConfig = thriftEndpointConfig;
     }
 }

@@ -15,30 +15,32 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   --%>
+<%@ page import="org.apache.axiom.om.OMAttribute" %>
+<%@ page import="org.apache.axiom.om.OMElement" %>
+<%@ page import="org.apache.axiom.om.impl.builder.StAXOMBuilder" %>
+<%@ page import="org.apache.synapse.SynapseException" %>
+<%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
 <%@ page import="org.apache.synapse.util.xpath.SynapseXPath" %>
+<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
+<%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.ui.Mediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.util.MediatorProperty" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.NameSpacesRegistrar" %>
-<%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
-<%@ page import="java.util.List" %>
-<%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.BufferedInputStream" %>
-<%@ page import="java.io.FileInputStream" %>
-<%@ page import="javax.xml.stream.XMLStreamReader" %>
+<%@ page import="javax.xml.namespace.QName" %>
 <%@ page import="javax.xml.stream.XMLInputFactory" %>
-<%@ page import="org.apache.axiom.om.impl.builder.StAXOMBuilder" %>
-<%@ page import="org.apache.axiom.om.OMElement" %>
+<%@ page import="javax.xml.stream.XMLStreamException" %>
+<%@ page import="javax.xml.stream.XMLStreamReader" %>
+<%@ page import="java.io.BufferedInputStream" %>
+<%@ page import="java.io.File" %>
+<%@ page import="java.io.FileInputStream" %>
+<%@ page import="java.io.FileNotFoundException" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="org.apache.axiom.om.OMAttribute" %>
-<%@ page import="javax.xml.namespace.QName" %>
-<%@ page import="org.apache.synapse.SynapseException" %>
-<%@ page import="java.io.FileNotFoundException" %>
-<%@ page import="javax.xml.stream.XMLStreamException" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.wso2.carbon.event.sink.*" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -55,7 +57,6 @@
     List<Property> mediatorMetaPropertyList = publishEventMediator.getMetaProperties();
     List<Property> mediatorCorrelationPropertyList = publishEventMediator.getCorrelationProperties();
     List<Property> mediatorPayloadPropertyList = publishEventMediator.getPayloadProperties();
-    List<String> eventSinkList = publishEventMediator.getEventSinkList();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
 
 
@@ -132,39 +133,24 @@
                             id="mediator.publishEvent.eventSink.select">
 
                         <%
-                            String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-                            String filePath = carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "event-sinks.xml";
-                            try {
-                                BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(filePath)));
-                                XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
-                                StAXOMBuilder builder = new StAXOMBuilder(reader);
-                                OMElement eventSinks = builder.getDocumentElement();
-                                eventSinks.build();
-                                List<String> eventSinksList = new ArrayList<String>();
-                                Iterator iterator = eventSinks.getChildrenWithLocalName("eventSink");
-                                while (iterator.hasNext()) {
-                                    OMElement eventSink = (OMElement) iterator.next();
-                                    OMAttribute nameAttribute = eventSink.getAttribute(new QName("name"));
-                                    if (nameAttribute != null) {
-                                        eventSinksList.add(eventSink.getLocalName());
-                        %>
-                        <option <%if (publishEventMediator.getEventSink().equals(nameAttribute.getAttributeValue()))
-                            out.print("selected"); %> value="<%=nameAttribute.getAttributeValue()%>">
-                            <%=nameAttribute.getAttributeValue().trim()%>
-                        </option>
-
-                        <%
-                                    }
-                                }
-                            } catch (FileNotFoundException e) {
-                                throw new SynapseException("event-sinks.xml file is not found in configuration directory", e);
-                            } catch (XMLStreamException e) {
-                                throw new SynapseException("event-sinks.xml content is invalid", e);
+                            List<EventSink> eventSinkList;
+                            Object o = PrivilegedCarbonContext.getCurrentContext().getOSGiService(EventSinkService.class);
+                            if (o instanceof EventSinkService) {
+                                EventSinkService service = (EventSinkService) o;
+                                eventSinkList = service.getEventSinks();
+                            } else {
+                                throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
                             }
 
-
+                            for (EventSink sink : eventSinkList) {
+                                %>
+                                <option <%if (publishEventMediator.getEventSink().equals(sink.getName()))
+                                    out.print("selected"); %> value="<%=sink.getName()%>">
+                                    <%=sink.getName()%>
+                                </option>
+                                <%
+                            }
                         %>
-
 
                     </select>
 

@@ -3,6 +3,10 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="Osmorc" url="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent.ui/4.2.0" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0" />
+  </component>
   <component name="IdProvider" IDEtalkID="E6317E3CC7EA4E29D5C8DF24B4DF913C" />
   <component name="MavenBuildProjectComponent">
     <option name="mavenExecutable" value="" />
@@ -29,6 +33,14 @@
     <option name="Update Snapshots" value="false" />
     <option name="Skip Tests" value="false" />
     <pom-list />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/org.wso2.carbon.mediator.publishevent/4.2.0/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK" />
   <component name="SvnBranchConfigurationManager">

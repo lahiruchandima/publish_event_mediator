@@ -21,7 +21,6 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.synapse.Mediator;
 import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.SynapseException;
@@ -29,14 +28,15 @@ import org.apache.synapse.config.xml.AbstractMediatorFactory;
 import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 import org.jaxen.JaxenException;
-import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.event.sink.EventSink;
+import org.wso2.carbon.event.sink.EventSinkService;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Creates the publishEvent mediator with given configuration XML taken from the registry which is mentioned in the sequence.
@@ -111,34 +111,17 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
             throw new SynapseException(EVENT_SINK_Q.getLocalPart() + " element missing");
         }
         String eventSinkName = eventSinkElement.getText();
-        mediator.setEventSink(eventSinkName);
 
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String path = carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "event-sinks.xml";
-        try {
-            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(path)));
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
-            StAXOMBuilder builder = new StAXOMBuilder(reader);
-            OMElement eventSinks = builder.getDocumentElement();
-            eventSinks.build();
-            Iterator iterator = eventSinks.getChildrenWithLocalName("eventSink");
-            boolean eventSinkFound = false;
-            while (iterator.hasNext()) {
-                OMElement eventSink = (OMElement)iterator.next();
-                OMAttribute nameAttribute = eventSink.getAttribute(new QName("name"));
-                if (nameAttribute != null && eventSinkName.equals(nameAttribute.getAttributeValue())) {
-                    mediator.setThriftEndpointConfig(ThriftEndpointConfig.createThriftEndpointConfig(eventSink));
-                    eventSinkFound = true;
-                    break;
-                }
+        Object o = PrivilegedCarbonContext.getCurrentContext().getOSGiService(EventSinkService.class);
+        if (o instanceof EventSinkService) {
+            EventSinkService service = (EventSinkService) o;
+            EventSink eventSink = service.getEventSink(eventSinkName);
+            if (eventSink == null) {
+                throw new SynapseException("Event sink \"" + eventSinkName + "\" not found");
             }
-            if (!eventSinkFound) {
-                throw new SynapseException("Event sink \"" + eventSinkName + "\" not found in event-sinks.xml");
-            }
-        } catch (FileNotFoundException e) {
-            throw new SynapseException("event-sinks.xml file is not found in configuration directory", e);
-        } catch (XMLStreamException e) {
-            throw new SynapseException("event-sinks.xml content is invalid", e);
+            mediator.setEventSink(eventSink);
+        } else {
+            throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
         }
 
         return mediator;
