@@ -20,21 +20,11 @@
 package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axis2.description.AxisService;
-import org.apache.synapse.ManagedLifecycle;
 import org.apache.synapse.MessageContext;
-import org.apache.synapse.SynapseException;
 import org.apache.synapse.SynapseLog;
-import org.apache.synapse.core.SynapseEnvironment;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
-import org.wso2.carbon.databridge.agent.thrift.lb.DataPublisherHolder;
-import org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
-import org.wso2.carbon.databridge.agent.thrift.lb.ReceiverGroup;
-import org.wso2.carbon.databridge.agent.thrift.util.DataPublisherUtil;
-import org.wso2.carbon.databridge.commons.Attribute;
-import org.wso2.carbon.databridge.commons.StreamDefinition;
-import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
 import org.wso2.carbon.event.sink.EventSink;
 
 import java.util.ArrayList;
@@ -44,7 +34,7 @@ import java.util.List;
  * Extracts the current message payload/header data according to the given configuration.
  * Extracted information is sent as an event.
  */
-public class PublishEventMediator extends AbstractMediator implements ManagedLifecycle {
+public class PublishEventMediator extends AbstractMediator {
 
     private static final String ADMIN_SERVICE_PARAMETER = "adminService";
     private static final String HIDDEN_SERVICE_PARAMETER = "hiddenService";
@@ -54,74 +44,7 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
-    private LoadBalancingDataPublisher loadBalancingDataPublisher;
     private EventSink eventSink;
-
-    @Override
-    public void init(SynapseEnvironment synapseEnvironment) {
-        ArrayList<ReceiverGroup> allReceiverGroups = new ArrayList<ReceiverGroup>();
-        ArrayList<String> receiverUrlGroups = DataPublisherUtil.getReceiverGroups(eventSink.getReceiverUrlSet());
-
-        ArrayList<String> authenticatorUrlGroups = null;
-        if (eventSink.getAuthenticationUrlSet() != null && eventSink.getAuthenticationUrlSet().length() > 0) {
-            authenticatorUrlGroups = DataPublisherUtil.getReceiverGroups(eventSink.getAuthenticationUrlSet());
-            if (authenticatorUrlGroups.size() != receiverUrlGroups.size()) {
-                throw new SynapseException("Receiver URL group count is not equal to Authenticator URL group count." +
-                        " Receiver URL groups: " + eventSink.getReceiverUrlSet() + " & Authenticator URL " +
-                        " groups: " + eventSink.getAuthenticationUrlSet());
-            }
-        }
-
-        for (int i = 0; i < receiverUrlGroups.size(); ++i) {
-            String receiverGroup = receiverUrlGroups.get(i);
-            String[] receiverUrls = receiverGroup.split(",");
-            String[] authenticatorUrls = new String[receiverUrls.length];
-
-            if (authenticatorUrlGroups != null) {
-                String authenticatorGroup = authenticatorUrlGroups.get(i);
-                authenticatorUrls = authenticatorGroup.split(",");
-                if (receiverUrls.length != authenticatorUrls.length) {
-                    throw new SynapseException("Receiver URL count is not equal to Authenticator URL count. Receiver"
-                            + " URL group: " + receiverGroup + ", authenticator URL group: " + authenticatorGroup);
-                }
-            }
-
-            ArrayList<DataPublisherHolder> dataPublisherHolders = new ArrayList<DataPublisherHolder>();
-            for (int j = 0; j < receiverUrls.length; ++j) {
-                DataPublisherHolder holder = new DataPublisherHolder(authenticatorUrls[j], receiverUrls[j],
-                        eventSink.getUsername(), eventSink.getPassword());
-                dataPublisherHolders.add(holder);
-            }
-            ReceiverGroup group = new ReceiverGroup(dataPublisherHolders);
-            allReceiverGroups.add(group);
-        }
-        loadBalancingDataPublisher = new LoadBalancingDataPublisher(allReceiverGroups);
-
-        StreamDefinition streamDef;
-        try {
-            streamDef = new StreamDefinition(streamName, streamVersion);
-            streamDef.setCorrelationData(generateAttributeList(correlationProperties));
-            streamDef.setMetaData(generateAttributeList(metaProperties));
-            streamDef.setPayloadData(generateAttributeList(payloadProperties));
-        } catch (MalformedStreamDefinitionException e) {
-            String errorMsg = "Malformed Stream Definition. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new SynapseException(errorMsg, e);
-        } catch (Exception e) {
-            String errorMsg = "Error occurred while creating the Stream Definition. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new SynapseException(errorMsg, e);
-        }
-        loadBalancingDataPublisher.addStreamDefinition(streamDef);
-        log.info("Data Publisher Created.");
-    }
-
-    @Override
-    public void destroy() {
-        if (loadBalancingDataPublisher != null) {
-            loadBalancingDataPublisher.stop();
-        }
-    }
 
     @Override
     public boolean isContentAware() {
@@ -170,7 +93,7 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
                 payloadData[i] = payloadProperties.get(i).extractPropertyValue(messageContext);
             }
 
-            loadBalancingDataPublisher.publish(streamName, streamVersion, metaData, correlationData, payloadData);
+            eventSink.getLoadBalancingDataPublisher().publish(streamName, streamVersion, metaData, correlationData, payloadData);
 
         } catch (AgentException e) {
             String errorMsg = "Agent error occurred while sending the event. " + e.getMessage();
@@ -188,14 +111,6 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
         }
 
         return true;
-    }
-
-    private List<Attribute> generateAttributeList(List<Property> propertyList) {
-        List<Attribute> attributeList = new ArrayList<Attribute>();
-        for (Property property : propertyList) {
-            attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
-        }
-        return attributeList;
     }
 
     public EventSink getEventSink() {

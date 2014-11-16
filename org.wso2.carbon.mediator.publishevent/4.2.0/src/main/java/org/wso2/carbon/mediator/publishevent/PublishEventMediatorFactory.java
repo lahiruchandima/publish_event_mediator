@@ -21,6 +21,8 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.Mediator;
 import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.SynapseException;
@@ -29,6 +31,9 @@ import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.databridge.commons.Attribute;
+import org.wso2.carbon.databridge.commons.StreamDefinition;
+import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
 import org.wso2.carbon.event.sink.EventSink;
 import org.wso2.carbon.event.sink.EventSinkService;
 
@@ -42,6 +47,7 @@ import java.util.Properties;
  * Creates the publishEvent mediator with given configuration XML taken from the registry which is mentioned in the sequence.
  */
 public class PublishEventMediatorFactory extends AbstractMediatorFactory {
+    private static final Log log = LogFactory.getLog(PublishEventMediatorFactory.class);
     public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
     public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
     public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
@@ -124,7 +130,32 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
             throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
         }
 
+        StreamDefinition streamDef;
+        try {
+            streamDef = new StreamDefinition(mediator.getStreamName(), mediator.getStreamVersion());
+            streamDef.setCorrelationData(generateAttributeList(mediator.getCorrelationProperties()));
+            streamDef.setMetaData(generateAttributeList(mediator.getMetaProperties()));
+            streamDef.setPayloadData(generateAttributeList(mediator.getPayloadProperties()));
+            mediator.getEventSink().getLoadBalancingDataPublisher().addStreamDefinition(streamDef);
+        } catch (MalformedStreamDefinitionException e) {
+            String errorMsg = "Malformed Stream Definition. " + e.getMessage();
+            log.error(errorMsg, e);
+            throw new SynapseException(errorMsg, e);
+        } catch (Exception e) {
+            String errorMsg = "Error occurred while creating the Stream Definition. " + e.getMessage();
+            log.error(errorMsg, e);
+            throw new SynapseException(errorMsg, e);
+        }
+
         return mediator;
+    }
+
+    private List<Attribute> generateAttributeList(List<Property> propertyList) {
+        List<Attribute> attributeList = new ArrayList<Attribute>();
+        for (Property property : propertyList) {
+            attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
+        }
+        return attributeList;
     }
 
     private void populateAttributes(List<Property> propertyList, Iterator iterator) {
