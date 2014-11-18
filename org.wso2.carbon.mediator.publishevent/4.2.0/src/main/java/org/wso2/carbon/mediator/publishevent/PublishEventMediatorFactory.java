@@ -118,7 +118,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
         }
         String eventSinkName = eventSinkElement.getText();
 
-        Object o = PrivilegedCarbonContext.getCurrentContext().getOSGiService(EventSinkService.class);
+        Object o = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
         if (o instanceof EventSinkService) {
             EventSinkService service = (EventSinkService) o;
             EventSink eventSink = service.getEventSink(eventSinkName);
