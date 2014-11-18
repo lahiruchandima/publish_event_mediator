@@ -55,7 +55,6 @@
     List<Property> mediatorMetaPropertyList = publishEventMediator.getMetaProperties();
     List<Property> mediatorCorrelationPropertyList = publishEventMediator.getCorrelationProperties();
     List<Property> mediatorPayloadPropertyList = publishEventMediator.getPayloadProperties();
-    List<String> eventSinkList = publishEventMediator.getEventSinkList();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
 
 
@@ -65,19 +64,6 @@
     String metaPropertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
     String correlationPropertyTableStyle = mediatorCorrelationPropertyList.isEmpty() ? "display:none;" : "";
     String payloadPropertyTableStyle = mediatorPayloadPropertyList.isEmpty() ? "display:none;" : "";
-
-
-    String streamName = "";
-    String streamVersion = "";
-
-    if (publishEventMediator.getStreamName() != null) {
-        streamName = publishEventMediator.getStreamName();
-    }
-
-    if (publishEventMediator.getStreamVersion() != null) {
-        streamVersion = publishEventMediator.getStreamVersion();
-    }
-
 
 %>
 
@@ -149,8 +135,8 @@
                                         eventSinksList.add(eventSink.getLocalName());
                         %>
                         <option <%if (publishEventMediator.getEventSink().equals(nameAttribute.getAttributeValue()))
-                            out.print("selected"); %> value="<%=nameAttribute.getAttributeValue()%>">
-                            <%=nameAttribute.getAttributeValue().trim()%>
+                                        out.print("selected"); %> value="<%=nameAttribute.getAttributeValue()%>">
+                                        <%=nameAttribute.getAttributeValue().trim()%>
                         </option>
 
                         <%
@@ -161,10 +147,7 @@
                             } catch (XMLStreamException e) {
                                 throw new SynapseException("event-sinks.xml content is invalid", e);
                             }
-
-
                         %>
-
 
                     </select>
 
@@ -184,7 +167,7 @@
     <td>
 
 
-        <div style="margin-top:0px;">
+        <div style="margin-top:0;">
 
             <table id="metapropertytable" style="<%=metaPropertyTableStyle%>;" class="styledInner">
                 <thead>
@@ -345,7 +328,7 @@
     <td>
 
 
-        <div style="margin-top:0px;">
+        <div style="margin-top:0;">
 
             <table id="correlationpropertytable" style="<%=correlationPropertyTableStyle%>;" class="styledInner">
                 <thead>
@@ -505,7 +488,7 @@
     <td>
 
 
-        <div style="margin-top:0px;">
+        <div style="margin-top:0;">
 
             <table id="payloadpropertytable" style="<%=payloadPropertyTableStyle%>;" class="styledInner">
                 <thead>
@@ -665,7 +648,7 @@
 </div>
 </fmt:bundle>
 <%!
-    public List<MediatorProperty> convertPropertyList(List<Property> list) {
+    List<MediatorProperty> convertPropertyList(List<Property> list) {
         List<MediatorProperty> newList = new ArrayList<MediatorProperty>();
         for (Property p : list) {
             newList.add(p);

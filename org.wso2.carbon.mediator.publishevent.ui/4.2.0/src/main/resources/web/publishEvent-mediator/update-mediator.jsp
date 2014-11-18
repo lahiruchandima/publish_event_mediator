@@ -21,9 +21,6 @@
 <%@ page import="org.wso2.carbon.mediator.service.ui.Mediator" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.XPathFactory" %>
-<%@ page import="org.apache.synapse.util.AXIOMUtils" %>
-<%@ page import="org.apache.axiom.om.util.AXIOMUtil" %>
-<%@ page import="javax.xml.stream.XMLStreamException" %>
 <%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
 <%@ page import="org.apache.synapse.util.xpath.SynapseXPath" %>
 <%@ page import="java.util.List" %>
@@ -50,12 +47,9 @@
     if (metaPropertyCountParameter != null && !"".equals(metaPropertyCountParameter)) {
         Property currentProperty;
         List<Property> metaProperties = new ArrayList<Property>();
-        int propertyCount = 0;
 
         try {
-
-
-            propertyCount = Integer.parseInt(metaPropertyCountParameter.trim());
+            int propertyCount = Integer.parseInt(metaPropertyCountParameter.trim());
             for (int i = 0; i <= propertyCount; i++) {
                 String name = request.getParameter("metaPropertyName" + i);
                 if (name != null && !"".equals(name)) {
@@ -100,12 +94,9 @@
     if (correlationPropertyCountParameter != null && !"".equals(correlationPropertyCountParameter)) {
         Property currentProperty;
         List<Property> correlationProperties = new ArrayList<Property>();
-        int propertyCount = 0;
 
         try {
-
-
-            propertyCount = Integer.parseInt(correlationPropertyCountParameter.trim());
+            int propertyCount = Integer.parseInt(correlationPropertyCountParameter.trim());
             for (int i = 0; i <= propertyCount; i++) {
                 String name = request.getParameter("correlationPropertyName" + i);
                 if (name != null && !"".equals(name)) {
@@ -150,12 +141,9 @@
     if (payloadPropertyCountParameter != null && !"".equals(payloadPropertyCountParameter)) {
         Property currentProperty;
         List<Property> payloadProperties = new ArrayList<Property>();
-        int propertyCount = 0;
 
         try {
-
-
-            propertyCount = Integer.parseInt(payloadPropertyCountParameter.trim());
+            int propertyCount = Integer.parseInt(payloadPropertyCountParameter.trim());
             for (int i = 0; i <= propertyCount; i++) {
                 String name = request.getParameter("payloadPropertyName" + i);
                 if (name != null && !"".equals(name)) {

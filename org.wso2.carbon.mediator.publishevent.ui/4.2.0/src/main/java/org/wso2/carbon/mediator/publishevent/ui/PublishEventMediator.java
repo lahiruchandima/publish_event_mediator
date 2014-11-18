@@ -39,12 +39,6 @@ import java.util.List;
 public class PublishEventMediator extends AbstractMediator {
 
     private static final Log log = LogFactory.getLog(PublishEventMediator.class);
-
-    private static final String PROPERTY_SEPARATOR = ";";
-    private static final String PROPERTY_VALUE_SEPARATOR = "::";
-    private static final String PROPERTY_TYPE_VALUE = "value";
-    private static final String PROPERTY_TYPE_EXPRESSION = "expression";
-    //public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
     public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
     public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
     public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
@@ -62,7 +56,6 @@ public class PublishEventMediator extends AbstractMediator {
     private List<Property> metaProperties = new ArrayList<Property>();
     private List<Property> correlationProperties = new ArrayList<Property>();
     private List<Property> payloadProperties = new ArrayList<Property>();
-    private List<String> eventSinkList = new ArrayList();
     private String serverProfile = "";
 
 
@@ -77,7 +70,7 @@ public class PublishEventMediator extends AbstractMediator {
         OMElement publishEventElement = fac.createOMElement("publishEvent", synNS);
         saveTracingState(publishEventElement, this);
 
-        if (streamName != null & !streamName.equals("")) {
+        if (streamName != null && !streamName.equals("")) {
             OMElement streamNameElement = fac.createOMElement(PublishEventMediator.STREAM_NAME_Q.getLocalPart(), synNS);
             streamNameElement.setText(this.getStreamName());
             publishEventElement.addChild(streamNameElement);
@@ -85,7 +78,7 @@ public class PublishEventMediator extends AbstractMediator {
         } else {
             throw new MediatorException("Stream name not specified");
         }
-        if (streamVersion != null & !streamName.equals("")) {
+        if (streamVersion != null && !streamName.equals("")) {
 
             OMElement streamVersionElement = fac.createOMElement(PublishEventMediator.STREAM_VERSION_Q.getLocalPart(), synNS);
             streamVersionElement.setText(this.getStreamVersion());
@@ -211,14 +204,6 @@ public class PublishEventMediator extends AbstractMediator {
 
     public String getStreamName() {
         return streamName;
-    }
-
-    public List<String> getEventSinkList() {
-        return eventSinkList;
-    }
-
-    public void setEventSinkList(List<String> eventSinkList) {
-        this.eventSinkList = eventSinkList;
     }
 
     public void setServerProfile(String serverProfile) {

@@ -139,19 +139,21 @@ public class PublishEventMediator extends AbstractMediator implements ManagedLif
             }
         }
 
-        org.apache.axis2.context.MessageContext msgContext = ((Axis2MessageContext) messageContext).getAxis2MessageContext();
+        if (messageContext instanceof Axis2MessageContext) {
 
-        AxisService service = msgContext.getAxisService();
-        if (service == null) {
-            return true;
-        }
-        // When this is not inside an API theses parameters should be there
-        if ((!service.getName().equals("__SynapseService")) &&
-                (service.getParameter(ADMIN_SERVICE_PARAMETER) != null ||
-                        service.getParameter(HIDDEN_SERVICE_PARAMETER) != null)) {
-            return true;
-        }
+            org.apache.axis2.context.MessageContext msgContext = ((Axis2MessageContext) messageContext).getAxis2MessageContext();
 
+            AxisService service = msgContext.getAxisService();
+            if (service == null) {
+                return true;
+            }
+            // When this is not inside an API theses parameters should be there
+            if ((!service.getName().equals("__SynapseService")) &&
+                    (service.getParameter(ADMIN_SERVICE_PARAMETER) != null ||
+                            service.getParameter(HIDDEN_SERVICE_PARAMETER) != null)) {
+                return true;
+            }
+        }
         ActivityIDSetter.setActivityIdInTransportHeader(messageContext);
 
         try {
