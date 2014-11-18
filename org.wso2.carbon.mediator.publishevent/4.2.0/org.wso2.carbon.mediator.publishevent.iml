@@ -23,8 +23,8 @@
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
@@ -170,7 +170,7 @@
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.ndatasource.common:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.wso2:jdbc-pool:7.0.34.wso2v1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:7.0.34" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:7.0.47" level="project" />
     <orderEntry type="library" name="Maven: commons-collections.wso2:commons-collections:3.2.0.wso2v1" level="project" />
     <orderEntry type="library" name="Maven: org.compass-project.wso2:compass:2.0.1.wso2v2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.abdera.wso2:abdera:1.0.0.wso2v2" level="project" />
@@ -190,6 +190,7 @@
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-api:7.0.34" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-util:7.0.34" level="project" />
     <orderEntry type="library" name="Maven: wsdl4j.wso2:wsdl4j:1.6.2.wso2v2" level="project" />
+    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.event.sink:4.2.0" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">
