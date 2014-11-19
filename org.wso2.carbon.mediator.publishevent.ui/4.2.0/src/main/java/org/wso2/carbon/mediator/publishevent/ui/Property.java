@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
 import org.wso2.carbon.databridge.commons.AttributeType;
+import org.wso2.carbon.mediator.publishevent.PropertyTypeConverter;
 import org.wso2.carbon.mediator.service.util.MediatorProperty;
 
 /**
