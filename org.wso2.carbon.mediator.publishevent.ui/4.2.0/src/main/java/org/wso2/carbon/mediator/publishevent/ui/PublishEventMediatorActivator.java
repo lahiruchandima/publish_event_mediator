@@ -33,7 +33,7 @@ public class PublishEventMediatorActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         if (log.isDebugEnabled()) {
-            log.debug("Starting the property mediator component ...");
+            log.debug("Starting the publishEvent mediator component ...");
         }
 
         //Properties props = new Properties();
@@ -41,13 +41,13 @@ public class PublishEventMediatorActivator implements BundleActivator {
                 MediatorService.class.getName(), new PublishEventMediatorService(), null);
 
         if (log.isDebugEnabled()) {
-            log.debug("Successfully registered the property mediator service");
+            log.debug("Successfully registered the publishEvent mediator service");
         }
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("Stopped the property mediator component ...");
+            log.debug("Stopped the publishEvent mediator component ...");
         }
     }
 }
