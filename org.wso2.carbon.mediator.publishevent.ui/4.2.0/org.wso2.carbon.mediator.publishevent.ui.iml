@@ -171,7 +171,7 @@
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.ndatasource.common:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.wso2:jdbc-pool:7.0.34.wso2v1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:7.0.47" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:7.0.34" level="project" />
     <orderEntry type="library" name="Maven: commons-collections.wso2:commons-collections:3.2.0.wso2v1" level="project" />
     <orderEntry type="library" name="Maven: org.compass-project.wso2:compass:2.0.1.wso2v2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.abdera.wso2:abdera:1.0.0.wso2v2" level="project" />
