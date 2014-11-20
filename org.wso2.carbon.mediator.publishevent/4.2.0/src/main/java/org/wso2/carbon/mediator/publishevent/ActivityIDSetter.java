@@ -37,6 +37,16 @@ public class ActivityIDSetter {
 	private static final String ACTIVITY_ID = "activityID";
 	private static final Log log = LogFactory.getLog(ActivityIDSetter.class);
 
+	/**
+	 * Sets a unique Activity ID to the transport header and synapse context.
+	 * This is useful when tracking the message when it passes through different systems.
+	 * If either synapse context or transport header already had activity id set, that is reused.
+	 * If both synapse context and transport header had activity id set, transport header activity id get precedence
+	 * If non of either synapse context or transport header had activity id set, new unique id is generated
+	 *
+	 * @param synapseContext Synapse context of message
+	 * @throws SynapseException
+	 */
 	public static void setActivityIdInTransportHeader(MessageContext synapseContext) throws SynapseException {
 		try {
 			//get the unique ID used for correlating messages for BAM activity monitoring

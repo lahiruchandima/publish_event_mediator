@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Extracts the current message payload/header data according to the given configuration.
+ * Mediator that extracts data from current message payload/header according to the given configuration.
  * Extracted information is sent as an event.
  */
 public class PublishEventMediator extends AbstractMediator {
@@ -51,6 +51,14 @@ public class PublishEventMediator extends AbstractMediator {
 		return true;
 	}
 
+	/**
+	 * This is called when a new message is received for mediation.
+	 * Extracts data from message to construct an event based on the mediator configuration
+	 * Sends the constructed event to the event sink specified in mediator configuration
+	 *
+	 * @param messageContext Message context of the message to be mediated
+	 * @return Always returns true. (instructs to proceed with next mediator)
+	 */
 	@Override
 	public boolean mediate(MessageContext messageContext) {
 		SynapseLog synLog = getLog(messageContext);

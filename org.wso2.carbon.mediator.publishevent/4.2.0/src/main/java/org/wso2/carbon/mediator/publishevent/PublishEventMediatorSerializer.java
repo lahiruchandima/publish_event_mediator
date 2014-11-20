@@ -26,6 +26,12 @@ import org.apache.synapse.config.xml.SynapseXPathSerializer;
 
 public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
+	/**
+	 * Creates XML representation of the mediator
+	 *
+	 * @param mediator The mediator for which the XML representation should be created
+	 * @return The Created XML representation of mediator as an OMElement
+	 */
 	@Override
 	public OMElement serializeSpecificMediator(Mediator mediator) {
 		assert mediator instanceof PublishEventMediator :
@@ -82,6 +88,12 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 		return PublishEventMediator.class.getName();
 	}
 
+	/**
+	 * Creates the XML representation of the given mediator property
+	 *
+	 * @param property Property for which the XML representation should be created
+	 * @return XML representation of the property as an OMElement
+	 */
 	private OMElement createElementForProperty(Property property) {
 		OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_Q.getLocalPart(), synNS);
 		attributeElement.addAttribute(

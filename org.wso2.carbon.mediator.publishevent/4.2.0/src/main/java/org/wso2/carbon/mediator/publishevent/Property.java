@@ -70,6 +70,11 @@ public class Property {
 		return type;
 	}
 
+	/**
+	 * Returns the data bridge attribute type of this object
+	 *
+	 * @return Data bridge attribute type of this object
+	 */
 	public AttributeType getDatabridgeAttributeType() {
 		if ("STRING".equals(type)) {
 			return AttributeType.STRING;
@@ -96,6 +101,12 @@ public class Property {
 		this.type = type;
 	}
 
+	/**
+	 * Extracts the property value from message context based on either value of expression attribute
+	 *
+	 * @param messageContext Message context from which the value should be extracted
+	 * @return Extracted property value
+	 */
 	public Object extractPropertyValue(MessageContext messageContext) {
 		String stringProperty;
 		if (expression != null) {
