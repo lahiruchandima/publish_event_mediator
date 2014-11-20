@@ -24,51 +24,51 @@ package org.wso2.carbon.mediator.publishevent;
  */
 public class PropertyTypeConverter {
 
-    public String convertToString(String string) {
-        if (string != null) {
-            return string;
-        } else {
-            return "";
-        }
-    }
+	public String convertToString(String string) {
+		if (string != null) {
+			return string;
+		} else {
+			return "";
+		}
+	}
 
-    public int convertToInt(String string) {
-        try {
-            return Integer.parseInt(string);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+	public int convertToInt(String string) {
+		try {
+			return Integer.parseInt(string);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
 
-    public float convertToFloat(String string) {
-        try {
-            return Float.parseFloat(string);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+	public float convertToFloat(String string) {
+		try {
+			return Float.parseFloat(string);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
 
-    public double convertToDouble(String string) {
-        try {
-            return Double.parseDouble(string);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+	public double convertToDouble(String string) {
+		try {
+			return Double.parseDouble(string);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
 
-    public long convertToLong(String string) {
-        try {
-            return Long.parseLong(string);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+	public long convertToLong(String string) {
+		try {
+			return Long.parseLong(string);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
 
-    public boolean convertToBoolean(String string) {
-        try {
-            return Boolean.parseBoolean(string);
-        } catch (Exception e) {
-            return false;
-        }
-    }
+	public boolean convertToBoolean(String string) {
+		try {
+			return Boolean.parseBoolean(string);
+		} catch (Exception e) {
+			return false;
+		}
+	}
 }

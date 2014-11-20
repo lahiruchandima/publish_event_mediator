@@ -4,10 +4,9 @@
     <facet type="Osmorc" name="OSGi">
       <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="org.wso2.carbon.mediator.publishevent-4.2.0.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="" bundleSymbolicName="org.wso2.carbon.mediator.publishevent" bundleVersion="4.2.0" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
         <additionalProperties>
-          <property key="Bundle-Description" value="Platform Parent pom hold the properties, plugins which are required to build carbon components, carbon features and products" />
-          <property key="Bundle-Vendor" value="WSO2 Inc" />
-          <property key="Bundle-DocURL" value="http://wso2.org" />
           <property key="Bundle-Name" value="org.wso2.carbon.mediator.publishevent" />
+          <property key="Bundle-Vendor" value="WSO2 Inc" />
+          <property key="Bundle-Description" value="Platform Parent pom hold the properties, plugins which are required to build carbon components, carbon features and products" />
           <property key="Export-Package" value="org.wso2.carbon.mediator.publishevent.*," />
           <property key="Import-Package" value="!javax.xml.namespace,javax.xml.namespace; version=0.0.0,org.apache.commons.logging.*;version=&quot;1.0.4&quot;,org.osgi.framework,*;resolution:=optional," />
           <property key="DynamicImport-Package" value="*" />

@@ -4,9 +4,6 @@
     <facet type="Osmorc" name="OSGi">
       <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="org.wso2.carbon.mediator.publishevent.ui-4.2.0.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediatorActivator" bundleSymbolicName="org.wso2.carbon.mediator.publishevent.ui" bundleVersion="4.2.0" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
         <additionalProperties>
-          <property key="Bundle-Description" value="Platform Parent pom hold the properties, plugins which are required to build carbon components, carbon features and products" />
-          <property key="Bundle-Vendor" value="WSO2 Inc" />
-          <property key="Bundle-DocURL" value="http://wso2.org" />
           <property key="Bundle-Name" value="org.wso2.carbon.mediator.publishevent.ui" />
           <property key="Carbon-Component" value="UIBundle" />
           <property key="Export-Package" value="org.wso2.carbon.mediator.publishevent.ui.*,!javax.servlet,!javax.servlet.http," />
@@ -90,6 +87,7 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents.wso2:httpcore:4.1.0-wso2v1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.6.1" level="project" />
+    <orderEntry type="module" module-name="org.wso2.carbon.mediator.publishevent" />
     <orderEntry type="library" name="Maven: org.apache.synapse:synapse-core:2.1.1-wso2v8" level="project" />
     <orderEntry type="library" name="Maven: org.apache.synapse:synapse-commons:2.1.1-wso2v8" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
@@ -153,7 +151,6 @@
     <orderEntry type="library" name="Maven: org.apache.axis2:axis2-transport-local:1.6.1-wso2v9" level="project" />
     <orderEntry type="library" name="Maven: com.jayway.jsonpath:json-path:0.8.0" level="project" />
     <orderEntry type="library" name="Maven: net.minidev:json-smart:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.mediator.service:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.core:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.hazelcast.wso2:hazelcast:3.0.1.wso2v1" level="project" />
     <orderEntry type="library" name="Maven: com.hazelcast:hazelcast:3.0.1" level="project" />
@@ -186,6 +183,8 @@
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-api:7.0.34" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-util:7.0.34" level="project" />
     <orderEntry type="library" name="Maven: wsdl4j.wso2:wsdl4j:1.6.2.wso2v2" level="project" />
+    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.event.sink:4.2.0" level="project" />
+    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.mediator.service:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.ui:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tiles.wso2:tiles-jsp:2.0.5.wso2v2" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.authenticator.proxy:4.2.0" level="project" />
@@ -195,7 +194,6 @@
     <orderEntry type="library" name="Maven: org.eclipse.equinox:javax.servlet.jsp:2.2.0.v201112011158" level="project" />
     <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.core.commons.stub:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet.jsp.jstl.wso2:jstl:1.2.1.wso2v2" level="project" />
-    <orderEntry type="library" name="Maven: org.wso2.carbon:org.wso2.carbon.event.sink:4.2.0" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

@@ -52,5 +52,5 @@
         <synapse.version.publishevent>${synapse.version}</synapse.version.publishevent>
         <axis2.wso2.version.publishevent>${axis2.wso2.version}</axis2.wso2.version.publishevent>
     </properties>
-    
+
 </project>

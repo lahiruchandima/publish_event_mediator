@@ -25,23 +25,23 @@ import org.wso2.carbon.mediator.service.ui.Mediator;
  */
 public class PublishEventMediatorService extends AbstractMediatorService {
 
-    public String getTagLocalName() {
-        return "publishEvent";
-    }
+	public String getTagLocalName() {
+		return "publishEvent";
+	}
 
-    public String getDisplayName() {
-        return "PublishEvent";
-    }
+	public String getDisplayName() {
+		return "PublishEvent";
+	}
 
-    public String getLogicalName() {
-        return "publishEventMediator";
-    }
+	public String getLogicalName() {
+		return "publishEventMediator";
+	}
 
-    public String getGroupName() {
-        return "Agent";
-    }
+	public String getGroupName() {
+		return "Agent";
+	}
 
-    public Mediator getMediator() {
-        return new PublishEventMediator();
-    }
+	public Mediator getMediator() {
+		return new PublishEventMediator();
+	}
 }

@@ -19,73 +19,88 @@
 
 package org.wso2.carbon.mediator.publishevent;
 
-import org.apache.synapse.config.xml.AbstractMediatorSerializer;
-import org.apache.synapse.Mediator;
 import org.apache.axiom.om.OMElement;
+import org.apache.synapse.Mediator;
+import org.apache.synapse.config.xml.AbstractMediatorSerializer;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
 
 public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
-    @Override
-    public OMElement serializeSpecificMediator(Mediator mediator) {
-        assert mediator instanceof PublishEventMediator : PublishEventMediatorFactory.getTagName() + " mediator is expected";
+	@Override
+	public OMElement serializeSpecificMediator(Mediator mediator) {
+		assert mediator instanceof PublishEventMediator :
+				PublishEventMediatorFactory.getTagName() + " mediator is expected";
 
-        PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
-        OMElement mediatorElement = fac.createOMElement(PublishEventMediatorFactory.getTagName(), synNS);
+		PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
+		OMElement mediatorElement = fac.createOMElement(PublishEventMediatorFactory.getTagName(), synNS);
 
-        OMElement eventSinkElement = fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
-        eventSinkElement.setText(publishEventMediator.getEventSink().getName());
-        mediatorElement.addChild(eventSinkElement);
+		OMElement eventSinkElement =
+				fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
+		eventSinkElement.setText(publishEventMediator.getEventSink().getName());
+		mediatorElement.addChild(eventSinkElement);
 
-        OMElement streamNameElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_Q.getLocalPart(), synNS);
-        streamNameElement.setText(publishEventMediator.getStreamName());
-        mediatorElement.addChild(streamNameElement);
+		OMElement streamNameElement =
+				fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_Q.getLocalPart(), synNS);
+		streamNameElement.setText(publishEventMediator.getStreamName());
+		mediatorElement.addChild(streamNameElement);
 
-        OMElement streamVersionElement = fac.createOMElement(PublishEventMediatorFactory.STREAM_VERSION_Q.getLocalPart(), synNS);
-        streamVersionElement.setText(publishEventMediator.getStreamVersion());
-        mediatorElement.addChild(streamVersionElement);
+		OMElement streamVersionElement =
+				fac.createOMElement(PublishEventMediatorFactory.STREAM_VERSION_Q.getLocalPart(), synNS);
+		streamVersionElement.setText(publishEventMediator.getStreamVersion());
+		mediatorElement.addChild(streamVersionElement);
 
-        OMElement streamAttributesElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTES_Q.getLocalPart(), synNS);
+		OMElement streamAttributesElement =
+				fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTES_Q.getLocalPart(), synNS);
 
-        OMElement metaAttributesElement = fac.createOMElement(PublishEventMediatorFactory.META_Q.getLocalPart(), synNS);
-        for (Property property : publishEventMediator.getMetaProperties()) {
-            metaAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(metaAttributesElement);
+		OMElement metaAttributesElement = fac.createOMElement(PublishEventMediatorFactory.META_Q.getLocalPart(), synNS);
+		for (Property property : publishEventMediator.getMetaProperties()) {
+			metaAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(metaAttributesElement);
 
-        OMElement correlationAttributesElement = fac.createOMElement(PublishEventMediatorFactory.CORRELATION_Q.getLocalPart(), synNS);
-        for (Property property : publishEventMediator.getCorrelationProperties()) {
-            correlationAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(correlationAttributesElement);
+		OMElement correlationAttributesElement =
+				fac.createOMElement(PublishEventMediatorFactory.CORRELATION_Q.getLocalPart(), synNS);
+		for (Property property : publishEventMediator.getCorrelationProperties()) {
+			correlationAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(correlationAttributesElement);
 
-        OMElement payloadAttributesElement = fac.createOMElement(PublishEventMediatorFactory.PAYLOAD_Q.getLocalPart(), synNS);
-        for (Property property : publishEventMediator.getPayloadProperties()) {
-            payloadAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(payloadAttributesElement);
+		OMElement payloadAttributesElement =
+				fac.createOMElement(PublishEventMediatorFactory.PAYLOAD_Q.getLocalPart(), synNS);
+		for (Property property : publishEventMediator.getPayloadProperties()) {
+			payloadAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(payloadAttributesElement);
 
-        mediatorElement.addChild(streamAttributesElement);
+		mediatorElement.addChild(streamAttributesElement);
 
-        return mediatorElement;
-    }
+		return mediatorElement;
+	}
 
-    @Override
-    public String getMediatorClassName() {
-        return PublishEventMediator.class.getName();
-    }
+	@Override
+	public String getMediatorClassName() {
+		return PublishEventMediator.class.getName();
+	}
 
-    private OMElement createElementForProperty(Property property) {
-        OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_Q.getLocalPart(), synNS);
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.getNameAttributeQ().getLocalPart(), nullNS, property.getKey()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.TYPE_Q.getLocalPart(), nullNS, property.getType()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.DEFAULT_Q.getLocalPart(), nullNS, property.getDefaultValue()));
+	private OMElement createElementForProperty(Property property) {
+		OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_Q.getLocalPart(), synNS);
+		attributeElement.addAttribute(
+				fac.createOMAttribute(PublishEventMediatorFactory.getNameAttributeQ().getLocalPart(), nullNS,
+				                      property.getKey()));
+		attributeElement.addAttribute(
+				fac.createOMAttribute(PublishEventMediatorFactory.TYPE_Q.getLocalPart(), nullNS, property.getType()));
+		attributeElement.addAttribute(
+				fac.createOMAttribute(PublishEventMediatorFactory.DEFAULT_Q.getLocalPart(), nullNS,
+				                      property.getDefaultValue()));
 
-        if (property.getExpression() != null) {
-            SynapseXPathSerializer.serializeXPath(property.getExpression(), attributeElement, PublishEventMediatorFactory.getExpressionAttributeQ().getLocalPart());
-        } else {
-            attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediatorFactory.getValueAttributeQ().getLocalPart(), nullNS, property.getValue()));
-        }
-        return attributeElement;
-    }
+		if (property.getExpression() != null) {
+			SynapseXPathSerializer.serializeXPath(property.getExpression(), attributeElement,
+			                                      PublishEventMediatorFactory.getExpressionAttributeQ().getLocalPart());
+		} else {
+			attributeElement.addAttribute(
+					fac.createOMAttribute(PublishEventMediatorFactory.getValueAttributeQ().getLocalPart(), nullNS,
+					                      property.getValue()));
+		}
+		return attributeElement;
+	}
 }

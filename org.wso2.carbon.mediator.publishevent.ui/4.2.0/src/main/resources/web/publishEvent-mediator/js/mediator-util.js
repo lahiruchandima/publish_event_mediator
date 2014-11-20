@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
+function addproperty(name, nameemptymsg, valueemptymsg, propertytype) {
 
-    if (!isValidProperties(nameemptymsg, valueemptymsg,propertytype)) {
+    if (!isValidProperties(nameemptymsg, valueemptymsg, propertytype)) {
         return false;
     }
 
 
-    switch (propertytype){
+    switch (propertytype) {
         case "meta":
             var displayStyleOfNSEditor = document.getElementById('meta-ns-editor-th').style.display;
 
@@ -45,7 +45,7 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
                 " />";
 
             var metaTypeTD = document.createElement("td");
-            metaTypeTD.appendChild(createproperttypecombobox('metaPropertyTypeSelection' + i, i, name,propertytype));
+            metaTypeTD.appendChild(createproperttypecombobox('metaPropertyTypeSelection' + i, i, name, propertytype));
 
             var metaValueTD = document.createElement("td");
             metaValueTD.innerHTML = "<input type='text' name='metaPropertyValue" + i + "' id='metaPropertyValue" + i + "'" +
@@ -55,10 +55,10 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
             metaNsTD.style.display = displayStyleOfNSEditor;
 
             var metaValueTypeTD = document.createElement("td");
-            metaValueTypeTD.appendChild(createpropertvaluetypecombobox('metaPropertyValueTypeSelection' + i, i, name,propertytype));
+            metaValueTypeTD.appendChild(createpropertvaluetypecombobox('metaPropertyValueTypeSelection' + i, i, name, propertytype));
 
             var metaDeleteTD = document.createElement("td");
-            metaDeleteTD.innerHTML =  "<a href='#' class='delete-icon-link' onclick='deleteMetaProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
+            metaDeleteTD.innerHTML = "<a href='#' class='delete-icon-link' onclick='deleteMetaProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
 
             metaPropertyRaw.appendChild(metaNameTD);
             metaPropertyRaw.appendChild(metaTypeTD);
@@ -93,7 +93,7 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
                 " />";
 
             var correlationTypeTD = document.createElement("td");
-            correlationTypeTD.appendChild(createproperttypecombobox('correlationPropertyTypeSelection' + i, i, name,propertytype));
+            correlationTypeTD.appendChild(createproperttypecombobox('correlationPropertyTypeSelection' + i, i, name, propertytype));
 
             var correlationValueTD = document.createElement("td");
             correlationValueTD.innerHTML = "<input type='text' name='correlationPropertyValue" + i + "' id='correlationPropertyValue" + i + "'" +
@@ -106,7 +106,7 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
             correlationValueTypeTD.appendChild(createpropertvaluetypecombobox('correlationPropertyValueTypeSelection' + i, i, name));
 
             var correlationDeleteTD = document.createElement("td");
-            correlationDeleteTD.innerHTML =  "<a href='#' class='delete-icon-link' onclick='deleteCorrelationProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
+            correlationDeleteTD.innerHTML = "<a href='#' class='delete-icon-link' onclick='deleteCorrelationProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
 
             correlationPropertyRaw.appendChild(correlationNameTD);
             correlationPropertyRaw.appendChild(correlationTypeTD);
@@ -141,7 +141,7 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
                 " />";
 
             var payloadTypeTD = document.createElement("td");
-            payloadTypeTD.appendChild(createproperttypecombobox('payloadPropertyTypeSelection' + i, i, name,propertytype));
+            payloadTypeTD.appendChild(createproperttypecombobox('payloadPropertyTypeSelection' + i, i, name, propertytype));
 
             var payloadValueTD = document.createElement("td");
             payloadValueTD.innerHTML = "<input type='text' name='payloadPropertyValue" + i + "' id='payloadPropertyValue" + i + "'" +
@@ -154,7 +154,7 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
             payloadValueTypeTD.appendChild(createpropertvaluetypecombobox('payloadPropertyValueTypeSelection' + i, i, name));
 
             var payloadDeleteTD = document.createElement("td");
-            payloadDeleteTD.innerHTML =  "<a href='#' class='delete-icon-link' onclick='deletePayloadProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
+            payloadDeleteTD.innerHTML = "<a href='#' class='delete-icon-link' onclick='deletePayloadProperty(" + i + ");return false;'>" + publishEventMediatorJsi18n["mediator.publishEvent.action.delete"] + "</a>";
 
             payloadPropertyRaw.appendChild(payloadNameTD);
             payloadPropertyRaw.appendChild(payloadTypeTD);
@@ -172,21 +172,21 @@ function addproperty(name,nameemptymsg, valueemptymsg,propertytype) {
 
 function isValidProperties(nameemptymsg, valueemptymsg, propertytype) {
 
-    var nsCount = document.getElementById(propertytype+"PropertyCount");
+    var nsCount = document.getElementById(propertytype + "PropertyCount");
     var i = nsCount.value;
 
     var currentCount = parseInt(i);
 
     if (currentCount >= 1) {
         for (var k = 0; k < currentCount; k++) {
-            var prefix = document.getElementById(propertytype+"PropertyName" + k);
+            var prefix = document.getElementById(propertytype + "PropertyName" + k);
             if (prefix != null && prefix != undefined) {
                 if (prefix.value == "") {
                     CARBON.showWarningDialog(nameemptymsg);
                     return false;
                 }
             }
-            var uri = document.getElementById(propertytype+"PropertyValue" + k);
+            var uri = document.getElementById(propertytype + "PropertyValue" + k);
             if (uri != null && uri != undefined) {
                 if (uri.value == "") {
                     CARBON.showWarningDialog(valueemptymsg);
@@ -199,7 +199,7 @@ function isValidProperties(nameemptymsg, valueemptymsg, propertytype) {
 }
 
 
-function createproperttypecombobox(id, i, name,propertytype) {
+function createproperttypecombobox(id, i, name, propertytype) {
     // Create the element:
     var combo_box = document.createElement('select');
 
@@ -207,16 +207,16 @@ function createproperttypecombobox(id, i, name,propertytype) {
     combo_box.name = id;
     combo_box.setAttribute("id", id);
 
-    if(propertytype=="meta"){
+    if (propertytype == "meta") {
         combo_box.onchange = function () {
             onMetaPropertyTypeSelectionChange(i, name)
         };
-    }else if(propertytype=="correlation"){
+    } else if (propertytype == "correlation") {
         combo_box.onchange = function () {
             onCorrelationPropertyTypeSelectionChange(i, name)
         };
 
-    }else if(propertytype=="payload"){
+    } else if (propertytype == "payload") {
         combo_box.onchange = function () {
             onPayloadPropertyTypeSelectionChange(i, name)
         };
@@ -282,7 +282,7 @@ function createpropertvaluetypecombobox(id, i, name, propertytype) {
 }
 
 function deleteMetaProperty(i) {
-    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"],function(){
+    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"], function () {
         var propRow = document.getElementById("metaPropertyRaw" + i);
         if (propRow != undefined && propRow != null) {
             var parentTBody = propRow.parentNode;
@@ -298,7 +298,7 @@ function deleteMetaProperty(i) {
 }
 
 function deleteCorrelationProperty(i) {
-    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"],function(){
+    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"], function () {
         var propRow = document.getElementById("correlationPropertyRaw" + i);
         if (propRow != undefined && propRow != null) {
             var parentTBody = propRow.parentNode;
@@ -314,7 +314,7 @@ function deleteCorrelationProperty(i) {
 }
 
 function deletePayloadProperty(i) {
-    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"],function(){
+    CARBON.showConfirmationDialog(publishEventMediatorJsi18n["mediator.publishEvent.delete.confirm"], function () {
         var propRow = document.getElementById("payloadPropertyRaw" + i);
         if (propRow != undefined && propRow != null) {
             var parentTBody = propRow.parentNode;
@@ -368,18 +368,18 @@ function onPayloadPropertyTypeSelectionChange(i, name) {
 }
 
 function settype(type, i, name, propertytype) {
-    var nsEditorButtonTD = document.getElementById(propertytype+"NsEditorButtonTD" + i);
+    var nsEditorButtonTD = document.getElementById(propertytype + "NsEditorButtonTD" + i);
 
     if (nsEditorButtonTD == null || nsEditorButtonTD == undefined) {
         return;
     }
     if ("expression" == type) {
-        resetDisplayStyle("",propertytype);
-        nsEditorButtonTD.innerHTML = "<a href='#nsEditorLink' class='nseditor-icon-link' style='padding-left:40px' onclick=\"showNameSpaceEditor('"+propertytype+"PropertyValue" + i + "')\">" + name + "</a>";
+        resetDisplayStyle("", propertytype);
+        nsEditorButtonTD.innerHTML = "<a href='#nsEditorLink' class='nseditor-icon-link' style='padding-left:40px' onclick=\"showNameSpaceEditor('" + propertytype + "PropertyValue" + i + "')\">" + name + "</a>";
     } else {
         nsEditorButtonTD.innerHTML = "";
         if (!isRemainPropertyExpressions(propertytype)) {
-            resetDisplayStyle("none",propertytype);
+            resetDisplayStyle("none", propertytype);
         }
     }
 }
@@ -397,16 +397,16 @@ function getSelectedValue(id) {
     return propertyType_value;
 }
 
-function resetDisplayStyle(displayStyle,propretytype) {
-    document.getElementById(propretytype+'-ns-editor-th').style.display = displayStyle;
-    var nsCount = document.getElementById(propretytype+"PropertyCount");
+function resetDisplayStyle(displayStyle, propretytype) {
+    document.getElementById(propretytype + '-ns-editor-th').style.display = displayStyle;
+    var nsCount = document.getElementById(propretytype + "PropertyCount");
     var i = nsCount.value;
 
     var currentCount = parseInt(i);
 
     if (currentCount >= 1) {
         for (var k = 0; k < currentCount; k++) {
-            var nsEditorButtonTD = document.getElementById(propretytype+"NsEditorButtonTD" + k);
+            var nsEditorButtonTD = document.getElementById(propretytype + "NsEditorButtonTD" + k);
             if (nsEditorButtonTD != undefined && nsEditorButtonTD != null) {
                 nsEditorButtonTD.style.display = displayStyle;
             }
@@ -415,14 +415,14 @@ function resetDisplayStyle(displayStyle,propretytype) {
 }
 
 function isRemainPropertyExpressions(propertytype) {
-    var nsCount = document.getElementById(propertytype+"PropertyCount");
+    var nsCount = document.getElementById(propertytype + "PropertyCount");
     var i = nsCount.value;
 
     var currentCount = parseInt(i);
 
     if (currentCount >= 1) {
         for (var k = 0; k < currentCount; k++) {
-            var propertyType = getSelectedValue(propertytype+'PropertyTypeSelection' + k);
+            var propertyType = getSelectedValue(propertytype + 'PropertyTypeSelection' + k);
             if ("expression" == propertyType) {
                 return true;
             }
@@ -443,14 +443,14 @@ function publishEventMediatorValidate() {
         return false;
     }
 
-    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"meta")){
-       return false;
+    if (!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"], "meta")) {
+        return false;
     }
-    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"correlation")){
+    if (!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"], "correlation")) {
         return false;
     }
 
-    if(!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"],"payload")){
+    if (!isValidProperties(publishEventMediatorJsi18n["mediator.publishEvent.property.name.empty"], publishEventMediatorJsi18n["mediator.publishEvent.property.value.empty"], "payload")) {
         return false;
     }
 
@@ -458,5 +458,5 @@ function publishEventMediatorValidate() {
 }
 
 function onPropertyValueTypeSelectionChange(i, name, propertytype) {
-    return getSelectedValue(propertytype+'PropertyTypeSelection' + i);
+    return getSelectedValue(propertytype + 'PropertyTypeSelection' + i);
 }

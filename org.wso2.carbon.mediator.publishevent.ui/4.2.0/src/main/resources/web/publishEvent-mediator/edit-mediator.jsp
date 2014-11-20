@@ -15,32 +15,20 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   --%>
-<%@ page import="org.apache.axiom.om.OMAttribute" %>
-<%@ page import="org.apache.axiom.om.OMElement" %>
-<%@ page import="org.apache.axiom.om.impl.builder.StAXOMBuilder" %>
 <%@ page import="org.apache.synapse.SynapseException" %>
 <%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
 <%@ page import="org.apache.synapse.util.xpath.SynapseXPath" %>
 <%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
+<%@ page import="org.wso2.carbon.event.sink.EventSink" %>
+<%@ page import="org.wso2.carbon.event.sink.EventSinkService" %>
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.ui.Mediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.util.MediatorProperty" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.NameSpacesRegistrar" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="javax.xml.namespace.QName" %>
-<%@ page import="javax.xml.stream.XMLInputFactory" %>
-<%@ page import="javax.xml.stream.XMLStreamException" %>
-<%@ page import="javax.xml.stream.XMLStreamReader" %>
-<%@ page import="java.io.BufferedInputStream" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.FileInputStream" %>
-<%@ page import="java.io.FileNotFoundException" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.event.sink.*" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -53,16 +41,17 @@
     }
     PublishEventMediator publishEventMediator = (PublishEventMediator) mediator;
 
-
     List<Property> mediatorMetaPropertyList = publishEventMediator.getMetaProperties();
     List<Property> mediatorCorrelationPropertyList = publishEventMediator.getCorrelationProperties();
     List<Property> mediatorPayloadPropertyList = publishEventMediator.getPayloadProperties();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
 
-
     nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorMetaPropertyList), "metaPropertyValue", session);
-    nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorCorrelationPropertyList), "correlationPropertyValue", session);
-    nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorPayloadPropertyList), "payloadPropertyValue", session);
+    nameSpacesRegistrar
+            .registerNameSpaces(convertPropertyList(mediatorCorrelationPropertyList), "correlationPropertyValue",
+                                session);
+    nameSpacesRegistrar
+            .registerNameSpaces(convertPropertyList(mediatorPayloadPropertyList), "payloadPropertyValue", session);
     String metaPropertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
     String correlationPropertyTableStyle = mediatorCorrelationPropertyList.isEmpty() ? "display:none;" : "";
     String payloadPropertyTableStyle = mediatorPayloadPropertyList.isEmpty() ? "display:none;" : "";
@@ -121,21 +110,26 @@
 
                         <%
                             List<EventSink> eventSinkList;
-                            Object o = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
+                            Object o = PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                                                              .getOSGiService(EventSinkService.class);
                             if (o instanceof EventSinkService) {
                                 EventSinkService service = (EventSinkService) o;
                                 eventSinkList = service.getEventSinks();
                             } else {
-                                throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
+                                throw new SynapseException(
+                                        "Internal error occurred. Failed to obtain EventSinkService");
                             }
 
                             for (EventSink sink : eventSinkList) {
-                                %>
-                                <option <%if (publishEventMediator.getEventSink().equals(sink.getName()))
-                                    out.print("selected"); %> value="<%=sink.getName()%>">
-                                    <%=sink.getName()%>
-                                </option>
-                                <%
+                        %>
+                        <option <%
+                            if (publishEventMediator.getEventSink().equals(sink.getName())) {
+                                out.print("selected");
+                            }
+                        %> value="<%=sink.getName()%>">
+                            <%=sink.getName()%>
+                        </option>
+                        <%
                             }
                         %>
 
@@ -253,24 +247,36 @@
                                 onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message
                                         key="mediator.publishEvent.namespace"/>', 'meta')">
 
-                            <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
+                            <option <% if (type.equals("STRING")) {
+                                out.print("selected");
+                            } %> value="STRING">
                                 <fmt:message key="mediator.publishEvent.type.string"/>
                             </option>
-                            <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
+                            <option <% if (type.equals("INTEGER")) {
+                                out.print("selected");
+                            } %> value="INTEGER">
                                 <fmt:message key="mediator.publishEvent.type.integer"/>
                             </option>
 
-                            <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
+                            <option <% if (type.equals("BOOLEAN")) {
+                                out.print("selected");
+                            } %> value="BOOLEAN">
                                 <fmt:message key="mediator.publishEvent.type.boolean"/>
                             </option>
 
-                            <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
+                            <option <% if (type.equals("DOUBLE")) {
+                                out.print("selected");
+                            } %> value="DOUBLE">
                                 <fmt:message key="mediator.publishEvent.type.double"/>
                             </option>
-                            <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
+                            <option <% if (type.equals("FLOAT")) {
+                                out.print("selected");
+                            } %> value="FLOAT">
                                 <fmt:message key="mediator.publishEvent.type.float"/>
                             </option>
-                            <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
+                            <option <% if (type.equals("LONG")) {
+                                out.print("selected");
+                            } %> value="LONG">
                                 <fmt:message key="mediator.publishEvent.type.long"/>
                             </option>
 
@@ -414,24 +420,36 @@
                                 onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message
                                         key="mediator.publishEvent.namespace"/>','correlation')">
 
-                            <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
+                            <option <% if (type.equals("STRING")) {
+                                out.print("selected");
+                            } %> value="STRING">
                                 <fmt:message key="mediator.publishEvent.type.string"/>
                             </option>
-                            <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
+                            <option <% if (type.equals("INTEGER")) {
+                                out.print("selected");
+                            } %> value="INTEGER">
                                 <fmt:message key="mediator.publishEvent.type.integer"/>
                             </option>
 
-                            <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
+                            <option <% if (type.equals("BOOLEAN")) {
+                                out.print("selected");
+                            } %> value="BOOLEAN">
                                 <fmt:message key="mediator.publishEvent.type.boolean"/>
                             </option>
 
-                            <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
+                            <option <% if (type.equals("DOUBLE")) {
+                                out.print("selected");
+                            } %> value="DOUBLE">
                                 <fmt:message key="mediator.publishEvent.type.double"/>
                             </option>
-                            <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
+                            <option <% if (type.equals("FLOAT")) {
+                                out.print("selected");
+                            } %> value="FLOAT">
                                 <fmt:message key="mediator.publishEvent.type.float"/>
                             </option>
-                            <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
+                            <option <% if (type.equals("LONG")) {
+                                out.print("selected");
+                            } %> value="LONG">
                                 <fmt:message key="mediator.publishEvent.type.long"/>
                             </option>
 
@@ -574,24 +592,36 @@
                                 onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message
                                         key="mediator.publishEvent.namespace"/>','payload')">
 
-                            <option <% if (type.equals("STRING")) out.print("selected"); %> value="STRING">
+                            <option <% if (type.equals("STRING")) {
+                                out.print("selected");
+                            } %> value="STRING">
                                 <fmt:message key="mediator.publishEvent.type.string"/>
                             </option>
-                            <option <% if (type.equals("INTEGER")) out.print("selected"); %> value="INTEGER">
+                            <option <% if (type.equals("INTEGER")) {
+                                out.print("selected");
+                            } %> value="INTEGER">
                                 <fmt:message key="mediator.publishEvent.type.integer"/>
                             </option>
 
-                            <option <% if (type.equals("BOOLEAN")) out.print("selected"); %> value="BOOLEAN">
+                            <option <% if (type.equals("BOOLEAN")) {
+                                out.print("selected");
+                            } %> value="BOOLEAN">
                                 <fmt:message key="mediator.publishEvent.type.boolean"/>
                             </option>
 
-                            <option <% if (type.equals("DOUBLE")) out.print("selected"); %> value="DOUBLE">
+                            <option <% if (type.equals("DOUBLE")) {
+                                out.print("selected");
+                            } %> value="DOUBLE">
                                 <fmt:message key="mediator.publishEvent.type.double"/>
                             </option>
-                            <option <% if (type.equals("FLOAT")) out.print("selected"); %> value="FLOAT">
+                            <option <% if (type.equals("FLOAT")) {
+                                out.print("selected");
+                            } %> value="FLOAT">
                                 <fmt:message key="mediator.publishEvent.type.float"/>
                             </option>
-                            <option <% if (type.equals("LONG")) out.print("selected"); %> value="LONG">
+                            <option <% if (type.equals("LONG")) {
+                                out.print("selected");
+                            } %> value="LONG">
                                 <fmt:message key="mediator.publishEvent.type.long"/>
                             </option>
 

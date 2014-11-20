@@ -28,26 +28,26 @@ import org.wso2.carbon.mediator.service.MediatorService;
  */
 public class PublishEventMediatorActivator implements BundleActivator {
 
-    private static final Log log = LogFactory.getLog(PublishEventMediatorActivator.class);
+	private static final Log log = LogFactory.getLog(PublishEventMediatorActivator.class);
 
-    public void start(BundleContext bundleContext) throws Exception {
+	public void start(BundleContext bundleContext) throws Exception {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Starting the publishEvent mediator component ...");
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Starting the publishEvent mediator component ...");
+		}
 
-        //Properties props = new Properties();
-        bundleContext.registerService(
-                MediatorService.class.getName(), new PublishEventMediatorService(), null);
+		//Properties props = new Properties();
+		bundleContext.registerService(
+				MediatorService.class.getName(), new PublishEventMediatorService(), null);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Successfully registered the publishEvent mediator service");
-        }
-    }
+		if (log.isDebugEnabled()) {
+			log.debug("Successfully registered the publishEvent mediator service");
+		}
+	}
 
-    public void stop(BundleContext bundleContext) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Stopped the publishEvent mediator component ...");
-        }
-    }
+	public void stop(BundleContext bundleContext) throws Exception {
+		if (log.isDebugEnabled()) {
+			log.debug("Stopped the publishEvent mediator component ...");
+		}
+	}
 }

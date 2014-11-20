@@ -16,15 +16,15 @@
   ~  limitations under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator" %>
+<%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
+<%@ page import="org.apache.synapse.util.xpath.SynapseXPath" %>
 <%@ page import="org.wso2.carbon.mediator.publishevent.ui.Property" %>
+<%@ page import="org.wso2.carbon.mediator.publishevent.ui.PublishEventMediator" %>
 <%@ page import="org.wso2.carbon.mediator.service.ui.Mediator" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.SequenceEditorHelper" %>
 <%@ page import="org.wso2.carbon.sequences.ui.util.ns.XPathFactory" %>
-<%@ page import="org.apache.synapse.config.xml.SynapsePath" %>
-<%@ page import="org.apache.synapse.util.xpath.SynapseXPath" %>
-<%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 
 <%
 
@@ -63,27 +63,28 @@
 
                     if (value != null) {
                         if (isExpression) {
-                            if(value.trim().startsWith("json-eval(")) {
-                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                            if (value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath =
+                                        new SynapseXPath(value.trim().substring(10, value.length() - 1));
                                 currentProperty.setExpression(jsonPath);
                             } else {
-                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                                currentProperty
+                                        .setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
                             }
                         } else {
                             currentProperty.setValue(value);
                         }
                     }
 
-                    String type=request.getParameter("metaPropertyValueTypeSelection" + i);
+                    String type = request.getParameter("metaPropertyValueTypeSelection" + i);
                     currentProperty.setType(type);
-
 
                     metaProperties.add(currentProperty);
                 }
             }
 
             ((PublishEventMediator) mediator).setMetaProperties(metaProperties);
-        }catch (NumberFormatException ignored) {
+        } catch (NumberFormatException ignored) {
             throw new RuntimeException("Invalid number format");
         } catch (Exception exception) {
             throw new RuntimeException("Invalid Path Expression");
@@ -110,27 +111,28 @@
 
                     if (value != null) {
                         if (isExpression) {
-                            if(value.trim().startsWith("json-eval(")) {
-                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                            if (value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath =
+                                        new SynapseXPath(value.trim().substring(10, value.length() - 1));
                                 currentProperty.setExpression(jsonPath);
                             } else {
-                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                                currentProperty
+                                        .setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
                             }
                         } else {
                             currentProperty.setValue(value);
                         }
                     }
 
-                    String type=request.getParameter("correlationPropertyValueTypeSelection" + i);
+                    String type = request.getParameter("correlationPropertyValueTypeSelection" + i);
                     currentProperty.setType(type);
-
 
                     correlationProperties.add(currentProperty);
                 }
             }
 
             ((PublishEventMediator) mediator).setCorrelationProperties(correlationProperties);
-        }catch (NumberFormatException ignored) {
+        } catch (NumberFormatException ignored) {
             throw new RuntimeException("Invalid number format");
         } catch (Exception exception) {
             throw new RuntimeException("Invalid Path Expression");
@@ -157,35 +159,33 @@
 
                     if (value != null) {
                         if (isExpression) {
-                            if(value.trim().startsWith("json-eval(")) {
-                                SynapseXPath jsonPath = new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                            if (value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath =
+                                        new SynapseXPath(value.trim().substring(10, value.length() - 1));
                                 currentProperty.setExpression(jsonPath);
                             } else {
-                                currentProperty.setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                                currentProperty
+                                        .setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
                             }
                         } else {
                             currentProperty.setValue(value);
                         }
                     }
 
-                    String type=request.getParameter("payloadPropertyValueTypeSelection" + i);
+                    String type = request.getParameter("payloadPropertyValueTypeSelection" + i);
                     currentProperty.setType(type);
-
 
                     payloadProperties.add(currentProperty);
                 }
             }
 
             ((PublishEventMediator) mediator).setPayloadProperties(payloadProperties);
-        }catch (NumberFormatException ignored) {
+        } catch (NumberFormatException ignored) {
             throw new RuntimeException("Invalid number format");
         } catch (Exception exception) {
             throw new RuntimeException("Invalid Path Expression");
         }
     }
-
-
-
 
 
 %>

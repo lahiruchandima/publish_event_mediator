@@ -35,285 +35,290 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 public class PublishEventMediator extends AbstractMediator {
 
-    private static final Log log = LogFactory.getLog(PublishEventMediator.class);
-    public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
-    public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
-    public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
-    public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
-    public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
-    public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
-    public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
-    public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
-    public static final QName TYPE_Q = new QName("type");
-    public static final QName DEFAULT_Q = new QName("defaultValue");
+	private static final Log log = LogFactory.getLog(PublishEventMediator.class);
+	public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
+	public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
+	public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
+	public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
+	public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
+	public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
+	public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
+	public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
+	public static final QName TYPE_Q = new QName("type");
+	public static final QName DEFAULT_Q = new QName("defaultValue");
 
-    private String streamName = "";
-    private String streamVersion = "";
-    private String eventSink = "";
-    private List<Property> metaProperties = new ArrayList<Property>();
-    private List<Property> correlationProperties = new ArrayList<Property>();
-    private List<Property> payloadProperties = new ArrayList<Property>();
-    private String serverProfile = "";
+	private String streamName = "";
+	private String streamVersion = "";
+	private String eventSink = "";
+	private List<Property> metaProperties = new ArrayList<Property>();
+	private List<Property> correlationProperties = new ArrayList<Property>();
+	private List<Property> payloadProperties = new ArrayList<Property>();
+	private String serverProfile = "";
 
+	public String getTagLocalName() {
+		return "publishEvent";
+	}
 
+	public OMElement serialize(OMElement parent) {
 
-    public String getTagLocalName() {
-        return "publishEvent";
-    }
+		OMElement publishEventElement = fac.createOMElement("publishEvent", synNS);
+		saveTracingState(publishEventElement, this);
 
-    public OMElement serialize(OMElement parent) {
+		if (streamName != null && !streamName.equals("")) {
+			OMElement streamNameElement = fac.createOMElement(PublishEventMediator.STREAM_NAME_Q.getLocalPart(), synNS);
+			streamNameElement.setText(this.getStreamName());
+			publishEventElement.addChild(streamNameElement);
 
+		} else {
+			throw new MediatorException("Stream name not specified");
+		}
+		if (streamVersion != null && !streamName.equals("")) {
 
-        OMElement publishEventElement = fac.createOMElement("publishEvent", synNS);
-        saveTracingState(publishEventElement, this);
+			OMElement streamVersionElement =
+					fac.createOMElement(PublishEventMediator.STREAM_VERSION_Q.getLocalPart(), synNS);
+			streamVersionElement.setText(this.getStreamVersion());
+			publishEventElement.addChild(streamVersionElement);
+		} else {
+			throw new MediatorException("Stream version not specified");
+		}
 
-        if (streamName != null && !streamName.equals("")) {
-            OMElement streamNameElement = fac.createOMElement(PublishEventMediator.STREAM_NAME_Q.getLocalPart(), synNS);
-            streamNameElement.setText(this.getStreamName());
-            publishEventElement.addChild(streamNameElement);
+		OMElement eventSinkElement = fac.createOMElement(PublishEventMediator.EVENT_SINK_Q.getLocalPart(), synNS);
+		eventSinkElement.setText(this.getEventSink());
+		publishEventElement.addChild(eventSinkElement);
 
-        } else {
-            throw new MediatorException("Stream name not specified");
-        }
-        if (streamVersion != null && !streamName.equals("")) {
+		OMElement streamAttributesElement =
+				fac.createOMElement(PublishEventMediator.ATTRIBUTES_Q.getLocalPart(), synNS);
 
-            OMElement streamVersionElement = fac.createOMElement(PublishEventMediator.STREAM_VERSION_Q.getLocalPart(), synNS);
-            streamVersionElement.setText(this.getStreamVersion());
-            publishEventElement.addChild(streamVersionElement);
-        } else {
-            throw new MediatorException("Stream version not specified");
-        }
+		OMElement metaAttributesElement = fac.createOMElement(PublishEventMediator.META_Q.getLocalPart(), synNS);
+		for (Property property : this.getMetaProperties()) {
+			metaAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(metaAttributesElement);
 
-        OMElement eventSinkElement = fac.createOMElement(PublishEventMediator.EVENT_SINK_Q.getLocalPart(), synNS);
-        eventSinkElement.setText(this.getEventSink());
-        publishEventElement.addChild(eventSinkElement);
+		OMElement correlationAttributesElement =
+				fac.createOMElement(PublishEventMediator.CORRELATION_Q.getLocalPart(), synNS);
+		for (Property property : this.getCorrelationProperties()) {
+			correlationAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(correlationAttributesElement);
 
+		OMElement payloadAttributesElement = fac.createOMElement(PublishEventMediator.PAYLOAD_Q.getLocalPart(), synNS);
+		for (Property property : this.getPayloadProperties()) {
+			payloadAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(payloadAttributesElement);
 
-        OMElement streamAttributesElement = fac.createOMElement(PublishEventMediator.ATTRIBUTES_Q.getLocalPart(), synNS);
+		publishEventElement.addChild(streamAttributesElement);
 
-        OMElement metaAttributesElement = fac.createOMElement(PublishEventMediator.META_Q.getLocalPart(), synNS);
-        for (Property property : this.getMetaProperties()) {
-            metaAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(metaAttributesElement);
+		if (parent != null) {
+			parent.addChild(publishEventElement);
+		}
 
-        OMElement correlationAttributesElement = fac.createOMElement(PublishEventMediator.CORRELATION_Q.getLocalPart(), synNS);
-        for (Property property : this.getCorrelationProperties()) {
-            correlationAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(correlationAttributesElement);
+		return publishEventElement;
+	}
 
-        OMElement payloadAttributesElement = fac.createOMElement(PublishEventMediator.PAYLOAD_Q.getLocalPart(), synNS);
-        for (Property property : this.getPayloadProperties()) {
-            payloadAttributesElement.addChild(createElementForProperty(property));
-        }
-        streamAttributesElement.addChild(payloadAttributesElement);
+	public void build(OMElement elem) {
+		OMElement streamName = elem.getFirstChildWithName(STREAM_NAME_Q);
+		if (streamName == null) {
+			throw new SynapseException(STREAM_NAME_Q.getLocalPart() + " element missing");
+		}
+		this.setStreamName(streamName.getText());
 
-        publishEventElement.addChild(streamAttributesElement);
+		OMElement streamVersion = elem.getFirstChildWithName(STREAM_VERSION_Q);
+		if (streamVersion == null) {
+			throw new SynapseException(STREAM_VERSION_Q.getLocalPart() + " element missing");
+		}
+		this.setStreamVersion(streamVersion.getText());
 
-        if (parent != null) {
-            parent.addChild(publishEventElement);
-        }
+		OMElement eventSinkName = elem.getFirstChildWithName(EVENT_SINK_Q);
+		if (eventSinkName == null) {
+			throw new SynapseException(EVENT_SINK_Q.getLocalPart() + " element missing");
+		}
+		this.setEventSink(eventSinkName.getText());
 
-        return publishEventElement;
-    }
+		OMElement attributes = elem.getFirstChildWithName(ATTRIBUTES_Q);
+		if (attributes != null) {
+			OMElement meta = attributes.getFirstChildWithName(META_Q);
+			if (meta != null) {
+				List<Property> propertyList = new ArrayList<Property>();
+				Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
+				populateAttributes(propertyList, iter);
+				this.setMetaProperties(propertyList);
+			}
+			OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
+			if (correlation != null) {
+				List<Property> propertyList = new ArrayList<Property>();
+				Iterator iter = correlation.getChildrenWithName(ATTRIBUTE_Q);
+				populateAttributes(propertyList, iter);
+				this.setCorrelationProperties(propertyList);
+			}
+			OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
+			if (payload != null) {
+				List<Property> propertyList = new ArrayList<Property>();
+				Iterator iter = payload.getChildrenWithName(ATTRIBUTE_Q);
+				populateAttributes(propertyList, iter);
+				this.setPayloadProperties(propertyList);
+			}
+		} else {
+			throw new SynapseException(ATTRIBUTES_Q.getLocalPart() + " attribute missing");
+		}
 
-    public void build(OMElement elem) {
-        OMElement streamName = elem.getFirstChildWithName(STREAM_NAME_Q);
-        if (streamName == null) {
-            throw new SynapseException(STREAM_NAME_Q.getLocalPart() + " element missing");
-        }
-        this.setStreamName(streamName.getText());
+	}
 
-        OMElement streamVersion = elem.getFirstChildWithName(STREAM_VERSION_Q);
-        if (streamVersion == null) {
-            throw new SynapseException(STREAM_VERSION_Q.getLocalPart() + " element missing");
-        }
-        this.setStreamVersion(streamVersion.getText());
+	private List<Attribute> generateAttributeList(List<Property> propertyList) {
+		List<Attribute> attributeList = new ArrayList<Attribute>();
+		for (Property property : propertyList) {
+			attributeList.add(new Attribute(property.getName(), property.getDatabridgeAttributeType()));
+		}
+		return attributeList;
+	}
 
-        OMElement eventSinkName = elem.getFirstChildWithName(EVENT_SINK_Q);
-        if (eventSinkName == null) {
-            throw new SynapseException(EVENT_SINK_Q.getLocalPart() + " element missing");
-        }
-        this.setEventSink(eventSinkName.getText());
+	public String getServerProfile() {
+		return serverProfile;
+	}
 
+	public String getStreamVersion() {
+		return streamVersion;
+	}
 
-        OMElement attributes = elem.getFirstChildWithName(ATTRIBUTES_Q);
-        if (attributes != null) {
-            OMElement meta = attributes.getFirstChildWithName(META_Q);
-            if (meta != null) {
-                List<Property> propertyList = new ArrayList<Property>();
-                    Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter);
-                this.setMetaProperties(propertyList);
-            }
-            OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
-            if (correlation != null) {
-                List<Property> propertyList = new ArrayList<Property>();
-                Iterator iter = correlation.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter);
-                this.setCorrelationProperties(propertyList);
-            }
-            OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
-            if (payload != null) {
-                List<Property> propertyList = new ArrayList<Property>();
-                Iterator iter = payload.getChildrenWithName(ATTRIBUTE_Q);
-                populateAttributes(propertyList, iter);
-                this.setPayloadProperties(propertyList);
-            }
-        } else {
-            throw new SynapseException(ATTRIBUTES_Q.getLocalPart() + " attribute missing");
-        }
+	public String getEventSink() {
+		return eventSink;
+	}
 
-    }
+	public List<Property> getMetaProperties() {
+		return metaProperties;
+	}
 
-    private List<Attribute> generateAttributeList(List<Property> propertyList) {
-        List<Attribute> attributeList = new ArrayList<Attribute>();
-        for (Property property : propertyList) {
-            attributeList.add(new Attribute(property.getName(), property.getDatabridgeAttributeType()));
-        }
-        return attributeList;
-    }
+	public List<Property> getCorrelationProperties() {
+		return correlationProperties;
+	}
 
-    public String getServerProfile() {
-        return serverProfile;
-    }
+	public List<Property> getPayloadProperties() {
+		return payloadProperties;
+	}
 
-    public String getStreamVersion() {
-        return streamVersion;
-    }
+	public String getStreamName() {
+		return streamName;
+	}
 
-    public String getEventSink() {
-        return eventSink;
-    }
+	public void setServerProfile(String serverProfile) {
+		this.serverProfile = serverProfile;
+	}
 
-    public List<Property> getMetaProperties() {
-        return metaProperties;
-    }
+	public void setStreamName(String streamName) {
+		this.streamName = streamName;
+	}
 
-    public List<Property> getCorrelationProperties() {
-        return correlationProperties;
-    }
+	public void setStreamVersion(String streamVersion) {
+		this.streamVersion = streamVersion;
+	}
 
-    public List<Property> getPayloadProperties() {
-        return payloadProperties;
-    }
+	public void setEventSink(String eventSink) {
+		this.eventSink = eventSink;
+	}
 
-    public String getStreamName() {
-        return streamName;
-    }
+	public void setMetaProperties(List<Property> metaProperties) {
+		this.metaProperties = metaProperties;
+	}
 
-    public void setServerProfile(String serverProfile) {
-        this.serverProfile = serverProfile;
-    }
+	public void setCorrelationProperties(List<Property> correlationProperties) {
+		this.correlationProperties = correlationProperties;
+	}
 
-    public void setStreamName(String streamName) {
-        this.streamName = streamName;
-    }
+	public void setPayloadProperties(List<Property> payloadProperties) {
+		this.payloadProperties = payloadProperties;
+	}
 
-    public void setStreamVersion(String streamVersion) {
-        this.streamVersion = streamVersion;
-    }
+	private OMElement createElementForProperty(Property property) {
+		OMElement attributeElement = fac.createOMElement(PublishEventMediator.ATTRIBUTE_Q.getLocalPart(), synNS);
+		attributeElement.addAttribute(
+				fac.createOMAttribute(PublishEventMediator.getNameAttributeQ().getLocalPart(), nullNS,
+				                      property.getName()));
+		attributeElement.addAttribute(
+				fac.createOMAttribute(PublishEventMediator.TYPE_Q.getLocalPart(), nullNS, property.getType()));
+		attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.DEFAULT_Q.getLocalPart(), nullNS,
+		                                                    property.getDefaultValue()));
 
-    public void setEventSink(String eventSink) {
-        this.eventSink = eventSink;
-    }
+		if (property.getExpression() != null) {
+			SynapseXPathSerializer.serializeXPath(property.getExpression(), attributeElement,
+			                                      PublishEventMediator.getExpressionAttributeQ().getLocalPart());
+		} else {
+			attributeElement.addAttribute(
+					fac.createOMAttribute(PublishEventMediator.getValueAttributeQ().getLocalPart(), nullNS,
+					                      property.getValue()));
+		}
+		return attributeElement;
+	}
 
-    public void setMetaProperties(List<Property> metaProperties) {
-        this.metaProperties = metaProperties;
-    }
+	public static QName getNameAttributeQ() {
+		return ATT_NAME;
+	}
 
-    public void setCorrelationProperties(List<Property> correlationProperties) {
-        this.correlationProperties = correlationProperties;
-    }
+	public static QName getValueAttributeQ() {
+		return ATT_VALUE;
+	}
 
-    public void setPayloadProperties(List<Property> payloadProperties) {
-        this.payloadProperties = payloadProperties;
-    }
+	public static QName getExpressionAttributeQ() {
+		return ATT_EXPRN;
+	}
 
-    private OMElement createElementForProperty(Property property) {
-        OMElement attributeElement = fac.createOMElement(PublishEventMediator.ATTRIBUTE_Q.getLocalPart(), synNS);
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.getNameAttributeQ().getLocalPart(), nullNS, property.getName()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.TYPE_Q.getLocalPart(), nullNS, property.getType()));
-        attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.DEFAULT_Q.getLocalPart(), nullNS, property.getDefaultValue()));
+	private void populateAttributes(List<Property> propertyList, Iterator iter) {
+		while (iter.hasNext()) {
+			OMElement element = (OMElement) iter.next();
+			OMAttribute nameAttr = element.getAttribute(ATT_NAME);
+			if (nameAttr == null) {
+				throw new SynapseException(ATT_NAME.getLocalPart() + " attribute missing in " + element.getLocalName());
+			}
+			OMAttribute typeAttr = element.getAttribute(TYPE_Q);
+			if (typeAttr == null) {
+				throw new SynapseException(TYPE_Q.getLocalPart() + " attribute missing in " + element.getLocalName());
+			}
+			OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
+			OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
+			if (valueAttr != null && expressionAttr != null) {
+				throw new SynapseException(
+						element.getLocalName() + " element can either have \"" + ATT_VALUE.getLocalPart() +
+						"\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute but not both");
+			}
 
-        if (property.getExpression() != null) {
-            SynapseXPathSerializer.serializeXPath(property.getExpression(), attributeElement, PublishEventMediator.getExpressionAttributeQ().getLocalPart());
-        } else {
-            attributeElement.addAttribute(fac.createOMAttribute(PublishEventMediator.getValueAttributeQ().getLocalPart(), nullNS, property.getValue()));
-        }
-        return attributeElement;
-    }
+			if (valueAttr == null && expressionAttr == null) {
+				throw new SynapseException(
+						element.getLocalName() + " element must have either \"" + ATT_VALUE.getLocalPart() +
+						"\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute");
+			}
 
-    public static QName getNameAttributeQ() {
-        return ATT_NAME;
-    }
+			Property property = new Property();
+			property.setName(nameAttr.getAttributeValue());
+			property.setType(typeAttr.getAttributeValue());
+			if (valueAttr != null) {
+				property.setValue(valueAttr.getAttributeValue());
+			} else {
+				try {
+					property.setExpression(SynapseXPathFactory.getSynapseXPath(element, ATT_EXPRN));
+				} catch (JaxenException e) {
+					throw new SynapseException("Invalid expression attribute in " + element.getLocalName(), e);
+				}
+			}
 
-    public static QName getValueAttributeQ() {
-        return ATT_VALUE;
-    }
+			OMAttribute defaultAtr = element.getAttribute(DEFAULT_Q);
+			if (defaultAtr != null) {
+				property.setDefaultValue(defaultAtr.getAttributeValue());
+			}
 
-    public static QName getExpressionAttributeQ() {
-        return ATT_EXPRN;
-    }
+			propertyList.add(property);
+		}
+	}
 
-    private void populateAttributes(List<Property> propertyList, Iterator iter) {
-        while (iter.hasNext()) {
-            OMElement element = (OMElement) iter.next();
-            OMAttribute nameAttr = element.getAttribute(ATT_NAME);
-            if (nameAttr == null) {
-                throw new SynapseException(ATT_NAME.getLocalPart() + " attribute missing in " + element.getLocalName());
-            }
-            OMAttribute typeAttr = element.getAttribute(TYPE_Q);
-            if (typeAttr == null) {
-                throw new SynapseException(TYPE_Q.getLocalPart() + " attribute missing in " + element.getLocalName());
-            }
-            OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
-            OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
-            if (valueAttr != null && expressionAttr != null) {
-                throw new SynapseException(element.getLocalName() + " element can either have \"" + ATT_VALUE.getLocalPart() +
-                        "\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute but not both");
-            }
-
-            if (valueAttr == null && expressionAttr == null) {
-                throw new SynapseException(element.getLocalName() + " element must have either \"" + ATT_VALUE.getLocalPart() +
-                        "\" or \"" + ATT_EXPRN.getLocalPart() + "\" attribute");
-            }
-
-            Property property = new Property();
-            property.setName(nameAttr.getAttributeValue());
-            property.setType(typeAttr.getAttributeValue());
-            if (valueAttr != null) {
-                property.setValue(valueAttr.getAttributeValue());
-            } else {
-                try {
-                    property.setExpression(SynapseXPathFactory.getSynapseXPath(element, ATT_EXPRN));
-                } catch (JaxenException e) {
-                    throw new SynapseException("Invalid expression attribute in " + element.getLocalName(), e);
-                }
-            }
-
-            OMAttribute defaultAtr = element.getAttribute(DEFAULT_Q);
-            if (defaultAtr != null) {
-                property.setDefaultValue(defaultAtr.getAttributeValue());
-            }
-
-            propertyList.add(property);
-        }
-    }
-
-    public void clearList(String type){
-        if(type.equals("meta")){
-            metaProperties.clear();
-        }else if (type.equals("correlation")){
-            correlationProperties.clear();
-        }else if (type.equals("payload")){
-            payloadProperties.clear();
-        }
-    }
-
+	public void clearList(String type) {
+		if (type.equals("meta")) {
+			metaProperties.clear();
+		} else if (type.equals("correlation")) {
+			correlationProperties.clear();
+		} else if (type.equals("payload")) {
+			payloadProperties.clear();
+		}
+	}
 
 }
