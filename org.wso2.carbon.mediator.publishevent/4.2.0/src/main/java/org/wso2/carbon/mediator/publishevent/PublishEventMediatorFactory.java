@@ -69,6 +69,13 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		return PUBLISH_EVENT_Q;
 	}
 
+	/**
+	 * Creates a publishEvent mediator instance from given OMElement xml config
+	 *
+	 * @param omElement XML config of the mediator
+	 * @param properties
+	 * @return Created publishEvent mediator object
+	 */
 	@Override
 	public Mediator createSpecificMediator(OMElement omElement, Properties properties) {
 		PublishEventMediator mediator = new PublishEventMediator();
@@ -89,23 +96,20 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		if (attributes != null) {
 			OMElement meta = attributes.getFirstChildWithName(META_Q);
 			if (meta != null) {
-				List<Property> propertyList = new ArrayList<Property>();
 				Iterator iterator = meta.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iterator);
+				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setMetaProperties(propertyList);
 			}
 			OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
 			if (correlation != null) {
-				List<Property> propertyList = new ArrayList<Property>();
 				Iterator iterator = correlation.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iterator);
+				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setCorrelationProperties(propertyList);
 			}
 			OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
 			if (payload != null) {
-				List<Property> propertyList = new ArrayList<Property>();
 				Iterator iterator = payload.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iterator);
+				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setPayloadProperties(propertyList);
 			}
 		} else {
@@ -150,6 +154,12 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		return mediator;
 	}
 
+	/**
+	 * Creates a list of data-bridge attributes for the given property list
+	 *
+	 * @param propertyList List of properties for which attribute list should be created
+	 * @return Created data-bridge attribute list
+	 */
 	private List<Attribute> generateAttributeList(List<Property> propertyList) {
 		List<Attribute> attributeList = new ArrayList<Attribute>();
 		for (Property property : propertyList) {
@@ -158,7 +168,15 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		return attributeList;
 	}
 
-	private void populateAttributes(List<Property> propertyList, Iterator iterator) {
+	/**
+	 * Creates a list of Property objects with XML elements pointed by provided iterator
+	 *
+	 * @param iterator OMElement iterator. (Each OMElement contains XML config for a Property object)
+	 * @return Created Property list
+	 */
+	private List<Property> generatePropertyList(Iterator iterator) {
+		List<Property> propertyList = new ArrayList<Property>();
+
 		while (iterator.hasNext()) {
 			OMElement element = (OMElement) iterator.next();
 			OMAttribute nameAttr = element.getAttribute(ATT_NAME);
@@ -203,6 +221,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 
 			propertyList.add(property);
 		}
+		return propertyList;
 	}
 
 	public static QName getNameAttributeQ() {
