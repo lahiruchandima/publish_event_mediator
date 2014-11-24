@@ -142,7 +142,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 			String errorMsg = "Malformed Stream Definition: " + e.getMessage();
 			throw new SynapseException(errorMsg, e);
 		} catch (Exception e) {
-			String errorMsg = "Error occurred while creating the Stream Definition. " + e.getMessage();
+			String errorMsg = "Error occurred while creating the Stream Definition: " + e.getMessage();
 			throw new SynapseException(errorMsg, e);
 		}
 
