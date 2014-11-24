@@ -21,8 +21,6 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.Mediator;
 import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.SynapseException;
@@ -44,21 +42,20 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Creates the publishEvent mediator with given configuration XML taken from the registry which is mentioned in the sequence.
+ * Creates the publishEvent mediator with given configuration
  */
 public class PublishEventMediatorFactory extends AbstractMediatorFactory {
-	private static final Log log = LogFactory.getLog(PublishEventMediatorFactory.class);
-	public static final QName PUBLISH_EVENT_Q = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
-	public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
-	public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
-	public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
-	public static final QName ATTRIBUTES_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
-	public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
-	public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
-	public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
-	public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
-	public static final QName TYPE_Q = new QName("type");
-	public static final QName DEFAULT_Q = new QName("defaultValue");
+	public static final QName PUBLISH_EVENT_QNAME = new QName(SynapseConstants.SYNAPSE_NAMESPACE, getTagName());
+	public static final QName EVENT_SINK_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
+	public static final QName STREAM_NAME_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
+	public static final QName STREAM_VERSION_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
+	public static final QName ATTRIBUTES_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attributes");
+	public static final QName ATTRIBUTE_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
+	public static final QName META_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
+	public static final QName CORRELATION_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
+	public static final QName PAYLOAD_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
+	public static final QName TYPE_QNAME = new QName("type");
+	public static final QName DEFAULT_QNAME = new QName("defaultValue");
 
 	public static String getTagName() {
 		return "publishEvent";
@@ -66,7 +63,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 
 	@Override
 	public QName getTagQName() {
-		return PUBLISH_EVENT_Q;
+		return PUBLISH_EVENT_QNAME;
 	}
 
 	/**
@@ -80,51 +77,51 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 	public Mediator createSpecificMediator(OMElement omElement, Properties properties) {
 		PublishEventMediator mediator = new PublishEventMediator();
 
-		OMElement streamName = omElement.getFirstChildWithName(STREAM_NAME_Q);
+		OMElement streamName = omElement.getFirstChildWithName(STREAM_NAME_QNAME);
 		if (streamName == null) {
-			throw new SynapseException(STREAM_NAME_Q.getLocalPart() + " element missing");
+			throw new SynapseException(STREAM_NAME_QNAME.getLocalPart() + " element missing");
 		}
 		mediator.setStreamName(streamName.getText());
 
-		OMElement streamVersion = omElement.getFirstChildWithName(STREAM_VERSION_Q);
+		OMElement streamVersion = omElement.getFirstChildWithName(STREAM_VERSION_QNAME);
 		if (streamVersion == null) {
-			throw new SynapseException(STREAM_VERSION_Q.getLocalPart() + " element missing");
+			throw new SynapseException(STREAM_VERSION_QNAME.getLocalPart() + " element missing");
 		}
 		mediator.setStreamVersion(streamVersion.getText());
 
-		OMElement attributes = omElement.getFirstChildWithName(ATTRIBUTES_Q);
+		OMElement attributes = omElement.getFirstChildWithName(ATTRIBUTES_QNAME);
 		if (attributes != null) {
-			OMElement meta = attributes.getFirstChildWithName(META_Q);
+			OMElement meta = attributes.getFirstChildWithName(META_QNAME);
 			if (meta != null) {
-				Iterator iterator = meta.getChildrenWithName(ATTRIBUTE_Q);
+				Iterator<OMElement> iterator = meta.getChildrenWithName(ATTRIBUTE_QNAME);
 				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setMetaProperties(propertyList);
 			}
-			OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
+			OMElement correlation = attributes.getFirstChildWithName(CORRELATION_QNAME);
 			if (correlation != null) {
-				Iterator iterator = correlation.getChildrenWithName(ATTRIBUTE_Q);
+				Iterator<OMElement> iterator = correlation.getChildrenWithName(ATTRIBUTE_QNAME);
 				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setCorrelationProperties(propertyList);
 			}
-			OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
+			OMElement payload = attributes.getFirstChildWithName(PAYLOAD_QNAME);
 			if (payload != null) {
-				Iterator iterator = payload.getChildrenWithName(ATTRIBUTE_Q);
+				Iterator<OMElement> iterator = payload.getChildrenWithName(ATTRIBUTE_QNAME);
 				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setPayloadProperties(propertyList);
 			}
 		} else {
-			throw new SynapseException(ATTRIBUTES_Q.getLocalPart() + " attribute missing");
+			throw new SynapseException(ATTRIBUTES_QNAME.getLocalPart() + " attribute missing");
 		}
 
-		OMElement eventSinkElement = omElement.getFirstChildWithName(EVENT_SINK_Q);
+		OMElement eventSinkElement = omElement.getFirstChildWithName(EVENT_SINK_QNAME);
 		if (eventSinkElement == null) {
-			throw new SynapseException(EVENT_SINK_Q.getLocalPart() + " element missing");
+			throw new SynapseException(EVENT_SINK_QNAME.getLocalPart() + " element missing");
 		}
 		String eventSinkName = eventSinkElement.getText();
 
-		Object o = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
-		if (o instanceof EventSinkService) {
-			EventSinkService service = (EventSinkService) o;
+		Object serviceObject = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
+		if (serviceObject instanceof EventSinkService) {
+			EventSinkService service = (EventSinkService) serviceObject;
 			EventSink eventSink = service.getEventSink(eventSinkName);
 			if (eventSink == null) {
 				throw new SynapseException("Event sink \"" + eventSinkName + "\" not found");
@@ -140,14 +137,12 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 			streamDef.setCorrelationData(generateAttributeList(mediator.getCorrelationProperties()));
 			streamDef.setMetaData(generateAttributeList(mediator.getMetaProperties()));
 			streamDef.setPayloadData(generateAttributeList(mediator.getPayloadProperties()));
-			mediator.getEventSink().getLoadBalancingDataPublisher().addStreamDefinition(streamDef);
+			mediator.getEventSink().getDataPublisher().addStreamDefinition(streamDef);
 		} catch (MalformedStreamDefinitionException e) {
-			String errorMsg = "Malformed Stream Definition. " + e.getMessage();
-			log.error(errorMsg, e);
+			String errorMsg = "Malformed Stream Definition: " + e.getMessage();
 			throw new SynapseException(errorMsg, e);
 		} catch (Exception e) {
 			String errorMsg = "Error occurred while creating the Stream Definition. " + e.getMessage();
-			log.error(errorMsg, e);
 			throw new SynapseException(errorMsg, e);
 		}
 
@@ -155,12 +150,12 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 	}
 
 	/**
-	 * Creates a list of data-bridge attributes for the given property list
+	 * Creates a list of data-bridge attributes for the given property list.
 	 *
-	 * @param propertyList List of properties for which attribute list should be created
-	 * @return Created data-bridge attribute list
+	 * @param propertyList List of properties for which attribute list should be created.
+	 * @return Created data-bridge attribute list.
 	 */
-	private List<Attribute> generateAttributeList(List<Property> propertyList) {
+	private List<Attribute> generateAttributeList(List<Property> propertyList) throws SynapseException {
 		List<Attribute> attributeList = new ArrayList<Attribute>();
 		for (Property property : propertyList) {
 			attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
@@ -174,18 +169,18 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 	 * @param iterator OMElement iterator. (Each OMElement contains XML config for a Property object)
 	 * @return Created Property list
 	 */
-	private List<Property> generatePropertyList(Iterator iterator) {
+	private List<Property> generatePropertyList(Iterator<OMElement> iterator) {
 		List<Property> propertyList = new ArrayList<Property>();
 
 		while (iterator.hasNext()) {
-			OMElement element = (OMElement) iterator.next();
+			OMElement element = iterator.next();
 			OMAttribute nameAttr = element.getAttribute(ATT_NAME);
 			if (nameAttr == null) {
 				throw new SynapseException(ATT_NAME.getLocalPart() + " attribute missing in " + element.getLocalName());
 			}
-			OMAttribute typeAttr = element.getAttribute(TYPE_Q);
+			OMAttribute typeAttr = element.getAttribute(TYPE_QNAME);
 			if (typeAttr == null) {
-				throw new SynapseException(TYPE_Q.getLocalPart() + " attribute missing in " + element.getLocalName());
+				throw new SynapseException(TYPE_QNAME.getLocalPart() + " attribute missing in " + element.getLocalName());
 			}
 			OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
 			OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
@@ -214,7 +209,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 				}
 			}
 
-			OMAttribute defaultAtr = element.getAttribute(DEFAULT_Q);
+			OMAttribute defaultAtr = element.getAttribute(DEFAULT_QNAME);
 			if (defaultAtr != null) {
 				property.setDefaultValue(defaultAtr.getAttributeValue());
 			}

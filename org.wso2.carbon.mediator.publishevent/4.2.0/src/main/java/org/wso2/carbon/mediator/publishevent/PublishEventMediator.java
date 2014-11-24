@@ -21,6 +21,7 @@ package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.axis2.description.AxisService;
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseException;
 import org.apache.synapse.SynapseLog;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
@@ -39,8 +40,8 @@ public class PublishEventMediator extends AbstractMediator {
 	private static final String ADMIN_SERVICE_PARAMETER = "adminService";
 	private static final String HIDDEN_SERVICE_PARAMETER = "hiddenService";
 
-	private String streamName = "";
-	private String streamVersion = "";
+	private String streamName;
+	private String streamVersion;
 	private List<Property> metaProperties = new ArrayList<Property>();
 	private List<Property> correlationProperties = new ArrayList<Property>();
 	private List<Property> payloadProperties = new ArrayList<Property>();
@@ -71,22 +72,23 @@ public class PublishEventMediator extends AbstractMediator {
 		}
 
 		if (messageContext instanceof Axis2MessageContext) {
-
-			org.apache.axis2.context.MessageContext msgContext =
-					((Axis2MessageContext) messageContext).getAxis2MessageContext();
+			Axis2MessageContext axis2MessageContext = (Axis2MessageContext) messageContext;
+			org.apache.axis2.context.MessageContext msgContext = axis2MessageContext.getAxis2MessageContext();
 
 			AxisService service = msgContext.getAxisService();
 			if (service == null) {
+				log.error(PublishEventMediatorFactory.getTagName() + " cannot mediate message. Not an Axis2 service");
 				return true;
 			}
 			// When this is not inside an API theses parameters should be there
 			if ((!service.getName().equals("__SynapseService")) &&
 			    (service.getParameter(ADMIN_SERVICE_PARAMETER) != null ||
 			     service.getParameter(HIDDEN_SERVICE_PARAMETER) != null)) {
+				log.error(PublishEventMediatorFactory.getTagName() + " cannot mediate message. Not a Synapse service");
 				return true;
 			}
+			ActivityIDSetter.setActivityIdInTransportHeader(axis2MessageContext);
 		}
-		ActivityIDSetter.setActivityIdInTransportHeader(messageContext);
 
 		try {
 			Object[] metaData = new Object[metaProperties.size()];
@@ -104,14 +106,18 @@ public class PublishEventMediator extends AbstractMediator {
 				payloadData[i] = payloadProperties.get(i).extractPropertyValue(messageContext);
 			}
 
-			eventSink.getLoadBalancingDataPublisher()
-			         .publish(streamName, streamVersion, metaData, correlationData, payloadData);
+			eventSink.getDataPublisher()
+			         .publish(getStreamName(), getStreamVersion(), metaData, correlationData, payloadData);
 
 		} catch (AgentException e) {
-			String errorMsg = "Agent error occurred while sending the event. " + e.getMessage();
+			String errorMsg = "Agent error occurred while sending the event: " + e.getLocalizedMessage();
 			log.error(errorMsg, e);
-		} catch (Exception e) {
-			String errorMsg = "Error occurred while sending the event. " + e.getMessage();
+		} catch (SynapseException e) {
+			String errorMsg = "Error occurred while constructing the event: " + e.getLocalizedMessage();
+			log.error(errorMsg, e);
+		}
+		catch (Exception e) {
+			String errorMsg = "Error occurred while sending the event: " + e.getLocalizedMessage();
 			log.error(errorMsg, e);
 		}
 
