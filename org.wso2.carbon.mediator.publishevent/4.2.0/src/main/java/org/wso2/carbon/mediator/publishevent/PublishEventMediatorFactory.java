@@ -117,50 +117,8 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		if (eventSinkElement == null) {
 			throw new SynapseException(EVENT_SINK_QNAME.getLocalPart() + " element missing");
 		}
-		String eventSinkName = eventSinkElement.getText();
-
-		Object serviceObject = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
-		if (serviceObject instanceof EventSinkService) {
-			EventSinkService service = (EventSinkService) serviceObject;
-			EventSink eventSink = service.getEventSink(eventSinkName);
-			if (eventSink == null) {
-				throw new SynapseException("Event sink \"" + eventSinkName + "\" not found");
-			}
-			mediator.setEventSink(eventSink);
-		} else {
-			throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
-		}
-
-		StreamDefinition streamDef;
-		try {
-			streamDef = new StreamDefinition(mediator.getStreamName(), mediator.getStreamVersion());
-			streamDef.setCorrelationData(generateAttributeList(mediator.getCorrelationProperties()));
-			streamDef.setMetaData(generateAttributeList(mediator.getMetaProperties()));
-			streamDef.setPayloadData(generateAttributeList(mediator.getPayloadProperties()));
-			mediator.getEventSink().getDataPublisher().addStreamDefinition(streamDef);
-		} catch (MalformedStreamDefinitionException e) {
-			String errorMsg = "Malformed Stream Definition: " + e.getMessage();
-			throw new SynapseException(errorMsg, e);
-		} catch (Exception e) {
-			String errorMsg = "Error occurred while creating the Stream Definition: " + e.getMessage();
-			throw new SynapseException(errorMsg, e);
-		}
-
+		mediator.setEventSinkName(eventSinkElement.getText());
 		return mediator;
-	}
-
-	/**
-	 * Creates a list of data-bridge attributes for the given property list.
-	 *
-	 * @param propertyList List of properties for which attribute list should be created.
-	 * @return Created data-bridge attribute list.
-	 */
-	private List<Attribute> generateAttributeList(List<Property> propertyList) throws SynapseException {
-		List<Attribute> attributeList = new ArrayList<Attribute>();
-		for (Property property : propertyList) {
-			attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
-		}
-		return attributeList;
 	}
 
 	/**

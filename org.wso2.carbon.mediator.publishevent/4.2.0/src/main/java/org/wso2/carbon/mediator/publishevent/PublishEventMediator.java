@@ -25,8 +25,13 @@ import org.apache.synapse.SynapseException;
 import org.apache.synapse.SynapseLog;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
+import org.wso2.carbon.databridge.commons.Attribute;
+import org.wso2.carbon.databridge.commons.StreamDefinition;
+import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
 import org.wso2.carbon.event.sink.EventSink;
+import org.wso2.carbon.event.sink.EventSinkService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +51,7 @@ public class PublishEventMediator extends AbstractMediator {
 	private List<Property> correlationProperties = new ArrayList<Property>();
 	private List<Property> payloadProperties = new ArrayList<Property>();
 	private EventSink eventSink;
+	private String eventSinkName;
 
 	@Override
 	public boolean isContentAware() {
@@ -62,6 +68,25 @@ public class PublishEventMediator extends AbstractMediator {
 	 */
 	@Override
 	public boolean mediate(MessageContext messageContext) {
+
+		// first "getEventSink() == null" check is done to avoid synchronized(this) block each time mediate()
+		// gets called (to improve performance).
+		// second "getEventSink() == null" check inside synchronized(this) block is used to ensure only one thread
+		// sets event sink.
+		if (getEventSink() == null) {
+			synchronized (this) {
+				if (getEventSink() == null) {
+					try {
+						setEventSink(loadEventSink());
+					} catch (SynapseException e) {
+						log.error("Cannot mediate message. Failed to load event sink '" + getEventSinkName() +
+						          "'. Error: " + e.getLocalizedMessage());
+						return true;
+					}
+				}
+			}
+		}
+
 		SynapseLog synLog = getLog(messageContext);
 
 		if (synLog.isTraceOrDebugEnabled()) {
@@ -77,14 +102,14 @@ public class PublishEventMediator extends AbstractMediator {
 
 			AxisService service = msgContext.getAxisService();
 			if (service == null) {
-				log.error(PublishEventMediatorFactory.getTagName() + " cannot mediate message. Not an Axis2 service");
+				log.error("Cannot mediate message. Not an Axis2 service");
 				return true;
 			}
 			// When this is not inside an API theses parameters should be there
 			if ((!service.getName().equals("__SynapseService")) &&
 			    (service.getParameter(ADMIN_SERVICE_PARAMETER) != null ||
 			     service.getParameter(HIDDEN_SERVICE_PARAMETER) != null)) {
-				log.error(PublishEventMediatorFactory.getTagName() + " cannot mediate message. Not a Synapse service");
+				log.error("Cannot mediate message. Not a Synapse service");
 				return true;
 			}
 			ActivityIDSetter.setActivityIdInTransportHeader(axis2MessageContext);
@@ -115,8 +140,7 @@ public class PublishEventMediator extends AbstractMediator {
 		} catch (SynapseException e) {
 			String errorMsg = "Error occurred while constructing the event: " + e.getLocalizedMessage();
 			log.error(errorMsg, e);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			String errorMsg = "Error occurred while sending the event: " + e.getLocalizedMessage();
 			log.error(errorMsg, e);
 		}
@@ -131,8 +155,61 @@ public class PublishEventMediator extends AbstractMediator {
 		return true;
 	}
 
+	/**
+	 * Finds the event sink by eventSinkName and sets the stream definition to the data publisher of event sink
+	 *
+	 * @return Found EventSink
+	 */
+	private EventSink loadEventSink() throws SynapseException {
+		EventSink eventSink;
+		Object serviceObject = PrivilegedCarbonContext
+				.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
+		if (serviceObject instanceof EventSinkService) {
+			EventSinkService service = (EventSinkService) serviceObject;
+			eventSink = service.getEventSink(getEventSinkName());
+			if (eventSink == null) {
+				throw new SynapseException("Event sink \"" + getEventSinkName() + "\" not found");
+			}
+		} else {
+			throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
+		}
+
+		try {
+			StreamDefinition streamDef = new StreamDefinition(getStreamName(), getStreamVersion());
+			streamDef.setCorrelationData(generateAttributeList(getCorrelationProperties()));
+			streamDef.setMetaData(generateAttributeList(getMetaProperties()));
+			streamDef.setPayloadData(generateAttributeList(getPayloadProperties()));
+			eventSink.getDataPublisher().addStreamDefinition(streamDef);
+		} catch (MalformedStreamDefinitionException e) {
+			String errorMsg = "Failed to set stream definition. Malformed Stream Definition: " + e.getMessage();
+			throw new SynapseException(errorMsg, e);
+		} catch (Exception e) {
+			String errorMsg = "Error occurred while creating the Stream Definition: " + e.getMessage();
+			throw new SynapseException(errorMsg, e);
+		}
+		return eventSink;
+	}
+
+	/**
+	 * Creates a list of data-bridge attributes for the given property list.
+	 *
+	 * @param propertyList List of properties for which attribute list should be created.
+	 * @return Created data-bridge attribute list.
+	 */
+	private List<Attribute> generateAttributeList(List<Property> propertyList) throws SynapseException {
+		List<Attribute> attributeList = new ArrayList<Attribute>();
+		for (Property property : propertyList) {
+			attributeList.add(new Attribute(property.getKey(), property.getDatabridgeAttributeType()));
+		}
+		return attributeList;
+	}
+
 	public EventSink getEventSink() {
 		return eventSink;
+	}
+
+	public String getEventSinkName() {
+		return eventSinkName;
 	}
 
 	public String getStreamName() {
@@ -157,6 +234,10 @@ public class PublishEventMediator extends AbstractMediator {
 
 	public void setEventSink(EventSink eventSink) {
 		this.eventSink = eventSink;
+	}
+
+	public void setEventSinkName(String eventSinkName) {
+		this.eventSinkName = eventSinkName;
 	}
 
 	public void setStreamName(String streamName) {
