@@ -150,6 +150,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 		return mediator;
 	}
 
+
 	private List<Attribute> generateAttributeList(List<Property> propertyList) {
 		List<Attribute> attributeList = new ArrayList<Attribute>();
 		for (Property property : propertyList) {

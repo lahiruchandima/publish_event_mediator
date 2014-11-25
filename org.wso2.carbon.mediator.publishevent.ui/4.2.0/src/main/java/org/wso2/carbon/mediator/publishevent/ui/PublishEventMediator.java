@@ -28,7 +28,6 @@ import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 import org.jaxen.JaxenException;
-import org.wso2.carbon.databridge.commons.Attribute;
 import org.wso2.carbon.mediator.service.MediatorException;
 import org.wso2.carbon.mediator.service.ui.AbstractMediator;
 
@@ -50,19 +49,25 @@ public class PublishEventMediator extends AbstractMediator {
 	public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
 	public static final QName TYPE_Q = new QName("type");
 	public static final QName DEFAULT_Q = new QName("defaultValue");
-
-	private String streamName = "";
-	private String streamVersion = "";
-	private String eventSink = "";
+	private String streamName, streamVersion, eventSink;
 	private List<Property> metaProperties = new ArrayList<Property>();
 	private List<Property> correlationProperties = new ArrayList<Property>();
 	private List<Property> payloadProperties = new ArrayList<Property>();
-	private String serverProfile = "";
 
+	/**
+	 *
+	 * @return local name of mediator
+	 */
 	public String getTagLocalName() {
 		return "publishEvent";
 	}
 
+	/**
+	 * Creates XML representation of the mediator as an OMElement
+	 *
+	 * @param parent OMElement which take child as created OMElement
+	 *
+	 */
 	public OMElement serialize(OMElement parent) {
 
 		OMElement publishEventElement = fac.createOMElement("publishEvent", synNS);
@@ -121,6 +126,11 @@ public class PublishEventMediator extends AbstractMediator {
 		return publishEventElement;
 	}
 
+	/**
+	 * Creates the publishEvent mediator with given configuration XML as OMElement
+	 *
+	 * @param elem OMElement to be converted to publishEvent Mediator Object.
+	 */
 	public void build(OMElement elem) {
 		OMElement streamName = elem.getFirstChildWithName(STREAM_NAME_Q);
 		if (streamName == null) {
@@ -169,70 +179,12 @@ public class PublishEventMediator extends AbstractMediator {
 
 	}
 
-	private List<Attribute> generateAttributeList(List<Property> propertyList) {
-		List<Attribute> attributeList = new ArrayList<Attribute>();
-		for (Property property : propertyList) {
-			attributeList.add(new Attribute(property.getName(), property.getDatabridgeAttributeType()));
-		}
-		return attributeList;
-	}
-
-	public String getServerProfile() {
-		return serverProfile;
-	}
-
-	public String getStreamVersion() {
-		return streamVersion;
-	}
-
-	public String getEventSink() {
-		return eventSink;
-	}
-
-	public List<Property> getMetaProperties() {
-		return metaProperties;
-	}
-
-	public List<Property> getCorrelationProperties() {
-		return correlationProperties;
-	}
-
-	public List<Property> getPayloadProperties() {
-		return payloadProperties;
-	}
-
-	public String getStreamName() {
-		return streamName;
-	}
-
-	public void setServerProfile(String serverProfile) {
-		this.serverProfile = serverProfile;
-	}
-
-	public void setStreamName(String streamName) {
-		this.streamName = streamName;
-	}
-
-	public void setStreamVersion(String streamVersion) {
-		this.streamVersion = streamVersion;
-	}
-
-	public void setEventSink(String eventSink) {
-		this.eventSink = eventSink;
-	}
-
-	public void setMetaProperties(List<Property> metaProperties) {
-		this.metaProperties = metaProperties;
-	}
-
-	public void setCorrelationProperties(List<Property> correlationProperties) {
-		this.correlationProperties = correlationProperties;
-	}
-
-	public void setPayloadProperties(List<Property> payloadProperties) {
-		this.payloadProperties = payloadProperties;
-	}
-
+	/**
+	 * Creates the XML representation of the given mediator property
+	 *
+	 * @param property Property for which the XML representation should be created
+	 * @return XML representation of the property as an OMElement
+	 */
 	private OMElement createElementForProperty(Property property) {
 		OMElement attributeElement = fac.createOMElement(PublishEventMediator.ATTRIBUTE_Q.getLocalPart(), synNS);
 		attributeElement.addAttribute(
@@ -254,18 +206,12 @@ public class PublishEventMediator extends AbstractMediator {
 		return attributeElement;
 	}
 
-	public static QName getNameAttributeQ() {
-		return ATT_NAME;
-	}
-
-	public static QName getValueAttributeQ() {
-		return ATT_VALUE;
-	}
-
-	public static QName getExpressionAttributeQ() {
-		return ATT_EXPRN;
-	}
-
+	/**
+	 * Creates the Property List with given configuration XML as OMElement
+	 *
+	 * @param propertyList to be filled with properties
+	 * @param iter contains property attributes
+	 */
 	private void populateAttributes(List<Property> propertyList, Iterator iter) {
 		while (iter.hasNext()) {
 			OMElement element = (OMElement) iter.next();
@@ -298,9 +244,12 @@ public class PublishEventMediator extends AbstractMediator {
 				property.setValue(valueAttr.getAttributeValue());
 			} else {
 				try {
+					//TODO : get it to local variable and append to exception
 					property.setExpression(SynapseXPathFactory.getSynapseXPath(element, ATT_EXPRN));
 				} catch (JaxenException e) {
-					throw new SynapseException("Invalid expression attribute in " + element.getLocalName(), e);
+					throw new SynapseException("Invalid expression attribute in " + element.getLocalName() +". " +
+					                           "expression : "+element.getAttribute(ATT_EXPRN)
+					                                                  .getAttributeValue(), e);
 				}
 			}
 
@@ -313,6 +262,11 @@ public class PublishEventMediator extends AbstractMediator {
 		}
 	}
 
+	/**
+	 * Makes Lists are Empty
+	 *
+	 * @param type List type to be made empty
+	 */
 	public void clearList(String type) {
 		if (type.equals("meta")) {
 			metaProperties.clear();
@@ -321,6 +275,66 @@ public class PublishEventMediator extends AbstractMediator {
 		} else if (type.equals("payload")) {
 			payloadProperties.clear();
 		}
+	}
+
+	public String getStreamVersion() {
+		return streamVersion;
+	}
+
+	public String getEventSink() {
+		return eventSink;
+	}
+
+	public List<Property> getMetaProperties() {
+		return metaProperties;
+	}
+
+	public List<Property> getCorrelationProperties() {
+		return correlationProperties;
+	}
+
+	public List<Property> getPayloadProperties() {
+		return payloadProperties;
+	}
+
+	public String getStreamName() {
+		return streamName;
+	}
+
+	public void setStreamName(String streamName) {
+		this.streamName = streamName;
+	}
+
+	public void setStreamVersion(String streamVersion) {
+		this.streamVersion = streamVersion;
+	}
+
+	public void setEventSink(String eventSink) {
+		this.eventSink = eventSink;
+	}
+
+	public void setMetaProperties(List<Property> metaProperties) {
+		this.metaProperties = metaProperties;
+	}
+
+	public void setCorrelationProperties(List<Property> correlationProperties) {
+		this.correlationProperties = correlationProperties;
+	}
+
+	public void setPayloadProperties(List<Property> payloadProperties) {
+		this.payloadProperties = payloadProperties;
+	}
+
+	public static QName getNameAttributeQ() {
+		return ATT_NAME;
+	}
+
+	public static QName getValueAttributeQ() {
+		return ATT_VALUE;
+	}
+
+	public static QName getExpressionAttributeQ() {
+		return ATT_EXPRN;
 	}
 
 }

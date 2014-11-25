@@ -21,9 +21,7 @@ package org.wso2.carbon.mediator.publishevent.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.synapse.MessageContext;
 import org.wso2.carbon.databridge.commons.AttributeType;
-import org.wso2.carbon.mediator.publishevent.PropertyTypeConverter;
 import org.wso2.carbon.mediator.service.util.MediatorProperty;
 
 /**
@@ -33,8 +31,6 @@ public class Property extends MediatorProperty {
 
 	private String defaultValue = "";
 	private String type = "";
-
-	private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
 
 	private static final Log log = LogFactory.getLog(Property.class);
 
@@ -50,6 +46,15 @@ public class Property extends MediatorProperty {
 		return type;
 	}
 
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	/**
+	 * Returns the data bridge attribute type of this object
+	 *
+	 * @return Data bridge attribute type of this object
+	 */
 	public AttributeType getDatabridgeAttributeType() {
 		//TODO:
 		if ("STRING".equals(type)) {
@@ -71,46 +76,5 @@ public class Property extends MediatorProperty {
 			return AttributeType.LONG;
 		}
 		return AttributeType.STRING;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public boolean isNotNullOrEmpty(String string) {
-		return string != null && !string.equals("");
-	}
-
-	public Object extractPropertyValue(MessageContext messageContext) {
-		try {
-			String stringProperty;
-			if (getExpression() != null) {
-				stringProperty = getExpression().stringValueOf(messageContext);
-			} else {
-				stringProperty = getValue();
-			}
-			if (stringProperty == null || "".equals(stringProperty)) {
-				stringProperty = defaultValue;
-			}
-			if ("STRING".equals(getType())) {
-				return propertyTypeConverter.convertToString(stringProperty);
-			} else if ("INTEGER".equals(getType())) {
-				return propertyTypeConverter.convertToInt(stringProperty);
-			} else if ("FLOAT".equals(getType())) {
-				return propertyTypeConverter.convertToFloat(stringProperty);
-			} else if ("DOUBLE".equals(getType())) {
-				return propertyTypeConverter.convertToDouble(stringProperty);
-			} else if ("BOOLEAN".equals(getType())) {
-				return propertyTypeConverter.convertToBoolean(stringProperty);
-			} else if ("LONG".equals(getType())) {
-				return propertyTypeConverter.convertToLong(stringProperty);
-			} else {
-				return stringProperty;
-			}
-		} catch (Exception e) {
-			String errorMsg = "Error occurred while extracting property value. " + e.getMessage();
-			log.error(errorMsg, e);
-			return null;
-		}
 	}
 }

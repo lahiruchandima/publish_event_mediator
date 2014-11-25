@@ -24,8 +24,9 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.mediator.service.MediatorService;
-
+//TODO: put proper comment
 /**
+ *
  *
  */
 public class PublishEventMediatorActivator implements BundleActivator {
