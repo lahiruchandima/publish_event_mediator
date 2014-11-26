@@ -125,7 +125,8 @@
                             for (EventSink sink : eventSinkList) {
                         %>
                         <option <%
-                            if (publishEventMediator.getEventSink().equals(sink.getName())) {
+                            if (publishEventMediator.getEventSink() != null &&
+                                publishEventMediator.getEventSink().equals(sink.getName())) {
                                 out.print("selected");
                             }
                         %> value="<%=sink.getName()%>">
