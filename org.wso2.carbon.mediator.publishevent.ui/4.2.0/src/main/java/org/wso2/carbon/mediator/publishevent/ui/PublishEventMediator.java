@@ -21,8 +21,6 @@ package org.wso2.carbon.mediator.publishevent.ui;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.SynapseException;
 import org.apache.synapse.config.xml.SynapseXPathFactory;
 import org.apache.synapse.config.xml.SynapseXPathSerializer;
@@ -37,8 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class PublishEventMediator extends AbstractMediator {
-
-	private static final Log log = LogFactory.getLog(PublishEventMediator.class);
 	public static final QName EVENT_SINK_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "eventSink");
 	public static final QName STREAM_NAME_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamName");
 	public static final QName STREAM_VERSION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "streamVersion");
@@ -154,23 +150,20 @@ public class PublishEventMediator extends AbstractMediator {
 		if (attributes != null) {
 			OMElement meta = attributes.getFirstChildWithName(META_Q);
 			if (meta != null) {
-				List<Property> propertyList = new ArrayList<Property>();
-				Iterator iter = meta.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iter);
+				Iterator<OMElement> iterator = meta.getChildrenWithName(ATTRIBUTE_Q);
+				List<Property> propertyList = generatePropertyList(iterator);
 				this.setMetaProperties(propertyList);
 			}
 			OMElement correlation = attributes.getFirstChildWithName(CORRELATION_Q);
 			if (correlation != null) {
-				List<Property> propertyList = new ArrayList<Property>();
-				Iterator iter = correlation.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iter);
+				Iterator<OMElement> iterator = correlation.getChildrenWithName(ATTRIBUTE_Q);
+				List<Property> propertyList = generatePropertyList(iterator);
 				this.setCorrelationProperties(propertyList);
 			}
 			OMElement payload = attributes.getFirstChildWithName(PAYLOAD_Q);
 			if (payload != null) {
-				List<Property> propertyList = new ArrayList<Property>();
-				Iterator iter = payload.getChildrenWithName(ATTRIBUTE_Q);
-				populateAttributes(propertyList, iter);
+				Iterator<OMElement> iterator = payload.getChildrenWithName(ATTRIBUTE_Q);
+				List<Property> propertyList = generatePropertyList(iterator);
 				this.setPayloadProperties(propertyList);
 			}
 		} else {
@@ -206,15 +199,11 @@ public class PublishEventMediator extends AbstractMediator {
 		return attributeElement;
 	}
 
-	/**
-	 * Creates the Property List with given configuration XML as OMElement
-	 *
-	 * @param propertyList to be filled with properties
-	 * @param iter contains property attributes
-	 */
-	private void populateAttributes(List<Property> propertyList, Iterator iter) {
-		while (iter.hasNext()) {
-			OMElement element = (OMElement) iter.next();
+
+	private List<Property> generatePropertyList(Iterator<OMElement> iterator) {
+		List<Property> propertyList = new ArrayList<Property>();
+		while (iterator.hasNext()) {
+			OMElement element = iterator.next();
 			OMAttribute nameAttr = element.getAttribute(ATT_NAME);
 			if (nameAttr == null) {
 				throw new SynapseException(ATT_NAME.getLocalPart() + " attribute missing in " + element.getLocalName());
@@ -260,6 +249,7 @@ public class PublishEventMediator extends AbstractMediator {
 
 			propertyList.add(property);
 		}
+		return propertyList;
 	}
 
 	/**
@@ -336,5 +326,4 @@ public class PublishEventMediator extends AbstractMediator {
 	public static QName getExpressionAttributeQ() {
 		return ATT_EXPRN;
 	}
-
 }

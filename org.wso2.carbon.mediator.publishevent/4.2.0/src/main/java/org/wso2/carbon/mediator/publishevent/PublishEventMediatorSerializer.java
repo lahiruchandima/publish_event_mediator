@@ -27,7 +27,7 @@ import org.apache.synapse.config.xml.SynapseXPathSerializer;
 public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
 	/**
-	 * Creates XML representation of the mediator
+	 * Creates XML representation of the publishEvent mediator
 	 *
 	 * @param mediator The mediator for which the XML representation should be created
 	 * @return The Created XML representation of mediator as an OMElement
@@ -41,38 +41,38 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 		OMElement mediatorElement = fac.createOMElement(PublishEventMediatorFactory.getTagName(), synNS);
 
 		OMElement eventSinkElement =
-				fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_QNAME.getLocalPart(), synNS);
 		eventSinkElement.setText(publishEventMediator.getEventSink().getName());
 		mediatorElement.addChild(eventSinkElement);
 
 		OMElement streamNameElement =
-				fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.STREAM_NAME_QNAME.getLocalPart(), synNS);
 		streamNameElement.setText(publishEventMediator.getStreamName());
 		mediatorElement.addChild(streamNameElement);
 
 		OMElement streamVersionElement =
-				fac.createOMElement(PublishEventMediatorFactory.STREAM_VERSION_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.STREAM_VERSION_QNAME.getLocalPart(), synNS);
 		streamVersionElement.setText(publishEventMediator.getStreamVersion());
 		mediatorElement.addChild(streamVersionElement);
 
 		OMElement streamAttributesElement =
-				fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTES_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTES_QNAME.getLocalPart(), synNS);
 
-		OMElement metaAttributesElement = fac.createOMElement(PublishEventMediatorFactory.META_Q.getLocalPart(), synNS);
+		OMElement metaAttributesElement = fac.createOMElement(PublishEventMediatorFactory.META_QNAME.getLocalPart(), synNS);
 		for (Property property : publishEventMediator.getMetaProperties()) {
 			metaAttributesElement.addChild(createElementForProperty(property));
 		}
 		streamAttributesElement.addChild(metaAttributesElement);
 
 		OMElement correlationAttributesElement =
-				fac.createOMElement(PublishEventMediatorFactory.CORRELATION_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.CORRELATION_QNAME.getLocalPart(), synNS);
 		for (Property property : publishEventMediator.getCorrelationProperties()) {
 			correlationAttributesElement.addChild(createElementForProperty(property));
 		}
 		streamAttributesElement.addChild(correlationAttributesElement);
 
 		OMElement payloadAttributesElement =
-				fac.createOMElement(PublishEventMediatorFactory.PAYLOAD_Q.getLocalPart(), synNS);
+				fac.createOMElement(PublishEventMediatorFactory.PAYLOAD_QNAME.getLocalPart(), synNS);
 		for (Property property : publishEventMediator.getPayloadProperties()) {
 			payloadAttributesElement.addChild(createElementForProperty(property));
 		}
@@ -95,14 +95,14 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 	 * @return XML representation of the property as an OMElement
 	 */
 	private OMElement createElementForProperty(Property property) {
-		OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_Q.getLocalPart(), synNS);
+		OMElement attributeElement = fac.createOMElement(PublishEventMediatorFactory.ATTRIBUTE_QNAME.getLocalPart(), synNS);
 		attributeElement.addAttribute(
 				fac.createOMAttribute(PublishEventMediatorFactory.getNameAttributeQ().getLocalPart(), nullNS,
 				                      property.getKey()));
 		attributeElement.addAttribute(
-				fac.createOMAttribute(PublishEventMediatorFactory.TYPE_Q.getLocalPart(), nullNS, property.getType()));
+				fac.createOMAttribute(PublishEventMediatorFactory.TYPE_QNAME.getLocalPart(), nullNS, property.getType()));
 		attributeElement.addAttribute(
-				fac.createOMAttribute(PublishEventMediatorFactory.DEFAULT_Q.getLocalPart(), nullNS,
+				fac.createOMAttribute(PublishEventMediatorFactory.DEFAULT_QNAME.getLocalPart(), nullNS,
 				                      property.getDefaultValue()));
 
 		if (property.getExpression() != null) {

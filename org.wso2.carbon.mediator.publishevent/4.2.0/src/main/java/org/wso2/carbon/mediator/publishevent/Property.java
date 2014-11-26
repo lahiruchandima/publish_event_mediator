@@ -20,6 +20,7 @@
 package org.wso2.carbon.mediator.publishevent;
 
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseException;
 import org.apache.synapse.util.xpath.SynapseXPath;
 import org.wso2.carbon.databridge.commons.AttributeType;
 
@@ -32,7 +33,12 @@ public class Property {
 	private SynapseXPath expression = null;
 	private String defaultValue = "";
 	private String type = "";
-	private PropertyTypeConverter propertyTypeConverter = new PropertyTypeConverter();
+	public static final String DATA_TYPE_STRING = "STRING";
+	public static final String DATA_TYPE_INTEGER = "INTEGER";
+	public static final String DATA_TYPE_FLOAT = "FLOAT";
+	public static final String DATA_TYPE_DOUBLE = "DOUBLE";
+	public static final String DATA_TYPE_BOOLEAN = "BOOLEAN";
+	public static final String DATA_TYPE_LONG= "LONG";
 
 	public String getKey() {
 		return key;
@@ -75,26 +81,28 @@ public class Property {
 	 *
 	 * @return Data bridge attribute type of this object
 	 */
-	public AttributeType getDatabridgeAttributeType() {
-		if ("STRING".equals(type)) {
+	public AttributeType getDatabridgeAttributeType() throws SynapseException {
+		if (DATA_TYPE_STRING.equals(type)) {
 			return AttributeType.STRING;
 		}
-		if ("INTEGER".equals(type)) {
+		if (DATA_TYPE_INTEGER.equals(type)) {
 			return AttributeType.INT;
 		}
-		if ("FLOAT".equals(type)) {
+		if (DATA_TYPE_FLOAT.equals(type)) {
 			return AttributeType.FLOAT;
 		}
-		if ("DOUBLE".equals(type)) {
+		if (DATA_TYPE_DOUBLE.equals(type)) {
 			return AttributeType.DOUBLE;
 		}
-		if ("BOOLEAN".equals(type)) {
+		if (DATA_TYPE_BOOLEAN.equals(type)) {
 			return AttributeType.BOOL;
 		}
-		if ("LONG".equals(type)) {
+		if (DATA_TYPE_LONG.equals(type)) {
 			return AttributeType.LONG;
 		}
-		return AttributeType.STRING;
+		throw new SynapseException(
+				"Invalid attribute type '" + type + "' for " + PublishEventMediatorFactory.getTagName() +
+				" mediator attribute");
 	}
 
 	public void setType(String type) {
@@ -107,33 +115,35 @@ public class Property {
 	 * @param messageContext Message context from which the value should be extracted
 	 * @return Extracted property value
 	 */
-	public Object extractPropertyValue(MessageContext messageContext) {
+	public Object extractPropertyValue(MessageContext messageContext) throws SynapseException {
 		String stringProperty;
 		if (expression != null) {
 			stringProperty = expression.stringValueOf(messageContext);
 		} else {
 			stringProperty = getValue();
 		}
+		//TODO: find whether exprssion didn't match and use default value then only
 		if (stringProperty == null || "".equals(stringProperty)) {
 			stringProperty = defaultValue;
 		}
-		if ("STRING".equals(getType())) {
-			return propertyTypeConverter.convertToString(stringProperty);
+
+		if (DATA_TYPE_STRING.equals(getType())) {
+			return stringProperty;
 		}
-		if ("INTEGER".equals(getType())) {
-			return propertyTypeConverter.convertToInt(stringProperty);
+		if (DATA_TYPE_INTEGER.equals(getType())) {
+			return PropertyTypeConverter.convertToInt(stringProperty);
 		}
-		if ("FLOAT".equals(getType())) {
-			return propertyTypeConverter.convertToFloat(stringProperty);
+		if (DATA_TYPE_FLOAT.equals(getType())) {
+			return PropertyTypeConverter.convertToFloat(stringProperty);
 		}
-		if ("DOUBLE".equals(getType())) {
-			return propertyTypeConverter.convertToDouble(stringProperty);
+		if (DATA_TYPE_DOUBLE.equals(getType())) {
+			return PropertyTypeConverter.convertToDouble(stringProperty);
 		}
-		if ("BOOLEAN".equals(getType())) {
-			return propertyTypeConverter.convertToBoolean(stringProperty);
+		if (DATA_TYPE_BOOLEAN.equals(getType())) {
+			return PropertyTypeConverter.convertToBoolean(stringProperty);
 		}
-		if ("LONG".equals(getType())) {
-			return propertyTypeConverter.convertToLong(stringProperty);
+		if (DATA_TYPE_LONG.equals(getType())) {
+			return PropertyTypeConverter.convertToLong(stringProperty);
 		}
 		return stringProperty;
 	}

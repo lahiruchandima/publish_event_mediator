@@ -19,20 +19,14 @@
 
 package org.wso2.carbon.mediator.publishevent.ui;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.databridge.commons.AttributeType;
 import org.wso2.carbon.mediator.service.util.MediatorProperty;
 
 /**
  * Property of a Stream Definition
  */
 public class Property extends MediatorProperty {
-
 	private String defaultValue = "";
 	private String type = "";
-
-	private static final Log log = LogFactory.getLog(Property.class);
 
 	public String getDefaultValue() {
 		return defaultValue;
@@ -48,33 +42,5 @@ public class Property extends MediatorProperty {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	/**
-	 * Returns the data bridge attribute type of this object
-	 *
-	 * @return Data bridge attribute type of this object
-	 */
-	public AttributeType getDatabridgeAttributeType() {
-		//TODO:
-		if ("STRING".equals(type)) {
-			return AttributeType.STRING;
-		}
-		if ("INTEGER".equals(type)) {
-			return AttributeType.INT;
-		}
-		if ("FLOAT".equals(type)) {
-			return AttributeType.FLOAT;
-		}
-		if ("DOUBLE".equals(type)) {
-			return AttributeType.DOUBLE;
-		}
-		if ("BOOLEAN".equals(type)) {
-			return AttributeType.BOOL;
-		}
-		if ("LONG".equals(type)) {
-			return AttributeType.LONG;
-		}
-		return AttributeType.STRING;
 	}
 }

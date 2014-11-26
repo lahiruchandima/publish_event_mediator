@@ -19,56 +19,50 @@
 
 package org.wso2.carbon.mediator.publishevent;
 
+import org.apache.synapse.SynapseException;
+
 /**
  * Convert Stream Properties to appropriate types.
  */
 public class PropertyTypeConverter {
 
-	public String convertToString(String string) {
-		if (string != null) {
-			return string;
-		} else {
-			return "";
-		}
-	}
-
-	public int convertToInt(String string) {
+	public static int convertToInt(String string) throws SynapseException {
 		try {
 			return Integer.parseInt(string);
 		} catch (NumberFormatException e) {
-			return 0;
+			throw new SynapseException("Cannot convert '" + string + "' to an integer", e);
 		}
 	}
 
-	public float convertToFloat(String string) {
+	public static float convertToFloat(String string) throws SynapseException  {
 		try {
 			return Float.parseFloat(string);
 		} catch (NumberFormatException e) {
-			return 0;
+			throw new SynapseException("Cannot convert '" + string + "' to float", e);
 		}
 	}
 
-	public double convertToDouble(String string) {
+	public static double convertToDouble(String string) throws SynapseException  {
 		try {
 			return Double.parseDouble(string);
 		} catch (NumberFormatException e) {
-			return 0;
+			throw new SynapseException("Cannot convert '" + string + "' to double", e);
 		}
 	}
 
-	public long convertToLong(String string) {
+	public static long convertToLong(String string) throws SynapseException  {
 		try {
 			return Long.parseLong(string);
 		} catch (NumberFormatException e) {
-			return 0;
+			throw new SynapseException("Cannot convert '" + string + "' to long", e);
 		}
 	}
 
-	public boolean convertToBoolean(String string) {
+	public static boolean convertToBoolean(String string) throws SynapseException {
 		try {
 			return Boolean.parseBoolean(string);
 		} catch (Exception e) {
-			return false;
+			throw new SynapseException("Cannot convert '" + string + "' to boolean", e);
 		}
 	}
 }
