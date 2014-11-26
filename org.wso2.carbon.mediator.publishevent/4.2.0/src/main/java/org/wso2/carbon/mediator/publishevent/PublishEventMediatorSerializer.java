@@ -42,7 +42,7 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 
 		OMElement eventSinkElement =
 				fac.createOMElement(PublishEventMediatorFactory.EVENT_SINK_QNAME.getLocalPart(), synNS);
-		eventSinkElement.setText(publishEventMediator.getEventSink().getName());
+		eventSinkElement.setText(publishEventMediator.getEventSinkName());
 		mediatorElement.addChild(eventSinkElement);
 
 		OMElement streamNameElement =
