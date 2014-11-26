@@ -34,22 +34,25 @@ import org.wso2.carbon.event.sink.EventSink;
 import org.wso2.carbon.event.sink.EventSinkService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Mediator that extracts data from current message payload/header according to the given configuration.
  * Extracted information is sent as an event.
  */
 public class PublishEventMediator extends AbstractMediator {
-
 	private static final String ADMIN_SERVICE_PARAMETER = "adminService";
 	private static final String HIDDEN_SERVICE_PARAMETER = "hiddenService";
 
+	private EventSinkService eventSinkService = null;
 	private String streamName;
 	private String streamVersion;
 	private List<Property> metaProperties = new ArrayList<Property>();
 	private List<Property> correlationProperties = new ArrayList<Property>();
 	private List<Property> payloadProperties = new ArrayList<Property>();
+	private List<Property> arbitraryProperties = new ArrayList<Property>();
 	private EventSink eventSink;
 	private String eventSinkName;
 
@@ -131,8 +134,16 @@ public class PublishEventMediator extends AbstractMediator {
 				payloadData[i] = payloadProperties.get(i).extractPropertyValue(messageContext);
 			}
 
+			Map<String, String> arbitraryData = new HashMap<String, String>();
+			for (int i = 0; i < arbitraryProperties.size(); ++i) {
+				Property arbitraryProperty = arbitraryProperties.get(i);
+				arbitraryData.put(arbitraryProperty.getKey(),
+				                  arbitraryProperty.extractPropertyValue(messageContext).toString());
+			}
+
 			eventSink.getDataPublisher()
-			         .publish(getStreamName(), getStreamVersion(), metaData, correlationData, payloadData);
+			         .publish(getStreamName(), getStreamVersion(), metaData, correlationData, payloadData,
+			                  arbitraryData);
 
 		} catch (AgentException e) {
 			String errorMsg = "Agent error occurred while sending the event: " + e.getLocalizedMessage();
@@ -161,17 +172,19 @@ public class PublishEventMediator extends AbstractMediator {
 	 * @return Found EventSink
 	 */
 	private EventSink loadEventSink() throws SynapseException {
-		EventSink eventSink;
-		Object serviceObject = PrivilegedCarbonContext
-				.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
-		if (serviceObject instanceof EventSinkService) {
-			EventSinkService service = (EventSinkService) serviceObject;
-			eventSink = service.getEventSink(getEventSinkName());
-			if (eventSink == null) {
-				throw new SynapseException("Event sink \"" + getEventSinkName() + "\" not found");
+		if (eventSinkService == null) {
+			Object serviceObject = PrivilegedCarbonContext
+					.getThreadLocalCarbonContext().getOSGiService(EventSinkService.class);
+			if (serviceObject instanceof EventSinkService) {
+				eventSinkService = (EventSinkService) serviceObject;
+			} else {
+				throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
 			}
-		} else {
-			throw new SynapseException("Internal error occurred. Failed to obtain EventSinkService");
+		}
+
+		EventSink eventSink = eventSinkService.getEventSink(getEventSinkName());
+		if (eventSink == null) {
+			throw new SynapseException("Event sink \"" + getEventSinkName() + "\" not found");
 		}
 
 		try {
@@ -232,6 +245,10 @@ public class PublishEventMediator extends AbstractMediator {
 		return payloadProperties;
 	}
 
+	public List<Property> getArbitraryProperties() {
+		return arbitraryProperties;
+	}
+
 	public void setEventSink(EventSink eventSink) {
 		this.eventSink = eventSink;
 	}
@@ -258,5 +275,9 @@ public class PublishEventMediator extends AbstractMediator {
 
 	public void setPayloadProperties(List<Property> payloadProperties) {
 		this.payloadProperties = payloadProperties;
+	}
+
+	public void setArbitraryProperties(List<Property> arbitraryProperties) {
+		this.arbitraryProperties = arbitraryProperties;
 	}
 }
