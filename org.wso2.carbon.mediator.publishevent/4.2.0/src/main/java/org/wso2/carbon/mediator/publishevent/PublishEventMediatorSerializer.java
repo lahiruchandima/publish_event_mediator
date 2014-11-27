@@ -78,6 +78,13 @@ public class PublishEventMediatorSerializer extends AbstractMediatorSerializer {
 		}
 		streamAttributesElement.addChild(payloadAttributesElement);
 
+		OMElement arbitraryAttributesElement =
+				fac.createOMElement(PublishEventMediatorFactory.ARBITRARY_QNAME.getLocalPart(), synNS);
+		for (Property property : publishEventMediator.getArbitraryProperties()) {
+			arbitraryAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(arbitraryAttributesElement);
+
 		mediatorElement.addChild(streamAttributesElement);
 
 		return mediatorElement;

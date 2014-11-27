@@ -48,6 +48,7 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 	public static final QName META_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
 	public static final QName CORRELATION_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
 	public static final QName PAYLOAD_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
+	public static final QName ARBITRARY_QNAME = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "arbitrary");
 	public static final QName TYPE_QNAME = new QName("type");
 	public static final QName DEFAULT_QNAME = new QName("defaultValue");
 
@@ -103,6 +104,22 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 				List<Property> propertyList = generatePropertyList(iterator);
 				mediator.setPayloadProperties(propertyList);
 			}
+			OMElement arbitrary = attributes.getFirstChildWithName(ARBITRARY_QNAME);
+			if (arbitrary != null) {
+				Iterator<OMElement> iterator = arbitrary.getChildrenWithName(ATTRIBUTE_QNAME);
+				List<Property> propertyList = generatePropertyList(iterator);
+
+				for (Property property : propertyList) {
+					if (property.getType() != Property.DATA_TYPE_STRING) {
+						throw new SynapseException(
+								"Invalid type " + property.getType() + " for arbitrary property " + property.getKey() +
+								". Type of arbitrary attributes must be " +
+								Property.DATA_TYPE_STRING);
+					}
+				}
+
+				mediator.setArbitraryProperties(propertyList);
+			}
 		} else {
 			throw new SynapseException(ATTRIBUTES_QNAME.getLocalPart() + " attribute missing");
 		}
@@ -131,7 +148,8 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 			}
 			OMAttribute typeAttr = element.getAttribute(TYPE_QNAME);
 			if (typeAttr == null) {
-				throw new SynapseException(TYPE_QNAME.getLocalPart() + " attribute missing in " + element.getLocalName());
+				throw new SynapseException(
+						TYPE_QNAME.getLocalPart() + " attribute missing in " + element.getLocalName());
 			}
 			OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
 			OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
