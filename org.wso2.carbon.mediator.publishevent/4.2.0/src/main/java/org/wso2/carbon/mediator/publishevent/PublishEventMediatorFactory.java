@@ -108,6 +108,16 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 			if (arbitrary != null) {
 				Iterator<OMElement> iterator = arbitrary.getChildrenWithName(ATTRIBUTE_QNAME);
 				List<Property> propertyList = generatePropertyList(iterator);
+
+				for (Property property : propertyList) {
+					if (property.getType() != Property.DATA_TYPE_STRING) {
+						throw new SynapseException(
+								"Invalid type " + property.getType() + " for arbitrary property " + property.getKey() +
+								". Type of arbitrary attributes must be " +
+								Property.DATA_TYPE_STRING);
+					}
+				}
+
 				mediator.setArbitraryProperties(propertyList);
 			}
 		} else {
@@ -138,7 +148,8 @@ public class PublishEventMediatorFactory extends AbstractMediatorFactory {
 			}
 			OMAttribute typeAttr = element.getAttribute(TYPE_QNAME);
 			if (typeAttr == null) {
-				throw new SynapseException(TYPE_QNAME.getLocalPart() + " attribute missing in " + element.getLocalName());
+				throw new SynapseException(
+						TYPE_QNAME.getLocalPart() + " attribute missing in " + element.getLocalName());
 			}
 			OMAttribute valueAttr = element.getAttribute(ATT_VALUE);
 			OMAttribute expressionAttr = element.getAttribute(ATT_EXPRN);
