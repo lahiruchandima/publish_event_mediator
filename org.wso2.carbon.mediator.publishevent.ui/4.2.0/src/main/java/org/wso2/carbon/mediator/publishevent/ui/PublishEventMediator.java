@@ -42,6 +42,7 @@ public class PublishEventMediator extends AbstractMediator {
 	public static final QName ATTRIBUTE_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "attribute");
 	public static final QName META_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "meta");
 	public static final QName CORRELATION_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "correlation");
+	public static final QName ARBITRARY_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "arbitrary");
 	public static final QName PAYLOAD_Q = new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "payload");
 	public static final QName TYPE_Q = new QName("type");
 	public static final QName DEFAULT_Q = new QName("defaultValue");
@@ -49,6 +50,7 @@ public class PublishEventMediator extends AbstractMediator {
 	private List<Property> metaProperties = new ArrayList<Property>();
 	private List<Property> correlationProperties = new ArrayList<Property>();
 	private List<Property> payloadProperties = new ArrayList<Property>();
+	private List<Property> arbitraryProperties = new ArrayList<Property>();
 
 	/**
 	 *
@@ -113,6 +115,13 @@ public class PublishEventMediator extends AbstractMediator {
 		}
 		streamAttributesElement.addChild(payloadAttributesElement);
 
+		OMElement arbitrarynAttributesElement =
+				fac.createOMElement(PublishEventMediator.ARBITRARY_Q.getLocalPart(), synNS);
+		for (Property property : this.getArbitraryProperties()) {
+			arbitrarynAttributesElement.addChild(createElementForProperty(property));
+		}
+		streamAttributesElement.addChild(arbitrarynAttributesElement);
+
 		publishEventElement.addChild(streamAttributesElement);
 
 		if (parent != null) {
@@ -165,6 +174,12 @@ public class PublishEventMediator extends AbstractMediator {
 				Iterator<OMElement> iterator = payload.getChildrenWithName(ATTRIBUTE_Q);
 				List<Property> propertyList = generatePropertyList(iterator);
 				this.setPayloadProperties(propertyList);
+			}
+			OMElement arbitrary = attributes.getFirstChildWithName(ARBITRARY_Q);
+			if (arbitrary != null) {
+				Iterator<OMElement> iterator = payload.getChildrenWithName(ATTRIBUTE_Q);
+				List<Property> propertyList = generatePropertyList(iterator);
+				this.setArbitraryProperties(propertyList);
 			}
 		} else {
 			throw new SynapseException(ATTRIBUTES_Q.getLocalPart() + " attribute missing");
@@ -287,6 +302,10 @@ public class PublishEventMediator extends AbstractMediator {
 		return payloadProperties;
 	}
 
+	public List<Property> getArbitraryProperties() {
+		return arbitraryProperties;
+	}
+
 	public String getStreamName() {
 		return streamName;
 	}
@@ -313,6 +332,10 @@ public class PublishEventMediator extends AbstractMediator {
 
 	public void setPayloadProperties(List<Property> payloadProperties) {
 		this.payloadProperties = payloadProperties;
+	}
+
+	public void setArbitraryProperties(List<Property> arbitraryProperties) {
+		this.arbitraryProperties = arbitraryProperties;
 	}
 
 	public static QName getNameAttributeQ() {

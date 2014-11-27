@@ -46,6 +46,7 @@
     List<Property> mediatorMetaPropertyList = publishEventMediator.getMetaProperties();
     List<Property> mediatorCorrelationPropertyList = publishEventMediator.getCorrelationProperties();
     List<Property> mediatorPayloadPropertyList = publishEventMediator.getPayloadProperties();
+    List<Property> mediatorArbitraryPropertyList = publishEventMediator.getArbitraryProperties();
     NameSpacesRegistrar nameSpacesRegistrar = NameSpacesRegistrar.getInstance();
 
     nameSpacesRegistrar.registerNameSpaces(convertPropertyList(mediatorMetaPropertyList), "metaPropertyValue", session);
@@ -57,6 +58,7 @@
     String metaPropertyTableStyle = mediatorMetaPropertyList.isEmpty() ? "display:none;" : "";
     String correlationPropertyTableStyle = mediatorCorrelationPropertyList.isEmpty() ? "display:none;" : "";
     String payloadPropertyTableStyle = mediatorPayloadPropertyList.isEmpty() ? "display:none;" : "";
+    String arbitraryPropertyTableStyle = mediatorArbitraryPropertyList.isEmpty() ? "display:none;" : "";
 
 %>
 
@@ -151,13 +153,13 @@
     <td colspan="3"><h4><fmt:message key="mediator.publishEvent.meta.header"/></h4></td>
 </tr>
 
-<tr>
+<tr id="metapropertytable" style="<%=metaPropertyTableStyle%>;">
     <td>
 
 
         <div style="margin-top:0;">
 
-            <table id="metapropertytable" style="<%=metaPropertyTableStyle%>;" class="styledInner">
+            <table  class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -324,13 +326,13 @@
     <td colspan="3"><h4><fmt:message key="mediator.publishEvent.correlated.header"/></h4></td>
 </tr>
 
-<tr>
+<tr id="correlationpropertytable" style="<%=correlationPropertyTableStyle%>;">
     <td>
 
 
         <div style="margin-top:0;">
 
-            <table id="correlationpropertytable" style="<%=correlationPropertyTableStyle%>;" class="styledInner">
+            <table class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -496,13 +498,13 @@
     <td colspan="3"><h4><fmt:message key="mediator.publishEvent.payload.header"/></h4></td>
 </tr>
 
-<tr>
+<tr id="payloadpropertytable" style="<%=payloadPropertyTableStyle%>;">
     <td>
 
 
         <div style="margin-top:0;">
 
-            <table id="payloadpropertytable" style="<%=payloadPropertyTableStyle%>;" class="styledInner">
+            <table class="styledInner">
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
@@ -662,6 +664,151 @@
     </td>
 </tr>
 
+
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Arbitrary Attributes++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<tr>
+    <td colspan="3"><h4><fmt:message key="mediator.publishEvent.arbitrary.header"/></h4></td>
+</tr>
+
+<tr id="arbitrarypropertytable" style="<%=arbitraryPropertyTableStyle%>;">
+    <td>
+
+
+        <div style="margin-top:0;">
+
+            <table class="styledInner">
+                <thead>
+                <tr>
+                    <th width="15%"><fmt:message key="mediator.publishEvent.propertyName"/></th>
+                    <th width="10%"><fmt:message key="mediator.publishEvent.propertyValue"/></th>
+                    <th width="15%"><fmt:message key="mediator.publishEvent.propertyExp"/></th>
+                    <th id="arbitrary-ns-editor-th" style="display:none;" width="15%"><fmt:message
+                            key="mediator.publishEvent.nsEditor"/></th>
+                    <th width="10%"><fmt:message key="mediator.publishEvent.propertyValueType"/></th>
+                    <th><fmt:message key="mediator.publishEvent.action"/></th>
+                </tr>
+                </thead>
+                <tbody id="arbitrarypropertytbody">
+                <%
+                    i = 0;
+                    for (Property mp : mediatorArbitraryPropertyList) {
+                        if (mp != null) {
+                            String value = mp.getValue();
+                            String type = mp.getType();
+                            String pathValue;
+                            SynapseXPath path = mp.getExpression();
+                            if (path == null) {
+                                pathValue = "";
+                            } else {
+
+                                pathValue = path.toString();
+                            }
+                            boolean isLiteral = value != null && !"".equals(value);
+                %>
+                <tr id="arbitraryPropertyRaw<%=i%>">
+                    <td><input type="text" name="arbitraryPropertyName<%=i%>" id="arbitraryPropertyName<%=i%>"
+                               class="esb-edit small_textbox"
+                               value="<%=mp.getName()%>"/>
+                    </td>
+                    <td>
+                        <select class="esb-edit small_textbox" name="arbitraryPropertyTypeSelection<%=i%>"
+                                id="arbitraryPropertyTypeSelection<%=i%>"
+                                onchange="onArbitraryPropertyTypeSelectionChange('<%=i%>','<fmt:message
+                                        key="mediator.publishEvent.namespace"/>')">
+                            <% if (isLiteral) {%>
+                            <option value="literal">
+                                <fmt:message key="mediator.publishEvent.value"/>
+                            </option>
+                            <option value="expression">
+                                <fmt:message key="mediator.publishEvent.expression"/>
+                            </option>
+                            <%} else if (path != null) {%>
+                            <option value="expression">
+                                <fmt:message key="mediator.publishEvent.expression"/>
+                            </option>
+                            <option value="literal">
+                                <fmt:message key="mediator.publishEvent.value"/>
+                            </option>
+                            <%} else { %>
+                            <option value="literal">
+                                <fmt:message key="mediator.publishEvent.value"/>
+                            </option>
+                            <option value="expression">
+                                <fmt:message key="mediator.publishEvent.expression"/>
+                            </option>
+                            <% }%>
+                        </select>
+                    </td>
+                    <td>
+                        <% if (value != null && !"".equals(value)) {%>
+                        <input id="arbitraryPropertyValue<%=i%>" name="arbitraryPropertyValue<%=i%>" type="text"
+                               value="<%=value%>"
+                               class="esb-edit"/>
+                        <%} else if (path != null) {%>
+                        <input id="arbitraryPropertyValue<%=i%>" name="arbitraryPropertyValue<%=i%>" type="text"
+                               value="<%=pathValue%>" class="esb-edit"/>
+                        <%} else { %>
+                        <input id="arbitraryPropertyValue<%=i%>" name="arbitraryPropertyValue<%=i%>" type="text"
+                               class="esb-edit"/>
+                        <% }%>
+                    </td>
+                    <td id="arbitraryNsEditorButtonTD<%=i%>" style="<%=isLiteral?"display:none;":""%>">
+                        <% if (!isLiteral && path != null) {%>
+                        <script type="text/javascript">
+                            document.getElementById("arbitrary-ns-editor-th").style.display = "";
+                        </script>
+                        <a href="#nsEditorLink" class="nseditor-icon-link"
+                           style="padding-left:40px"
+                           onclick="showNameSpaceEditor('arbitraryPropertyValue<%=i%>')">
+                            <fmt:message key="mediator.publishEvent.namespace"/></a>
+                    </td>
+                    <%}%>
+                    <td>
+                        <select class="esb-edit small_textbox" name="arbitraryPropertyValueTypeSelection<%=i%>"
+                                id="arbitraryPropertyValueTypeSelection<%=i%>"
+                                onchange="onPropertyValueTypeSelectionChange('<%=i%>','<fmt:message
+                                        key="mediator.publishEvent.namespace"/>','arbitrary')">
+
+                            <option <% if (type.equals("STRING")) {
+                                out.print("selected");
+                            } %> value="STRING">
+                                <fmt:message key="mediator.publishEvent.type.string"/>
+                            </option>
+
+                        </select>
+                    </td>
+                    <td><a href="#" class="delete-icon-link"
+                           onclick="deleteArbitraryProperty(<%=i%>);return false;"><fmt:message
+                            key="mediator.publishEvent.delete"/></a></td>
+                </tr>
+                <% }
+                    i++;
+                } %>
+                <input type="hidden" name="arbitraryPropertyCount" id="arbitraryPropertyCount" value="<%=i%>"/>
+                <script type="text/javascript">
+                    if (isRemainPropertyExpressions('arbitrary')) {
+                        resetDisplayStyle("", 'arbitrary');
+                    }
+                </script>
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td>
+        <div style="margin-top:10px;">
+            <a name="addArbitraryNameLink"></a>
+            <a class="add-icon-link"
+               href="#addArbitraryNameLink"
+               onclick="addproperty('<fmt:message key="mediator.publishEvent.namespace"/>','<fmt:message
+                       key="mediator.publishEvent.propemptyerror"/>','<fmt:message
+                       key="mediator.publishEvent.valueemptyerror"/>','arbitrary')"><fmt:message
+                    key="mediator.publishEvent.addProperty"/></a>
+        </div>
+    </td>
+</tr>
 
 </tbody>
 </table>

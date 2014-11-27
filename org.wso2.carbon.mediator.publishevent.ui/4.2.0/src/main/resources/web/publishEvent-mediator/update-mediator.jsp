@@ -44,6 +44,7 @@
     publishEventMediator.clearList("meta");
     publishEventMediator.clearList("correlation ");
     publishEventMediator.clearList("payload");
+    publishEventMediator.clearList("arbitrary");
 
     XPathFactory xPathFactory = XPathFactory.getInstance();
     String metaPropertyCountParameter = request.getParameter("metaPropertyCount");
@@ -183,6 +184,54 @@
             }
 
             ((PublishEventMediator) mediator).setPayloadProperties(payloadProperties);
+        } catch (NumberFormatException ignored) {
+            throw new RuntimeException("Invalid number format");
+        } catch (Exception exception) {
+            throw new RuntimeException("Invalid Path Expression");
+        }
+    }
+
+    String arbitraryPropertyCountParameter = request.getParameter("arbitraryPropertyCount");
+    if (arbitraryPropertyCountParameter != null && !"".equals(arbitraryPropertyCountParameter)) {
+        Property currentProperty;
+        List<Property> arbitraryProperties = new ArrayList<Property>();
+
+        try {
+            int propertyCount = Integer.parseInt(arbitraryPropertyCountParameter.trim());
+            for (int i = 0; i <= propertyCount; i++) {
+                String name = request.getParameter("arbitraryPropertyName" + i);
+                if (name != null && !"".equals(name)) {
+                    String valueId = "arbitraryPropertyValue" + i;
+                    String value = request.getParameter(valueId);
+                    currentProperty = new Property();
+                    currentProperty.setName(name);
+
+                    String expression = request.getParameter("arbitraryPropertyTypeSelection" + i);
+                    boolean isExpression = expression != null && "expression".equals(expression.trim());
+
+                    if (value != null) {
+                        if (isExpression) {
+                            if (value.trim().startsWith("json-eval(")) {
+                                SynapseXPath jsonPath =
+                                        new SynapseXPath(value.trim().substring(10, value.length() - 1));
+                                currentProperty.setExpression(jsonPath);
+                            } else {
+                                currentProperty
+                                        .setExpression(xPathFactory.createSynapseXPath(valueId, value.trim(), session));
+                            }
+                        } else {
+                            currentProperty.setValue(value);
+                        }
+                    }
+
+                    String type = request.getParameter("arbitraryPropertyValueTypeSelection" + i);
+                    currentProperty.setType(type);
+
+                    arbitraryProperties.add(currentProperty);
+                }
+            }
+
+            ((PublishEventMediator) mediator).setArbitraryProperties(arbitraryProperties);
         } catch (NumberFormatException ignored) {
             throw new RuntimeException("Invalid number format");
         } catch (Exception exception) {
